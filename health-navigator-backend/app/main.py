@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from app.routers.health_check import router as health_check_router
 from app.routers.auth import router as auth_router
 from app.routers import drugs
+from app.models import user
 from app.models import user_medication
+from app.models import drug
 
 from app.core.database import Base, engine
 Base.metadata.create_all(bind=engine)
@@ -20,3 +22,4 @@ app.include_router(drugs.router)
 @app.get("/")
 def root():
     return {"message": "Health Navigator Backend is running"}
+
