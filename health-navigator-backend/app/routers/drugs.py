@@ -16,7 +16,7 @@ from app.schemas.drug import (
     DuplicateCheckResponse,
 )
 
-from app.services import drug_service
+from app.services import drug_service_db as drug_service
 
 
 router = APIRouter(
@@ -30,9 +30,11 @@ router = APIRouter(
     response_model=list[DrugSearchResponse],
     summary="기본 약품 목록 조회"
 )
-def get_drug_list(limit: int = 20):
-    return drug_service.get_drug_list(limit=limit)
-
+def get_drug_list(
+    limit: int = 20,
+    db: Session = Depends(get_db)
+):
+    return drug_service.get_drug_list(db=db, limit=limit)
 
 # =========================
 # 1. 약 검색
@@ -43,9 +45,11 @@ def get_drug_list(limit: int = 20):
     response_model=list[DrugSearchResponse],
     summary="약품 검색"
 )
-def search_drugs(q: str):
-    return drug_service.search_drugs(q)
-
+def search_drugs(
+    q: str,
+    db: Session = Depends(get_db)
+):
+    return drug_service.search_drugs(db=db, q=q)
 
 
 # =========================
@@ -57,12 +61,15 @@ def search_drugs(q: str):
     response_model=InteractionCheckResponse,
     summary="병용금기 검사"
 )
-def check_interaction(req: InteractionCheckRequest):
+def check_interaction(
+    req: InteractionCheckRequest,
+    db: Session = Depends(get_db)
+):
     return drug_service.check_interaction(
+        db=db,
         current_item_seqs=req.currentItemSeqs,
         new_item_seq=req.newItemSeq
     )
-
 
 # =========================
 # 3. 직접 중복복용 검사
@@ -73,12 +80,14 @@ def check_interaction(req: InteractionCheckRequest):
     response_model=DuplicateCheckResponse,
     summary="중복복용 검사"
 )
-def check_duplicate(req: DuplicateCheckRequest):
+def check_duplicate(
+    req: DuplicateCheckRequest,
+    db: Session = Depends(get_db)
+):
     return drug_service.check_duplicate(
+        db=db,
         item_seqs=req.itemSeqs
     )
-
-
 # =========================
 # 4. 내 복용약 목록 조회
 # =========================
@@ -214,9 +223,11 @@ def check_my_medication_duplicate(
     response_model=DrugDetailResponse,
     summary="약품 상세 조회"
 )
-def get_drug_detail(item_seq: str):
-    result = drug_service.get_drug_detail(item_seq)
-
+def get_drug_detail(
+    item_seq: str,
+    db: Session = Depends(get_db)
+):
+    result = drug_service.get_drug_detail(db=db, item_seq=item_seq)
     if result is None:
         raise HTTPException(
             status_code=404,
