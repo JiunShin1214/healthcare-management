@@ -6,3 +6,6 @@ python-dotenv
 pydantic
 pwdlib[argon2]
 python-jose
+sqlalchemy
+pymysql
+cryptography
