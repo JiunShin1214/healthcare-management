@@ -17,6 +17,12 @@ class DrugSearchResponse(BaseModel):
     imageUrl: Optional[str] = ""
 
 
+class DrugAutocompleteResponse(BaseModel):
+    itemSeq: str
+    itemName: str
+    entpName: Optional[str] = ""
+
+
 # =========================
 # 약 상세 조회
 # =========================

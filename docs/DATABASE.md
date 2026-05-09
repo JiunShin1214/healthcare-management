@@ -9,11 +9,14 @@
 ```mermaid
 erDiagram
     users ||--o{ user_medications : has
+    users ||--o{ health_check_results : has
     users {
         int id PK
         string email
         string password_hash
         string name
+        date birth_date
+        string gender
         timestamp created_at
     }
     user_medications {
@@ -24,6 +27,19 @@ erDiagram
         string entp_name
         text memo
         timestamp created_at
+    }
+    health_check_results {
+        int id PK
+        int user_id FK
+        text extracted_text
+        string parsing_status
+        json missing_fields
+        json data
+        json original_data
+        json edited_data
+        boolean is_edited
+        timestamp created_at
+        timestamp updated_at
     }
     drug_items {
         string item_seq PK
@@ -87,7 +103,11 @@ erDiagram
     }
 ```
 
+기존 MySQL 데이터베이스에 이미 `users` 테이블이 생성되어 있다면 SQLAlchemy `create_all`만으로 `birth_date`, `gender` 컬럼이 자동 추가되지는 않습니다. 기존 DB에는 별도 `ALTER TABLE` 적용 또는 테이블 재생성 절차가 필요합니다.
+
 의약품 관련 테이블은 SQLAlchemy `ForeignKey`로 직접 연결되어 있지는 않습니다. 서비스 로직에서 `item_seq`, `ingr_code`, `mixture_item_seq`, `mixture_ingr_code`, `atc_code`, `effect_name`, `sers_name` 값을 기준으로 조회와 비교를 수행합니다.
+
+건강검진 OCR 결과는 `health_check_results`에 저장합니다. 초기 구현은 OCR 결과 구조 변경에 대응하기 위해 건강검진 수치와 판정 결과 전체를 JSON에 저장합니다. 최초 OCR 파싱 결과는 `original_data`, 현재 최종 결과는 `data`, 수정 후 결과는 `edited_data`에 저장합니다. 특정 수치별 검색이나 통계가 필요해지면 주요 항목을 별도 컬럼으로 분리하는 방향을 검토합니다.
 
 ## Parquet 원본 데이터 적재
 

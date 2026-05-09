@@ -6,6 +6,13 @@ venv/
 .venv/
 
 
+AGENTS.md
+plan.md
+prompt.md
+todo.md
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

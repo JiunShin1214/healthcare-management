@@ -6,6 +6,7 @@ from app.routers.auth import get_current_user
 
 from app.schemas.drug import (
     DrugSearchResponse,
+    DrugAutocompleteResponse,
     DrugDetailResponse,
     MedicationCreateRequest,
     MedicationCheckRequest,
@@ -50,6 +51,19 @@ def search_drugs(
     db: Session = Depends(get_db)
 ):
     return drug_service.search_drugs(db=db, q=q)
+
+
+@router.get(
+    "/autocomplete",
+    response_model=list[DrugAutocompleteResponse],
+    summary="약품 검색 자동완성"
+)
+def autocomplete_drugs(
+    q: str,
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    return drug_service.autocomplete_drugs(db=db, q=q, limit=limit)
 
 
 # =========================

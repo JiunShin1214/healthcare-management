@@ -121,6 +121,41 @@ def search_drugs(db, q: str):
     ]
 
 
+def autocomplete_drugs(db, q: str, limit: int = 10):
+    q = q.strip()
+    limit = max(1, min(limit, 20))
+
+    if not q:
+        return []
+
+    rows = (
+        db.query(DrugItem)
+        .filter(DrugItem.cancel_name == "정상")
+        .filter(
+            or_(
+                DrugItem.item_name.like(f"%{q}%"),
+                DrugItem.item_seq.like(f"%{q}%"),
+            )
+        )
+        .order_by(
+            DrugItem.item_name.like(f"{q}%").desc(),
+            DrugItem.item_name.asc(),
+            DrugItem.item_seq.asc(),
+        )
+        .limit(limit)
+        .all()
+    )
+
+    return [
+        {
+            "itemSeq": clean_value(row.item_seq),
+            "itemName": clean_value(row.item_name),
+            "entpName": clean_value(row.entp_name),
+        }
+        for row in rows
+    ]
+
+
 # =========================
 # 3. 약 상세 조회
 # =========================
