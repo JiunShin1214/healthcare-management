@@ -5,6 +5,7 @@ from app.routers import drugs
 from app.models import user
 from app.models import user_medication
 from app.models import drug
+from app.models import health_check
 
 from app.core.database import Base, engine
 Base.metadata.create_all(bind=engine)
