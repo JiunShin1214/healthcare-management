@@ -1,7 +1,19 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
+from sqlalchemy.orm import Session
 import traceback
 
-from app.schemas.health_check import HealthCheckResponse
+from app.core.database import get_db
+from app.routers.auth import get_current_user
+from app.schemas.health_check import (
+    HealthCheckResponse,
+    HealthCheckResultCreate,
+    HealthCheckResultResponse,
+    HealthCheckResultUpdate,
+)
+from app.services.health_check_service import (
+    create_health_check_result,
+    update_health_check_result,
+)
 from app.services.ocr_service import call_clova_ocr
 from app.services.text_reconstructor import reconstruct_text_from_ocr_result
 from app.services.parser_service import parse_health_checkup
@@ -80,3 +92,51 @@ async def upload_health_check(file: UploadFile = File(...)):
             status_code=500,
             detail=f"OCR/파싱 처리 실패 단계={stage}: {str(e)}"
         )
+
+
+@router.post(
+    "/results",
+    response_model=HealthCheckResultResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="건강검진 OCR 결과 저장"
+)
+def save_health_check_result(
+    req: HealthCheckResultCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    return create_health_check_result(
+        db=db,
+        user_id=current_user.id,
+        result_data=req
+    )
+
+
+@router.patch(
+    "/results/{result_id}",
+    response_model=HealthCheckResultResponse,
+    summary="건강검진 OCR 결과 수정 및 재판정"
+)
+def edit_health_check_result(
+    result_id: int,
+    req: HealthCheckResultUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    try:
+        result = update_health_check_result(
+            db=db,
+            user_id=current_user.id,
+            result_id=result_id,
+            update_data=req
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail="건강검진 결과를 찾을 수 없습니다."
+        )
+
+    return result
