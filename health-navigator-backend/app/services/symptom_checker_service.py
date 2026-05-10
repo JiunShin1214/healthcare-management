@@ -113,6 +113,58 @@ COMMON_SYMPTOMS = [
 ]
 
 
+CONTEXT_OPTIONS = [
+    {
+        "code": "alcohol_yesterday",
+        "name": "전날 음주",
+        "category": "lifestyle",
+        "description": "전날 또는 최근 음주가 있었는지",
+    },
+    {
+        "code": "sleep_deprivation",
+        "name": "수면 부족",
+        "category": "lifestyle",
+        "description": "평소보다 잠을 적게 잤거나 수면 질이 나빴는지",
+    },
+    {
+        "code": "overeating",
+        "name": "과식",
+        "category": "lifestyle",
+        "description": "증상 전 과식하거나 기름진 음식을 많이 먹었는지",
+    },
+    {
+        "code": "recent_exercise",
+        "name": "최근 격한 운동",
+        "category": "lifestyle",
+        "description": "최근 평소보다 강한 운동이나 무리한 활동이 있었는지",
+    },
+    {
+        "code": "stress",
+        "name": "스트레스",
+        "category": "lifestyle",
+        "description": "최근 심리적 스트레스나 긴장이 컸는지",
+    },
+    {
+        "code": "sudden_onset",
+        "name": "갑작스러운 시작",
+        "category": "pattern",
+        "description": "증상이 갑자기 시작됐는지",
+    },
+    {
+        "code": "worsening",
+        "name": "점점 악화",
+        "category": "pattern",
+        "description": "시간이 지나며 증상이 더 심해지는지",
+    },
+    {
+        "code": "after_injury",
+        "name": "외상 후 발생",
+        "category": "pattern",
+        "description": "부딪힘, 넘어짐, 삐끗함 이후 증상이 생겼는지",
+    },
+]
+
+
 REGION_SYMPTOMS = {
     "head_face": COMMON_SYMPTOMS
     + [
@@ -173,6 +225,7 @@ REGION_SYMPTOMS = {
     "general": [
         {"code": "fever", "name": "발열", "supports_severity": True, "supports_duration": True},
         {"code": "fatigue", "name": "피로", "supports_severity": True, "supports_duration": True},
+        {"code": "dizziness", "name": "어지러움", "supports_severity": True, "supports_duration": True},
         {"code": "cough", "name": "기침", "supports_severity": True, "supports_duration": True},
         {"code": "sore_throat", "name": "인후통", "supports_severity": True, "supports_duration": True},
         {"code": "neck_stiffness", "name": "목 경직", "supports_severity": True, "supports_duration": True},
@@ -185,10 +238,12 @@ CONDITION_RULES = [
         "condition_code": "tension_headache",
         "condition_name": "긴장성 두통",
         "region": "head_face",
-        "symptoms": {"pain"},
-        "contexts": {"sleep_deprivation", "stress"},
+        "required_symptoms": {"pain"},
+        "optional_symptoms": {"dizziness"},
+        "boosting_contexts": {"sleep_deprivation", "stress"},
         "reasons": {
             "pain": "머리 통증",
+            "dizziness": "어지러움",
             "sleep_deprivation": "수면 부족",
             "stress": "스트레스",
         },
@@ -197,24 +252,85 @@ CONDITION_RULES = [
         "condition_code": "hangover_related_headache",
         "condition_name": "음주 후 두통",
         "region": "head_face",
-        "symptoms": {"pain", "nausea"},
-        "contexts": {"alcohol_yesterday", "sleep_deprivation"},
+        "required_symptoms": {"pain"},
+        "optional_symptoms": {"nausea", "dizziness"},
+        "boosting_contexts": {"alcohol_yesterday", "sleep_deprivation"},
         "reasons": {
             "pain": "머리 통증",
             "nausea": "메스꺼움",
+            "dizziness": "어지러움",
             "alcohol_yesterday": "전날 음주",
             "sleep_deprivation": "수면 부족",
+        },
+    },
+    {
+        "condition_code": "eye_irritation",
+        "condition_name": "눈 자극 또는 결막염 의심",
+        "region": "eye",
+        "required_symptoms": {"redness"},
+        "optional_symptoms": {"pain", "discharge", "swelling"},
+        "boosting_contexts": set(),
+        "reasons": {
+            "redness": "충혈",
+            "pain": "눈 통증",
+            "discharge": "분비물",
+            "swelling": "붓기",
+        },
+    },
+    {
+        "condition_code": "upper_respiratory_symptoms",
+        "condition_name": "상기도 감염 증상",
+        "region": "ear_nose_throat",
+        "required_symptoms": {"sore_throat"},
+        "optional_symptoms": {"nasal_congestion", "runny_nose", "pain"},
+        "boosting_contexts": set(),
+        "reasons": {
+            "sore_throat": "인후통",
+            "nasal_congestion": "코막힘",
+            "runny_nose": "콧물",
+            "pain": "통증",
+        },
+    },
+    {
+        "condition_code": "neck_shoulder_strain",
+        "condition_name": "목/어깨 근육 긴장",
+        "region": "neck_shoulder",
+        "required_symptoms": {"pain"},
+        "optional_symptoms": {"stiffness", "swelling"},
+        "boosting_contexts": {"recent_exercise", "stress"},
+        "reasons": {
+            "pain": "목/어깨 통증",
+            "stiffness": "뻣뻣함",
+            "swelling": "붓기",
+            "recent_exercise": "최근 격한 운동",
+            "stress": "스트레스",
+        },
+    },
+    {
+        "condition_code": "chest_wall_pain",
+        "condition_name": "흉벽 통증",
+        "region": "chest",
+        "required_symptoms": {"pain"},
+        "optional_symptoms": {"swelling"},
+        "boosting_contexts": {"after_injury", "recent_exercise"},
+        "reasons": {
+            "pain": "가슴 통증",
+            "swelling": "붓기",
+            "after_injury": "외상 후 발생",
+            "recent_exercise": "최근 격한 운동",
         },
     },
     {
         "condition_code": "indigestion",
         "condition_name": "소화불량",
         "region": "abdomen",
-        "symptoms": {"pain", "nausea"},
-        "contexts": {"overeating", "stress"},
+        "required_symptoms": {"pain"},
+        "optional_symptoms": {"nausea", "vomiting"},
+        "boosting_contexts": {"overeating", "stress"},
         "reasons": {
             "pain": "복부 통증",
             "nausea": "메스꺼움",
+            "vomiting": "구토",
             "overeating": "과식",
             "stress": "스트레스",
         },
@@ -223,48 +339,119 @@ CONDITION_RULES = [
         "condition_code": "gastroenteritis",
         "condition_name": "위장염",
         "region": "abdomen",
-        "symptoms": {"pain", "vomiting", "diarrhea"},
-        "contexts": set(),
+        "required_symptoms": {"diarrhea"},
+        "optional_symptoms": {"pain", "vomiting", "nausea"},
+        "boosting_contexts": set(),
         "reasons": {
             "pain": "복부 통증",
             "vomiting": "구토",
             "diarrhea": "설사",
+            "nausea": "메스꺼움",
+        },
+    },
+    {
+        "condition_code": "urinary_tract_symptoms",
+        "condition_name": "요로 관련 증상",
+        "region": "pelvis_urinary",
+        "required_symptoms": {"painful_urination"},
+        "optional_symptoms": {"frequent_urination", "pelvic_pain", "pain"},
+        "boosting_contexts": {"worsening"},
+        "reasons": {
+            "painful_urination": "배뇨통",
+            "frequent_urination": "빈뇨",
+            "pelvic_pain": "골반 통증",
+            "pain": "통증",
+            "worsening": "점점 악화",
         },
     },
     {
         "condition_code": "muscle_strain",
         "condition_name": "근육 긴장 또는 염좌",
         "region": "back_waist",
-        "symptoms": {"pain", "stiffness"},
-        "contexts": {"recent_exercise"},
+        "required_symptoms": {"pain"},
+        "optional_symptoms": {"stiffness", "numbness"},
+        "boosting_contexts": {"recent_exercise", "after_injury"},
         "reasons": {
             "pain": "등/허리 통증",
             "stiffness": "뻣뻣함",
+            "numbness": "저림",
             "recent_exercise": "최근 운동",
+            "after_injury": "외상 후 발생",
+        },
+    },
+    {
+        "condition_code": "upper_limb_overuse",
+        "condition_name": "팔/손 과사용 증상",
+        "region": "arm_hand",
+        "required_symptoms": {"pain"},
+        "optional_symptoms": {"numbness", "swelling", "weakness"},
+        "boosting_contexts": {"recent_exercise", "after_injury"},
+        "reasons": {
+            "pain": "팔/손 통증",
+            "numbness": "저림",
+            "swelling": "붓기",
+            "weakness": "힘 빠짐",
+            "recent_exercise": "최근 격한 운동",
+            "after_injury": "외상 후 발생",
+        },
+    },
+    {
+        "condition_code": "lower_limb_strain",
+        "condition_name": "다리/발 근육 또는 관절 부담",
+        "region": "leg_foot",
+        "required_symptoms": {"pain"},
+        "optional_symptoms": {"swelling", "numbness", "weakness"},
+        "boosting_contexts": {"recent_exercise", "after_injury"},
+        "reasons": {
+            "pain": "다리/발 통증",
+            "swelling": "붓기",
+            "numbness": "저림",
+            "weakness": "힘 빠짐",
+            "recent_exercise": "최근 격한 운동",
+            "after_injury": "외상 후 발생",
         },
     },
     {
         "condition_code": "dermatitis",
         "condition_name": "피부염",
         "region": "skin",
-        "symptoms": {"rash", "itching"},
-        "contexts": set(),
+        "required_symptoms": {"rash"},
+        "optional_symptoms": {"itching", "swelling"},
+        "boosting_contexts": set(),
         "reasons": {
             "rash": "발진",
             "itching": "가려움",
+            "swelling": "붓기",
         },
     },
     {
         "condition_code": "common_cold",
         "condition_name": "감기",
         "region": "general",
-        "symptoms": {"fever", "cough", "sore_throat", "fatigue"},
-        "contexts": set(),
+        "required_symptoms": {"cough"},
+        "optional_symptoms": {"fever", "sore_throat", "fatigue"},
+        "boosting_contexts": {"sleep_deprivation"},
         "reasons": {
             "fever": "발열",
             "cough": "기침",
             "sore_throat": "인후통",
             "fatigue": "피로",
+            "sleep_deprivation": "수면 부족",
+        },
+    },
+    {
+        "condition_code": "fatigue_related_symptoms",
+        "condition_name": "피로 관련 증상",
+        "region": "general",
+        "required_symptoms": {"fatigue"},
+        "optional_symptoms": {"dizziness", "fever"},
+        "boosting_contexts": {"sleep_deprivation", "stress"},
+        "reasons": {
+            "fatigue": "피로",
+            "dizziness": "어지러움",
+            "fever": "발열",
+            "sleep_deprivation": "수면 부족",
+            "stress": "스트레스",
         },
     },
 ]
@@ -272,6 +459,10 @@ CONDITION_RULES = [
 
 def get_body_regions():
     return BODY_REGIONS
+
+
+def get_context_options():
+    return CONTEXT_OPTIONS
 
 
 def get_region_options(region_id: str):
@@ -366,14 +557,19 @@ def _match_condition_candidates(body_region: str, symptom_codes: set[str], conte
         if rule["region"] != body_region:
             continue
 
-        matched_symptoms = symptom_codes & rule["symptoms"]
-        matched_contexts = contexts & rule["contexts"]
-        score = len(matched_symptoms) * 2 + len(matched_contexts)
+        required_symptoms = rule["required_symptoms"]
+        optional_symptoms = rule["optional_symptoms"]
+        boosting_contexts = rule["boosting_contexts"]
 
-        if score == 0:
+        matched_required = symptom_codes & required_symptoms
+        if not matched_required:
             continue
 
-        matched_keys = list(matched_symptoms) + list(matched_contexts)
+        matched_optional = symptom_codes & optional_symptoms
+        matched_contexts = contexts & boosting_contexts
+        score = len(matched_required) * 3 + len(matched_optional) * 2 + len(matched_contexts)
+
+        matched_keys = list(matched_required) + list(matched_optional) + list(matched_contexts)
         matched_reasons = [rule["reasons"][key] for key in matched_keys if key in rule["reasons"]]
 
         candidates.append(

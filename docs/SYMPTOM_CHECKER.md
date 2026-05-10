@@ -29,7 +29,7 @@
 - 강도: 1에서 10 사이 숫자
 - 기간: 시간 또는 일 단위
 - 양상: 갑작스러움, 반복 여부, 악화 여부
-- 생활 컨텍스트: 음주, 수면 부족, 과식, 운동, 스트레스, 복용약, 기저질환
+- 생활 컨텍스트와 양상: 1차 MVP에서는 `alcohol_yesterday`, `sleep_deprivation`, `overeating`, `recent_exercise`, `stress`, `sudden_onset`, `worsening`, `after_injury`를 사용한다.
 
 자연어 입력은 2차 확장으로 둡니다. 자연어를 받더라도 LLM은 진단자가 아니라 입력 구조화 보조 역할로 제한합니다.
 
@@ -101,6 +101,38 @@ GET /symptom-checker/body-regions/{region_id}/symptoms
 }
 ```
 
+### 컨텍스트 선택지
+
+```http
+GET /symptom-checker/contexts
+```
+
+응답 예시:
+
+```json
+[
+  {
+    "code": "sleep_deprivation",
+    "name": "수면 부족",
+    "category": "lifestyle",
+    "description": "평소보다 잠을 적게 잤거나 수면 질이 나빴는지"
+  }
+]
+```
+
+1차 MVP 컨텍스트는 다음 8개로 둡니다.
+
+| 코드 | 표시명 | 분류 | 역할 |
+| --- | --- | --- | --- |
+| `alcohol_yesterday` | 전날 음주 | lifestyle | 두통, 메스꺼움 등에서 후보 점수 보강 |
+| `sleep_deprivation` | 수면 부족 | lifestyle | 두통, 피로, 감기 관련 후보 점수 보강 |
+| `overeating` | 과식 | lifestyle | 복부 통증, 메스꺼움 관련 후보 점수 보강 |
+| `recent_exercise` | 최근 격한 운동 | lifestyle | 근육/관절 통증 후보 점수 보강 |
+| `stress` | 스트레스 | lifestyle | 두통, 소화불량, 피로 후보 점수 보강 |
+| `sudden_onset` | 갑작스러운 시작 | pattern | 심한 두통 등 위험 신호 판단에 사용 |
+| `worsening` | 점점 악화 | pattern | 증상 악화 맥락을 후보 이유에 반영 |
+| `after_injury` | 외상 후 발생 | pattern | 근육/관절/흉벽 통증 후보 점수 보강 |
+
 ### 질환 후보 평가
 
 ```http
@@ -162,6 +194,29 @@ POST /symptom-checker/assess
 
 1차 구현은 API 계약과 서비스 책임을 먼저 고정하고, DB 테이블 없이 서비스 내부의 구조화된 seed 데이터로 시작합니다. 실제 데이터는 데이터셋이 확정되면 DB 테이블 또는 import 데이터로 옮길 수 있게 유지합니다.
 
+## 질환 후보 룰 구조
+
+컨텍스트는 단독으로 질환 후보를 만들지 않고, 증상 매칭을 보강하는 역할로 제한합니다.
+
+```text
+condition_rule
+- region
+- required_symptoms
+- optional_symptoms
+- boosting_contexts
+- reasons
+```
+
+점수 계산은 1차 MVP에서 다음 기준을 사용합니다.
+
+| 항목 | 점수 |
+| --- | --- |
+| 필수 증상 매칭 | +3 |
+| 추가 증상 매칭 | +2 |
+| 컨텍스트 매칭 | +1 |
+
+필수 증상이 하나도 매칭되지 않으면 컨텍스트가 있어도 후보를 반환하지 않습니다. 예를 들어 `전날 음주`와 `수면 부족`이 선택되어도 두통이나 메스꺼움 같은 관련 증상이 없다면 `음주 후 두통` 후보는 생성하지 않습니다.
+
 ## DB 모델 후보
 
 - `body_regions`: 큰 부위 코드, 이름, 정렬 순서, 활성 여부
@@ -206,6 +261,6 @@ POST /symptom-checker/assess
 - 큰 부위 범주는 1차에서 12개로 고정한다.
 - 세부 부위 선택을 필수로 할지 선택으로 둘지.
 - 증상은 단일 선택인지 복수 선택인지.
-- 생활 컨텍스트를 1차 MVP에 포함할지, 2차 확장으로 둘지.
+- 생활 컨텍스트는 1차 MVP에 포함하되, 질환 후보를 단독 생성하지 않고 증상 후보 점수 보강과 위험 신호 판단에만 사용한다.
 - DB 테이블은 1차 구현에서 만들지 않고, 구조화된 seed 기반 API 골격을 먼저 사용한다.
 - 질환 후보 점수는 `low`, `medium`, `high` 같은 등급으로 줄지, 숫자 점수도 함께 줄지.

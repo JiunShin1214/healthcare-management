@@ -5,6 +5,7 @@ from app.schemas.symptom_checker import SymptomAssessRequest
 from app.services.symptom_checker_service import (
     assess_symptoms,
     get_body_regions,
+    get_context_options,
     get_region_options,
 )
 
@@ -50,6 +51,21 @@ def test_get_region_options_includes_new_specialized_categories():
     assert any(symptom["code"] == "painful_urination" for symptom in pelvis_options["symptoms"])
 
 
+def test_get_context_options_returns_mvp_context_codes():
+    context_codes = [context["code"] for context in get_context_options()]
+
+    assert context_codes == [
+        "alcohol_yesterday",
+        "sleep_deprivation",
+        "overeating",
+        "recent_exercise",
+        "stress",
+        "sudden_onset",
+        "worsening",
+        "after_injury",
+    ]
+
+
 def test_get_region_options_returns_none_for_unknown_region():
     assert get_region_options("unknown") is None
 
@@ -76,8 +92,45 @@ def test_assess_symptoms_returns_reference_candidates():
     assert response["disclaimer"] == "이 결과는 진단이 아닌 참고용 정보입니다."
     assert response["red_flags"] == []
     assert response["candidates"][0]["condition_code"] == "tension_headache"
-    assert response["candidates"][0]["confidence"] == "medium"
+    assert response["candidates"][0]["confidence"] == "high"
     assert "수면 부족" in response["candidates"][0]["matched_reasons"]
+
+
+def test_assess_symptoms_does_not_match_context_without_required_symptom():
+    request = SymptomAssessRequest(
+        body_region="head_face",
+        body_part="temple",
+        symptoms=[{"code": "nausea", "severity": 5}],
+        contexts={
+            "alcohol_yesterday": True,
+            "sleep_deprivation": True,
+        },
+    )
+
+    response = assess_symptoms(request)
+
+    assert response["candidates"] == []
+
+
+def test_assess_symptoms_uses_context_as_candidate_boost():
+    request_without_context = SymptomAssessRequest(
+        body_region="abdomen",
+        symptoms=[{"code": "pain", "severity": 5}],
+    )
+    request_with_context = SymptomAssessRequest(
+        body_region="abdomen",
+        symptoms=[{"code": "pain", "severity": 5}],
+        contexts={"overeating": True, "stress": True},
+    )
+
+    response_without_context = assess_symptoms(request_without_context)
+    response_with_context = assess_symptoms(request_with_context)
+
+    assert response_without_context["candidates"][0]["condition_code"] == "indigestion"
+    assert response_without_context["candidates"][0]["confidence"] == "medium"
+    assert response_with_context["candidates"][0]["condition_code"] == "indigestion"
+    assert response_with_context["candidates"][0]["confidence"] == "high"
+    assert "과식" in response_with_context["candidates"][0]["matched_reasons"]
 
 
 def test_assess_symptoms_prioritizes_red_flags():

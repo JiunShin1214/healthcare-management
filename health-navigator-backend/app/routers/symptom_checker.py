@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException
 from app.schemas.symptom_checker import (
     BodyRegionResponse,
     BodyRegionSymptomResponse,
+    ContextOptionResponse,
     SymptomAssessRequest,
     SymptomAssessResponse,
 )
@@ -22,6 +23,15 @@ router = APIRouter(
 )
 def get_body_regions():
     return symptom_checker_service.get_body_regions()
+
+
+@router.get(
+    "/contexts",
+    response_model=list[ContextOptionResponse],
+    summary="증상 평가에 사용할 컨텍스트 선택지 조회",
+)
+def get_context_options():
+    return symptom_checker_service.get_context_options()
 
 
 @router.get(
@@ -46,4 +56,3 @@ def assess_symptoms(req: SymptomAssessRequest):
     if result is None:
         raise HTTPException(status_code=404, detail="해당 부위를 찾을 수 없습니다.")
     return result
-

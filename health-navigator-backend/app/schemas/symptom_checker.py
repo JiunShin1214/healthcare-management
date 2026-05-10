@@ -24,6 +24,13 @@ class SymptomOptionResponse(BaseModel):
     supports_duration: bool = True
 
 
+class ContextOptionResponse(BaseModel):
+    code: str
+    name: str
+    category: str
+    description: str
+
+
 class BodyRegionSymptomResponse(BaseModel):
     region: BodyRegionResponse
     body_parts: List[BodyPartResponse]

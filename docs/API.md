@@ -22,6 +22,7 @@ http://localhost:8000/docs
 | POST | `/health-check/results` | 로그인 사용자 기준 OCR 결과 저장 |
 | PATCH | `/health-check/results/{result_id}` | 저장된 OCR 결과 수정 및 재판정 |
 | GET | `/symptom-checker/body-regions` | 인체 UI의 큰 부위 목록 조회 |
+| GET | `/symptom-checker/contexts` | 증상 평가에 사용할 컨텍스트 선택지 조회 |
 | GET | `/symptom-checker/body-regions/{region_id}/symptoms` | 특정 큰 부위의 세부 부위와 증상 선택지 조회 |
 | POST | `/symptom-checker/assess` | 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회 |
 | GET | `/drugs` | 의약품 목록 조회 |
@@ -45,6 +46,7 @@ endpoint는 다음과 같습니다.
 | Method | Endpoint | 설명 |
 | --- | --- | --- |
 | GET | `/symptom-checker/body-regions` | 인체 UI의 큰 부위 목록 조회 |
+| GET | `/symptom-checker/contexts` | 증상 평가에 사용할 컨텍스트 선택지 조회 |
 | GET | `/symptom-checker/body-regions/{region_id}/symptoms` | 특정 큰 부위의 세부 부위와 증상 선택지 조회 |
 | POST | `/symptom-checker/assess` | 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회 |
 

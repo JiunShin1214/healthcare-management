@@ -53,6 +53,7 @@ Flutter 화면에서 인체 UI의 특정 부위를 선택하면, 해당 부위�
 초기 API 후보는 다음과 같습니다.
 
 - `GET /symptom-checker/body-regions`
+- `GET /symptom-checker/contexts`
 - `GET /symptom-checker/body-regions/{region_id}/symptoms`
 - `POST /symptom-checker/assess`
 
