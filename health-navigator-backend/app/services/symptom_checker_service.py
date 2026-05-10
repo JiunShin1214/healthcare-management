@@ -1,0 +1,338 @@
+from app.schemas.symptom_checker import SymptomAssessRequest
+
+
+DISCLAIMER = "이 결과는 진단이 아닌 참고용 정보입니다."
+DEFAULT_ACTION = "증상이 지속되거나 악화되면 의료기관 상담을 권장합니다."
+URGENT_ACTION = "응급 신호일 수 있으므로 즉시 의료기관 또는 응급실 상담을 권장합니다."
+
+
+BODY_REGIONS = [
+    {"id": "head", "name": "머리", "display_order": 1},
+    {"id": "neck_shoulder", "name": "목/어깨", "display_order": 2},
+    {"id": "chest", "name": "가슴", "display_order": 3},
+    {"id": "abdomen", "name": "복부", "display_order": 4},
+    {"id": "back_waist", "name": "등/허리", "display_order": 5},
+    {"id": "arm_hand", "name": "팔/손", "display_order": 6},
+    {"id": "leg_foot", "name": "다리/발", "display_order": 7},
+    {"id": "skin", "name": "피부", "display_order": 8},
+    {"id": "general", "name": "전신", "display_order": 9},
+]
+
+
+BODY_PARTS = {
+    "head": [
+        {"id": "forehead", "name": "이마"},
+        {"id": "temple", "name": "관자놀이"},
+        {"id": "back_head", "name": "뒤통수"},
+        {"id": "eye_area", "name": "눈 주변"},
+    ],
+    "neck_shoulder": [
+        {"id": "neck", "name": "목"},
+        {"id": "shoulder", "name": "어깨"},
+    ],
+    "chest": [
+        {"id": "center_chest", "name": "가슴 중앙"},
+        {"id": "left_chest", "name": "왼쪽 가슴"},
+        {"id": "right_chest", "name": "오른쪽 가슴"},
+    ],
+    "abdomen": [
+        {"id": "upper_abdomen", "name": "윗배"},
+        {"id": "lower_abdomen", "name": "아랫배"},
+        {"id": "right_abdomen", "name": "오른쪽 복부"},
+    ],
+    "back_waist": [
+        {"id": "upper_back", "name": "등"},
+        {"id": "lower_back", "name": "허리"},
+    ],
+    "arm_hand": [
+        {"id": "arm", "name": "팔"},
+        {"id": "hand", "name": "손"},
+    ],
+    "leg_foot": [
+        {"id": "leg", "name": "다리"},
+        {"id": "foot", "name": "발"},
+    ],
+    "skin": [
+        {"id": "face_skin", "name": "얼굴 피부"},
+        {"id": "body_skin", "name": "몸 피부"},
+    ],
+    "general": [],
+}
+
+
+COMMON_SYMPTOMS = [
+    {"code": "pain", "name": "통증", "supports_severity": True, "supports_duration": True},
+    {"code": "numbness", "name": "저림", "supports_severity": True, "supports_duration": True},
+    {"code": "swelling", "name": "붓기", "supports_severity": True, "supports_duration": True},
+]
+
+
+REGION_SYMPTOMS = {
+    "head": COMMON_SYMPTOMS
+    + [
+        {"code": "dizziness", "name": "어지러움", "supports_severity": True, "supports_duration": True},
+        {"code": "nausea", "name": "메스꺼움", "supports_severity": True, "supports_duration": True},
+    ],
+    "neck_shoulder": COMMON_SYMPTOMS
+    + [
+        {"code": "stiffness", "name": "뻣뻣함", "supports_severity": True, "supports_duration": True},
+    ],
+    "chest": COMMON_SYMPTOMS
+    + [
+        {"code": "shortness_of_breath", "name": "호흡곤란", "supports_severity": True, "supports_duration": True},
+        {"code": "palpitation", "name": "두근거림", "supports_severity": True, "supports_duration": True},
+    ],
+    "abdomen": COMMON_SYMPTOMS
+    + [
+        {"code": "nausea", "name": "메스꺼움", "supports_severity": True, "supports_duration": True},
+        {"code": "vomiting", "name": "구토", "supports_severity": True, "supports_duration": True},
+        {"code": "diarrhea", "name": "설사", "supports_severity": True, "supports_duration": True},
+    ],
+    "back_waist": COMMON_SYMPTOMS
+    + [
+        {"code": "stiffness", "name": "뻣뻣함", "supports_severity": True, "supports_duration": True},
+    ],
+    "arm_hand": COMMON_SYMPTOMS
+    + [
+        {"code": "weakness", "name": "힘 빠짐", "supports_severity": True, "supports_duration": True},
+    ],
+    "leg_foot": COMMON_SYMPTOMS
+    + [
+        {"code": "weakness", "name": "힘 빠짐", "supports_severity": True, "supports_duration": True},
+    ],
+    "skin": [
+        {"code": "rash", "name": "발진", "supports_severity": True, "supports_duration": True},
+        {"code": "itching", "name": "가려움", "supports_severity": True, "supports_duration": True},
+        {"code": "swelling", "name": "붓기", "supports_severity": True, "supports_duration": True},
+    ],
+    "general": [
+        {"code": "fever", "name": "발열", "supports_severity": True, "supports_duration": True},
+        {"code": "fatigue", "name": "피로", "supports_severity": True, "supports_duration": True},
+        {"code": "cough", "name": "기침", "supports_severity": True, "supports_duration": True},
+        {"code": "sore_throat", "name": "인후통", "supports_severity": True, "supports_duration": True},
+        {"code": "neck_stiffness", "name": "목 경직", "supports_severity": True, "supports_duration": True},
+    ],
+}
+
+
+CONDITION_RULES = [
+    {
+        "condition_code": "tension_headache",
+        "condition_name": "긴장성 두통",
+        "region": "head",
+        "symptoms": {"pain"},
+        "contexts": {"sleep_deprivation", "stress"},
+        "reasons": {
+            "pain": "머리 통증",
+            "sleep_deprivation": "수면 부족",
+            "stress": "스트레스",
+        },
+    },
+    {
+        "condition_code": "hangover_related_headache",
+        "condition_name": "음주 후 두통",
+        "region": "head",
+        "symptoms": {"pain", "nausea"},
+        "contexts": {"alcohol_yesterday", "sleep_deprivation"},
+        "reasons": {
+            "pain": "머리 통증",
+            "nausea": "메스꺼움",
+            "alcohol_yesterday": "전날 음주",
+            "sleep_deprivation": "수면 부족",
+        },
+    },
+    {
+        "condition_code": "indigestion",
+        "condition_name": "소화불량",
+        "region": "abdomen",
+        "symptoms": {"pain", "nausea"},
+        "contexts": {"overeating", "stress"},
+        "reasons": {
+            "pain": "복부 통증",
+            "nausea": "메스꺼움",
+            "overeating": "과식",
+            "stress": "스트레스",
+        },
+    },
+    {
+        "condition_code": "gastroenteritis",
+        "condition_name": "위장염",
+        "region": "abdomen",
+        "symptoms": {"pain", "vomiting", "diarrhea"},
+        "contexts": set(),
+        "reasons": {
+            "pain": "복부 통증",
+            "vomiting": "구토",
+            "diarrhea": "설사",
+        },
+    },
+    {
+        "condition_code": "muscle_strain",
+        "condition_name": "근육 긴장 또는 염좌",
+        "region": "back_waist",
+        "symptoms": {"pain", "stiffness"},
+        "contexts": {"recent_exercise"},
+        "reasons": {
+            "pain": "등/허리 통증",
+            "stiffness": "뻣뻣함",
+            "recent_exercise": "최근 운동",
+        },
+    },
+    {
+        "condition_code": "dermatitis",
+        "condition_name": "피부염",
+        "region": "skin",
+        "symptoms": {"rash", "itching"},
+        "contexts": set(),
+        "reasons": {
+            "rash": "발진",
+            "itching": "가려움",
+        },
+    },
+    {
+        "condition_code": "common_cold",
+        "condition_name": "감기",
+        "region": "general",
+        "symptoms": {"fever", "cough", "sore_throat", "fatigue"},
+        "contexts": set(),
+        "reasons": {
+            "fever": "발열",
+            "cough": "기침",
+            "sore_throat": "인후통",
+            "fatigue": "피로",
+        },
+    },
+]
+
+
+def get_body_regions():
+    return BODY_REGIONS
+
+
+def get_region_options(region_id: str):
+    region = _find_region(region_id)
+    if region is None:
+        return None
+
+    return {
+        "region": region,
+        "body_parts": BODY_PARTS.get(region_id, []),
+        "symptoms": REGION_SYMPTOMS.get(region_id, []),
+    }
+
+
+def assess_symptoms(request: SymptomAssessRequest):
+    if _find_region(request.body_region) is None:
+        return None
+
+    symptom_codes = {symptom.code for symptom in request.symptoms}
+    active_contexts = {key for key, value in request.contexts.items() if value}
+    max_severity = max((symptom.severity or 0 for symptom in request.symptoms), default=0)
+
+    red_flags = _detect_red_flags(
+        body_region=request.body_region,
+        symptom_codes=symptom_codes,
+        contexts=active_contexts,
+        max_severity=max_severity,
+    )
+    candidates = _match_condition_candidates(
+        body_region=request.body_region,
+        symptom_codes=symptom_codes,
+        contexts=active_contexts,
+    )
+
+    return {
+        "disclaimer": DISCLAIMER,
+        "red_flags": red_flags,
+        "candidates": candidates,
+    }
+
+
+def _find_region(region_id: str):
+    return next((region for region in BODY_REGIONS if region["id"] == region_id), None)
+
+
+def _detect_red_flags(body_region: str, symptom_codes: set[str], contexts: set[str], max_severity: int):
+    red_flags = []
+
+    if body_region == "chest" and "pain" in symptom_codes and "shortness_of_breath" in symptom_codes:
+        red_flags.append(
+            {
+                "code": "chest_pain_with_breathing_difficulty",
+                "message": "가슴 통증과 호흡곤란이 함께 선택되었습니다.",
+                "suggested_action": URGENT_ACTION,
+            }
+        )
+
+    if body_region == "head" and "pain" in symptom_codes and (max_severity >= 9 or "sudden_onset" in contexts):
+        red_flags.append(
+            {
+                "code": "severe_or_sudden_headache",
+                "message": "갑작스럽거나 매우 심한 두통은 응급 평가가 필요할 수 있습니다.",
+                "suggested_action": URGENT_ACTION,
+            }
+        )
+
+    if "fever" in symptom_codes and "neck_stiffness" in symptom_codes:
+        red_flags.append(
+            {
+                "code": "fever_with_neck_stiffness",
+                "message": "발열과 목 경직이 함께 선택되었습니다.",
+                "suggested_action": URGENT_ACTION,
+            }
+        )
+
+    if "numbness" in symptom_codes and "weakness" in symptom_codes:
+        red_flags.append(
+            {
+                "code": "numbness_with_weakness",
+                "message": "저림과 힘 빠짐이 함께 선택되었습니다.",
+                "suggested_action": URGENT_ACTION,
+            }
+        )
+
+    return red_flags
+
+
+def _match_condition_candidates(body_region: str, symptom_codes: set[str], contexts: set[str]):
+    candidates = []
+
+    for rule in CONDITION_RULES:
+        if rule["region"] != body_region:
+            continue
+
+        matched_symptoms = symptom_codes & rule["symptoms"]
+        matched_contexts = contexts & rule["contexts"]
+        score = len(matched_symptoms) * 2 + len(matched_contexts)
+
+        if score == 0:
+            continue
+
+        matched_keys = list(matched_symptoms) + list(matched_contexts)
+        matched_reasons = [rule["reasons"][key] for key in matched_keys if key in rule["reasons"]]
+
+        candidates.append(
+            {
+                "condition_code": rule["condition_code"],
+                "condition_name": rule["condition_name"],
+                "confidence": _confidence_from_score(score),
+                "matched_reasons": matched_reasons,
+                "suggested_action": DEFAULT_ACTION,
+                "_score": score,
+            }
+        )
+
+    candidates.sort(key=lambda item: (-item["_score"], item["condition_name"]))
+    for candidate in candidates:
+        candidate.pop("_score", None)
+
+    return candidates[:5]
+
+
+def _confidence_from_score(score: int):
+    if score >= 5:
+        return "high"
+    if score >= 3:
+        return "medium"
+    return "low"
+

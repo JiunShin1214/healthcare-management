@@ -21,6 +21,9 @@ http://localhost:8000/docs
 | POST | `/health-check/ocr` | 건강검진표 OCR 및 파싱 |
 | POST | `/health-check/results` | 로그인 사용자 기준 OCR 결과 저장 |
 | PATCH | `/health-check/results/{result_id}` | 저장된 OCR 결과 수정 및 재판정 |
+| GET | `/symptom-checker/body-regions` | 인체 UI의 큰 부위 목록 조회 |
+| GET | `/symptom-checker/body-regions/{region_id}/symptoms` | 특정 큰 부위의 세부 부위와 증상 선택지 조회 |
+| POST | `/symptom-checker/assess` | 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회 |
 | GET | `/drugs` | 의약품 목록 조회 |
 | GET | `/drugs/autocomplete` | 의약품 검색 자동완성 |
 | GET | `/drugs/search` | 의약품 검색 |
@@ -32,6 +35,62 @@ http://localhost:8000/docs
 | DELETE | `/drugs/my-medications/{medication_id}` | 내 복용약 삭제 |
 | POST | `/drugs/my-medications/check-interaction` | 내 복용약 기준 병용금기 검사 |
 | POST | `/drugs/my-medications/check-duplicate` | 내 복용약 기준 중복 복용 검사 |
+
+## 인체 기반 증상 탐색 API 초안
+
+이 기능은 1차 API 골격이 구현된 상태입니다. 응답은 진단이나 처방이 아니라 `가능성 있는 질환 후보`와 `참고 정보`로 표현합니다.
+
+endpoint는 다음과 같습니다.
+
+| Method | Endpoint | 설명 |
+| --- | --- | --- |
+| GET | `/symptom-checker/body-regions` | 인체 UI의 큰 부위 목록 조회 |
+| GET | `/symptom-checker/body-regions/{region_id}/symptoms` | 특정 큰 부위의 세부 부위와 증상 선택지 조회 |
+| POST | `/symptom-checker/assess` | 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회 |
+
+평가 요청 예시는 다음과 같습니다.
+
+```json
+{
+  "body_region": "head",
+  "body_part": "temple",
+  "symptoms": [
+    {
+      "code": "pain",
+      "severity": 7,
+      "duration_hours": 12
+    }
+  ],
+  "contexts": {
+    "alcohol_yesterday": true,
+    "sleep_deprivation": true,
+    "overeating": false,
+    "stress": true
+  }
+}
+```
+
+응답 예시는 다음과 같습니다.
+
+```json
+{
+  "disclaimer": "이 결과는 진단이 아닌 참고용 정보입니다.",
+  "red_flags": [],
+  "candidates": [
+    {
+      "condition_code": "tension_headache",
+      "condition_name": "긴장성 두통",
+      "confidence": "medium",
+      "matched_reasons": [
+        "관자놀이 통증",
+        "수면 부족",
+        "스트레스"
+      ],
+      "suggested_action": "증상이 지속되거나 악화되면 의료기관 상담을 권장합니다."
+    }
+  ]
+}
+```
 
 ## 사용자 인증 응답 구조
 
