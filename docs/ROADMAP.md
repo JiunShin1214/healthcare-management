@@ -57,7 +57,7 @@ Flutter 화면에서 인체 UI의 특정 부위를 선택하면, 해당 부위�
 - `GET /symptom-checker/body-regions/{region_id}/symptoms`
 - `POST /symptom-checker/assess`
 
-자세한 설계 초안은 `docs/SYMPTOM_CHECKER.md`에 정리합니다.
+자세한 설계 초안은 `docs/SYMPTOM_CHECKER.md`에 정리합니다. 데이터셋 후보와 라이선스 검토는 `docs/SYMPTOM_CHECKER_DATASETS.md`에 분리합니다.
 
 ## ML/XAI 기반 건강 분석 확장
 
