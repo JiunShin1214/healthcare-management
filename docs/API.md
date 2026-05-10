@@ -52,7 +52,7 @@ endpoint는 다음과 같습니다.
 
 ```json
 {
-  "body_region": "head",
+  "body_region": "head_face",
   "body_part": "temple",
   "symptoms": [
     {

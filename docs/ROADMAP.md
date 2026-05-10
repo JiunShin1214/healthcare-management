@@ -48,6 +48,8 @@ Flutter 화면에서 인체 UI의 특정 부위를 선택하면, 해당 부위�
 
 1차 백엔드 방향은 `가능성 있는 질환 후보`와 `참고 정보`를 반환하는 API입니다. 확정 진단이나 처방은 제공하지 않으며, 위험 신호가 감지되면 후보 목록보다 의료기관 방문 안내를 우선합니다.
 
+인체 UI의 1차 큰 부위 범주는 `head_face`, `eye`, `ear_nose_throat`, `neck_shoulder`, `chest`, `abdomen`, `pelvis_urinary`, `back_waist`, `arm_hand`, `leg_foot`, `skin`, `general`의 12개로 고정합니다.
+
 초기 API 후보는 다음과 같습니다.
 
 - `GET /symptom-checker/body-regions`

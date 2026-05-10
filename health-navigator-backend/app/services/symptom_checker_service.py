@@ -7,56 +7,102 @@ URGENT_ACTION = "응급 신호일 수 있으므로 즉시 의료기관 또는 �
 
 
 BODY_REGIONS = [
-    {"id": "head", "name": "머리", "display_order": 1},
-    {"id": "neck_shoulder", "name": "목/어깨", "display_order": 2},
-    {"id": "chest", "name": "가슴", "display_order": 3},
-    {"id": "abdomen", "name": "복부", "display_order": 4},
-    {"id": "back_waist", "name": "등/허리", "display_order": 5},
-    {"id": "arm_hand", "name": "팔/손", "display_order": 6},
-    {"id": "leg_foot", "name": "다리/발", "display_order": 7},
-    {"id": "skin", "name": "피부", "display_order": 8},
-    {"id": "general", "name": "전신", "display_order": 9},
+    {"id": "head_face", "name": "머리/얼굴", "display_order": 1},
+    {"id": "eye", "name": "눈", "display_order": 2},
+    {"id": "ear_nose_throat", "name": "귀/코/목", "display_order": 3},
+    {"id": "neck_shoulder", "name": "목/어깨", "display_order": 4},
+    {"id": "chest", "name": "가슴", "display_order": 5},
+    {"id": "abdomen", "name": "복부", "display_order": 6},
+    {"id": "pelvis_urinary", "name": "골반/비뇨/생식", "display_order": 7},
+    {"id": "back_waist", "name": "등/허리", "display_order": 8},
+    {"id": "arm_hand", "name": "팔/손", "display_order": 9},
+    {"id": "leg_foot", "name": "다리/발", "display_order": 10},
+    {"id": "skin", "name": "피부", "display_order": 11},
+    {"id": "general", "name": "전신", "display_order": 12},
 ]
 
 
 BODY_PARTS = {
-    "head": [
+    "head_face": [
         {"id": "forehead", "name": "이마"},
         {"id": "temple", "name": "관자놀이"},
         {"id": "back_head", "name": "뒤통수"},
+        {"id": "face", "name": "얼굴"},
+        {"id": "jaw", "name": "턱"},
+    ],
+    "eye": [
+        {"id": "left_eye", "name": "왼쪽 눈"},
+        {"id": "right_eye", "name": "오른쪽 눈"},
+        {"id": "both_eyes", "name": "양쪽 눈"},
         {"id": "eye_area", "name": "눈 주변"},
     ],
+    "ear_nose_throat": [
+        {"id": "ear", "name": "귀"},
+        {"id": "nose", "name": "코"},
+        {"id": "throat", "name": "목/인후"},
+        {"id": "mouth_tongue", "name": "입/혀"},
+        {"id": "tonsil_area", "name": "편도 주변"},
+    ],
     "neck_shoulder": [
-        {"id": "neck", "name": "목"},
-        {"id": "shoulder", "name": "어깨"},
+        {"id": "front_neck", "name": "목 앞쪽"},
+        {"id": "back_neck", "name": "목 뒤쪽"},
+        {"id": "left_shoulder", "name": "왼쪽 어깨"},
+        {"id": "right_shoulder", "name": "오른쪽 어깨"},
+        {"id": "both_shoulders", "name": "양쪽 어깨"},
     ],
     "chest": [
         {"id": "center_chest", "name": "가슴 중앙"},
         {"id": "left_chest", "name": "왼쪽 가슴"},
         {"id": "right_chest", "name": "오른쪽 가슴"},
+        {"id": "rib_area", "name": "갈비뼈 주변"},
     ],
     "abdomen": [
         {"id": "upper_abdomen", "name": "윗배"},
         {"id": "lower_abdomen", "name": "아랫배"},
         {"id": "right_abdomen", "name": "오른쪽 복부"},
+        {"id": "left_abdomen", "name": "왼쪽 복부"},
+        {"id": "whole_abdomen", "name": "배 전체"},
+    ],
+    "pelvis_urinary": [
+        {"id": "pelvis", "name": "골반"},
+        {"id": "lower_center_abdomen", "name": "아랫배 중앙"},
+        {"id": "urination", "name": "배뇨 관련"},
+        {"id": "genital_area", "name": "생식기 주변"},
     ],
     "back_waist": [
-        {"id": "upper_back", "name": "등"},
+        {"id": "upper_back", "name": "등 위쪽"},
+        {"id": "middle_back", "name": "등 가운데"},
         {"id": "lower_back", "name": "허리"},
+        {"id": "tailbone_area", "name": "꼬리뼈 주변"},
     ],
     "arm_hand": [
         {"id": "arm", "name": "팔"},
+        {"id": "elbow", "name": "팔꿈치"},
+        {"id": "wrist", "name": "손목"},
         {"id": "hand", "name": "손"},
+        {"id": "finger", "name": "손가락"},
     ],
     "leg_foot": [
+        {"id": "thigh", "name": "허벅지"},
+        {"id": "knee", "name": "무릎"},
+        {"id": "calf", "name": "종아리"},
+        {"id": "ankle", "name": "발목"},
         {"id": "leg", "name": "다리"},
         {"id": "foot", "name": "발"},
+        {"id": "toe", "name": "발가락"},
     ],
     "skin": [
-        {"id": "face_skin", "name": "얼굴 피부"},
-        {"id": "body_skin", "name": "몸 피부"},
+        {"id": "localized_skin", "name": "특정 부위 피부"},
+        {"id": "whole_body_skin", "name": "전신 피부"},
+        {"id": "rash_area", "name": "두드러기/발진 부위"},
     ],
-    "general": [],
+    "general": [
+        {"id": "whole_body", "name": "전신"},
+        {"id": "fever_chill", "name": "발열/오한"},
+        {"id": "fatigue_sleep", "name": "피로/수면"},
+        {"id": "weight_change", "name": "체중 변화"},
+        {"id": "dizziness_general", "name": "어지러움"},
+    ],
 }
 
 
@@ -68,10 +114,23 @@ COMMON_SYMPTOMS = [
 
 
 REGION_SYMPTOMS = {
-    "head": COMMON_SYMPTOMS
+    "head_face": COMMON_SYMPTOMS
     + [
         {"code": "dizziness", "name": "어지러움", "supports_severity": True, "supports_duration": True},
         {"code": "nausea", "name": "메스꺼움", "supports_severity": True, "supports_duration": True},
+    ],
+    "eye": COMMON_SYMPTOMS
+    + [
+        {"code": "redness", "name": "충혈", "supports_severity": True, "supports_duration": True},
+        {"code": "vision_change", "name": "시야 변화", "supports_severity": True, "supports_duration": True},
+        {"code": "discharge", "name": "분비물", "supports_severity": True, "supports_duration": True},
+    ],
+    "ear_nose_throat": COMMON_SYMPTOMS
+    + [
+        {"code": "sore_throat", "name": "인후통", "supports_severity": True, "supports_duration": True},
+        {"code": "nasal_congestion", "name": "코막힘", "supports_severity": True, "supports_duration": True},
+        {"code": "runny_nose", "name": "콧물", "supports_severity": True, "supports_duration": True},
+        {"code": "hearing_change", "name": "청력 변화", "supports_severity": True, "supports_duration": True},
     ],
     "neck_shoulder": COMMON_SYMPTOMS
     + [
@@ -87,6 +146,12 @@ REGION_SYMPTOMS = {
         {"code": "nausea", "name": "메스꺼움", "supports_severity": True, "supports_duration": True},
         {"code": "vomiting", "name": "구토", "supports_severity": True, "supports_duration": True},
         {"code": "diarrhea", "name": "설사", "supports_severity": True, "supports_duration": True},
+    ],
+    "pelvis_urinary": COMMON_SYMPTOMS
+    + [
+        {"code": "frequent_urination", "name": "빈뇨", "supports_severity": True, "supports_duration": True},
+        {"code": "painful_urination", "name": "배뇨통", "supports_severity": True, "supports_duration": True},
+        {"code": "pelvic_pain", "name": "골반 통증", "supports_severity": True, "supports_duration": True},
     ],
     "back_waist": COMMON_SYMPTOMS
     + [
@@ -119,7 +184,7 @@ CONDITION_RULES = [
     {
         "condition_code": "tension_headache",
         "condition_name": "긴장성 두통",
-        "region": "head",
+        "region": "head_face",
         "symptoms": {"pain"},
         "contexts": {"sleep_deprivation", "stress"},
         "reasons": {
@@ -131,7 +196,7 @@ CONDITION_RULES = [
     {
         "condition_code": "hangover_related_headache",
         "condition_name": "음주 후 두통",
-        "region": "head",
+        "region": "head_face",
         "symptoms": {"pain", "nausea"},
         "contexts": {"alcohol_yesterday", "sleep_deprivation"},
         "reasons": {
@@ -264,7 +329,7 @@ def _detect_red_flags(body_region: str, symptom_codes: set[str], contexts: set[s
             }
         )
 
-    if body_region == "head" and "pain" in symptom_codes and (max_severity >= 9 or "sudden_onset" in contexts):
+    if body_region == "head_face" and "pain" in symptom_codes and (max_severity >= 9 or "sudden_onset" in contexts):
         red_flags.append(
             {
                 "code": "severe_or_sudden_headache",
@@ -335,4 +400,3 @@ def _confidence_from_score(score: int):
     if score >= 3:
         return "medium"
     return "low"
-

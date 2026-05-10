@@ -9,19 +9,45 @@ from app.services.symptom_checker_service import (
 )
 
 
-def test_get_body_regions_includes_head_and_abdomen():
+def test_get_body_regions_uses_confirmed_first_pass_categories():
     region_ids = [region["id"] for region in get_body_regions()]
 
-    assert "head" in region_ids
+    assert region_ids == [
+        "head_face",
+        "eye",
+        "ear_nose_throat",
+        "neck_shoulder",
+        "chest",
+        "abdomen",
+        "pelvis_urinary",
+        "back_waist",
+        "arm_hand",
+        "leg_foot",
+        "skin",
+        "general",
+    ]
     assert "abdomen" in region_ids
 
 
 def test_get_region_options_returns_body_parts_and_symptoms():
-    options = get_region_options("head")
+    options = get_region_options("head_face")
 
-    assert options["region"]["name"] == "머리"
+    assert options["region"]["name"] == "머리/얼굴"
     assert any(part["id"] == "temple" for part in options["body_parts"])
     assert any(symptom["code"] == "pain" for symptom in options["symptoms"])
+
+
+def test_get_region_options_includes_new_specialized_categories():
+    eye_options = get_region_options("eye")
+    ent_options = get_region_options("ear_nose_throat")
+    pelvis_options = get_region_options("pelvis_urinary")
+
+    assert any(part["id"] == "both_eyes" for part in eye_options["body_parts"])
+    assert any(symptom["code"] == "vision_change" for symptom in eye_options["symptoms"])
+    assert any(part["id"] == "throat" for part in ent_options["body_parts"])
+    assert any(symptom["code"] == "nasal_congestion" for symptom in ent_options["symptoms"])
+    assert any(part["id"] == "urination" for part in pelvis_options["body_parts"])
+    assert any(symptom["code"] == "painful_urination" for symptom in pelvis_options["symptoms"])
 
 
 def test_get_region_options_returns_none_for_unknown_region():
@@ -30,7 +56,7 @@ def test_get_region_options_returns_none_for_unknown_region():
 
 def test_assess_symptoms_returns_reference_candidates():
     request = SymptomAssessRequest(
-        body_region="head",
+        body_region="head_face",
         body_part="temple",
         symptoms=[
             {
@@ -81,7 +107,6 @@ def test_assess_symptoms_returns_none_for_unknown_region():
 def test_symptom_assess_request_rejects_empty_symptoms():
     with pytest.raises(ValidationError):
         SymptomAssessRequest(
-            body_region="head",
+            body_region="head_face",
             symptoms=[],
         )
-

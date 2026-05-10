@@ -23,7 +23,7 @@
 
 1차 입력은 선택형 중심으로 둡니다.
 
-- 큰 부위: 예시 `head`, `neck_shoulder`, `chest`, `abdomen`, `back_waist`, `arm_hand`, `leg_foot`, `skin`, `general`
+- 큰 부위: 1차 확정 범주 `head_face`, `eye`, `ear_nose_throat`, `neck_shoulder`, `chest`, `abdomen`, `pelvis_urinary`, `back_waist`, `arm_hand`, `leg_foot`, `skin`, `general`
 - 세부 부위: 예시 `temple`, `forehead`, `eye_area`, `lower_abdomen`
 - 증상: 예시 `pain`, `numbness`, `swelling`, `fever`, `dizziness`, `nausea`, `rash`
 - 강도: 1에서 10 사이 숫자
@@ -46,12 +46,29 @@ GET /symptom-checker/body-regions
 ```json
 [
   {
-    "id": "head",
-    "name": "머리",
+    "id": "head_face",
+    "name": "머리/얼굴",
     "display_order": 1
   }
 ]
 ```
+
+1차 큰 부위 범주는 다음 12개로 고정합니다.
+
+| 코드 | 표시명 |
+| --- | --- |
+| `head_face` | 머리/얼굴 |
+| `eye` | 눈 |
+| `ear_nose_throat` | 귀/코/목 |
+| `neck_shoulder` | 목/어깨 |
+| `chest` | 가슴 |
+| `abdomen` | 복부 |
+| `pelvis_urinary` | 골반/비뇨/생식 |
+| `back_waist` | 등/허리 |
+| `arm_hand` | 팔/손 |
+| `leg_foot` | 다리/발 |
+| `skin` | 피부 |
+| `general` | 전신 |
 
 ### 부위별 증상 목록
 
@@ -64,8 +81,8 @@ GET /symptom-checker/body-regions/{region_id}/symptoms
 ```json
 {
   "region": {
-    "id": "head",
-    "name": "머리"
+    "id": "head_face",
+    "name": "머리/얼굴"
   },
   "body_parts": [
     {
@@ -94,7 +111,7 @@ POST /symptom-checker/assess
 
 ```json
 {
-  "body_region": "head",
+  "body_region": "head_face",
   "body_part": "temple",
   "symptoms": [
     {
@@ -186,7 +203,7 @@ POST /symptom-checker/assess
 
 ## 구현 전 결정할 것
 
-- 큰 부위 범주를 1차에서 몇 개로 고정할지.
+- 큰 부위 범주는 1차에서 12개로 고정한다.
 - 세부 부위 선택을 필수로 할지 선택으로 둘지.
 - 증상은 단일 선택인지 복수 선택인지.
 - 생활 컨텍스트를 1차 MVP에 포함할지, 2차 확장으로 둘지.
