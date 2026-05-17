@@ -1,0 +1,461 @@
+[
+  {
+    "source_id": "cdc.heart_attack.symptoms",
+    "source": "CDC",
+    "title": "About Heart Attack Symptoms, Risk, and Recovery",
+    "url": "https://www.cdc.gov/heart-disease/about/heart-attack.html",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "CDC lists chest discomfort, shortness of breath, cold sweat, and jaw, neck, or back discomfort among heart attack warning signs."
+  },
+  {
+    "source_id": "aha.heart_attack.warning_signs",
+    "source": "American Heart Association",
+    "title": "Warning Signs of a Heart Attack",
+    "url": "https://www.heart.org/en/health-topics/heart-attack/warning-signs-of-a-heart-attack",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "AHA lists chest discomfort, shortness of breath, cold sweat, and pain or discomfort in the shoulder, back, or arm as warning signs."
+  },
+  {
+    "source_id": "nhlbi.pulmonary_embolism.symptoms",
+    "source": "NHLBI",
+    "title": "Venous Thromboembolism - Pulmonary Embolism",
+    "url": "https://www.nhlbi.nih.gov/health/pulmonary-embolism",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "NHLBI lists shortness of breath, pain with deep breathing, and coughing up blood among pulmonary embolism symptoms."
+  },
+  {
+    "source_id": "nhs.heart_attack.symptoms",
+    "source": "NHS",
+    "title": "Heart attack",
+    "url": "https://www.nhs.uk/conditions/heart-attack/",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "NHS lists chest pain that can feel crushing or squeezing, spread to the arm, neck, or jaw, shortness of breath, sweating, and immediate action signs."
+  },
+  {
+    "source_id": "cdc.anaphylaxis.recognition",
+    "source": "CDC",
+    "title": "Management of Anaphylaxis at COVID-19 Vaccination Sites",
+    "url": "https://www.cdc.gov/vaccines/covid-19/clinical-considerations/managing-anaphylaxis.html",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "CDC lists throat tightness, stridor, hoarseness, respiratory distress, shortness of breath or wheezing, trouble swallowing or drooling, and swelling of eyes, lips, tongue, mouth, or face among anaphylaxis signs."
+  },
+  {
+    "source_id": "nhs.anaphylaxis.symptoms",
+    "source": "NHS",
+    "title": "Anaphylaxis",
+    "url": "https://www.nhs.uk/conditions/anaphylaxis/",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "NHS lists throat or tongue swelling, difficulty breathing, difficulty swallowing, hoarse voice, wheezing, coughing, or noisy breathing as anaphylaxis symptoms or immediate action signs."
+  },
+  {
+    "source_id": "who.guillain_barre.symptoms",
+    "source": "WHO",
+    "title": "Guillain-Barre syndrome",
+    "url": "https://www.who.int/news-room/fact-sheets/detail/guillain-barr%C3%A9-syndrome",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "WHO describes weakness or tingling that can spread, possible breathing difficulty when chest muscles are affected, and speech or swallowing problems in severe cases."
+  },
+  {
+    "source_id": "cdc.stroke.signs",
+    "source": "CDC",
+    "title": "Signs and Symptoms of Stroke",
+    "url": "https://www.cdc.gov/stroke/signs-symptoms/",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "CDC lists sudden numbness or weakness on one side, sudden confusion or trouble speaking, sudden trouble seeing, sudden trouble walking or loss of balance, and sudden severe headache as stroke signs."
+  },
+  {
+    "source_id": "nice.subarachnoid_haemorrhage.thunderclap",
+    "source": "NICE",
+    "title": "Subarachnoid haemorrhage caused by a ruptured aneurysm: diagnosis and management",
+    "url": "https://www.nice.org.uk/guidance/ng228/chapter/Recommendations",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "NICE describes thunderclap headache, peaking within 1 to 5 minutes, as a red-flag symptom and recommends urgent assessment when suspected."
+  },
+  {
+    "source_id": "nice.headache.red_flags",
+    "source": "NICE",
+    "title": "Headaches in over 12s: diagnosis and management",
+    "url": "https://www.nice.org.uk/guidance/cg150/chapter/recommendations",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "NICE recommends evaluation and possible investigation or referral for headaches with sudden onset reaching maximum intensity within 5 minutes, new neurological deficit, cognitive dysfunction, impaired consciousness, or other red flags."
+  },
+  {
+    "source_id": "nhs.vision_loss.urgent",
+    "source": "NHS",
+    "title": "Vision loss",
+    "url": "https://www.nhs.uk/conditions/vision-loss/",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "NHS advises urgent help for changes in vision including flashing lights or dark shadows, and immediate action for sudden inability to see or sudden severe eye pain."
+  },
+  {
+    "source_id": "nei.retinal_detachment.symptoms",
+    "source": "National Eye Institute",
+    "title": "Retinal Detachment",
+    "url": "https://www.nei.nih.gov/eye-health-information/eye-conditions-and-diseases/retinal-detachment",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "NEI lists sudden increase in floaters, flashes of light, and a curtain or shadow over the field of vision as retinal detachment symptoms requiring prompt eye care."
+  },
+  {
+    "source_id": "aao.eyewiki.retinal_detachment.symptoms",
+    "source": "AAO EyeWiki",
+    "title": "Retinal Detachment",
+    "url": "https://eyewiki.aao.org/Retinal_Detachment",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "AAO EyeWiki describes sudden flashes, floaters, curtain or shadow over vision, and central vision loss as symptoms patients may report with retinal detachment."
+  },
+  {
+    "source_id": "nhs.meningitis.symptoms",
+    "source": "NHS",
+    "title": "Meningitis - Symptoms",
+    "url": "https://www.nhs.uk/conditions/meningitis/symptoms/",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "NHS lists high temperature, headache, stiff neck, dislike of bright lights, sleepiness or difficulty waking, seizures, and rapid worsening among meningitis or sepsis warning symptoms."
+  },
+  {
+    "source_id": "mayo.abdominal_pain.warning",
+    "source": "Mayo Clinic",
+    "title": "Abdominal pain - When to see a doctor",
+    "url": "https://www.mayoclinic.org/symptoms/abdominal-pain/basics/when-to-see-doctor/sym-20050728",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "Mayo Clinic advises immediate medical attention for abdominal pain with severe pain, fever, bloody stools, persistent nausea and vomiting, severe tenderness, or abdominal swelling."
+  },
+  {
+    "source_id": "mayo.nausea_vomiting.warning",
+    "source": "Mayo Clinic",
+    "title": "Nausea and vomiting - When to see a doctor",
+    "url": "https://www.mayoclinic.org/symptoms/nausea/basics/when-to-see-doctor/sym-20050736",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "Mayo Clinic advises prompt care for nausea and vomiting with severe abdominal pain, high fever and stiff neck, rectal bleeding, or vomit that contains blood or resembles coffee grounds."
+  },
+  {
+    "source_id": "cdc.concussion.danger_signs",
+    "source": "CDC",
+    "title": "Signs and Symptoms of Concussion",
+    "url": "https://www.cdc.gov/heads-up/signs-symptoms/index.html",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "CDC advises emergency care after a bump, blow, or jolt to the head when danger signs include seizures, repeated nausea or vomiting, increased confusion, inability to wake, slurred speech, weakness, numbness, or unequal pupils."
+  },
+  {
+    "source_id": "nhs.head_injury.danger_signs",
+    "source": "NHS",
+    "title": "Head injury and concussion",
+    "url": "https://www.nhs.uk/conditions/head-injury-and-concussion/",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "NHS advises urgent or emergency care after head injury with vomiting, ongoing headache, seizures, difficulty staying awake, numbness or weakness, vision or hearing problems, or problems with walking, balance, understanding, speaking, or writing."
+  },
+  {
+    "source_id": "mayo.fractures.first_aid",
+    "source": "Mayo Clinic",
+    "title": "Fractures (broken bones): First aid",
+    "url": "https://www.mayoclinic.org/first-aid/first-aid-fractures/basics/art-20056641",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "Mayo Clinic advises emergency help for major trauma, deformity, bone through skin, heavy bleeding, severe pain with gentle movement, and numb or discolored fingers or toes after injury."
+  },
+  {
+    "source_id": "medlineplus.reference_only.example",
+    "source": "MedlinePlus",
+    "title": "Reference-only health topic metadata",
+    "url": "https://medlineplus.gov/",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-15",
+    "claim_summary": "MedlinePlus links can support user-facing reference metadata but do not activate red flag rules."
+  },
+  {
+    "source_id": "medlineplus.migraine.reference",
+    "source": "MedlinePlus",
+    "title": "Migraine",
+    "url": "https://medlineplus.gov/migraine.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus migraine link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.common_cold.reference",
+    "source": "MedlinePlus",
+    "title": "Common Cold",
+    "url": "https://medlineplus.gov/commoncold.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus common cold link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.stomach_disorders.reference",
+    "source": "MedlinePlus",
+    "title": "Stomach Disorders",
+    "url": "https://medlineplus.gov/stomachdisorders.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus stomach disorders link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.allergic_rhinitis.reference",
+    "source": "MedlinePlus",
+    "title": "Allergic Rhinitis",
+    "url": "https://medlineplus.gov/ency/article/000813.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus allergic rhinitis link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.ear_infections.reference",
+    "source": "MedlinePlus",
+    "title": "Ear Infections",
+    "url": "https://medlineplus.gov/earinfections.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus ear infections link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.arrhythmia.reference",
+    "source": "MedlinePlus",
+    "title": "Arrhythmia",
+    "url": "https://medlineplus.gov/arrhythmia.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus arrhythmia link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.anemia.reference",
+    "source": "MedlinePlus",
+    "title": "Anemia",
+    "url": "https://medlineplus.gov/anemia.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus anemia link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.headache.reference",
+    "source": "MedlinePlus",
+    "title": "Headache",
+    "url": "https://medlineplus.gov/headache.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus headache link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.eye_infections.reference",
+    "source": "MedlinePlus",
+    "title": "Eye Infections",
+    "url": "https://medlineplus.gov/eyeinfections.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus eye infections link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.dry_eye.reference",
+    "source": "NIH MedlinePlus Magazine",
+    "title": "Dry eye: An overview",
+    "url": "https://magazine.medlineplus.gov/article/dry-eye-an-overview",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "NIH MedlinePlus Magazine dry eye link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.gastroenteritis.reference",
+    "source": "MedlinePlus",
+    "title": "Gastroenteritis",
+    "url": "https://medlineplus.gov/gastroenteritis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus gastroenteritis link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.skin_conditions.reference",
+    "source": "MedlinePlus",
+    "title": "Skin Conditions",
+    "url": "https://medlineplus.gov/skinconditions.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus skin conditions link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.viral_infections.reference",
+    "source": "MedlinePlus",
+    "title": "Viral Infections",
+    "url": "https://medlineplus.gov/viralinfections.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus viral infections link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.neck_disorders.reference",
+    "source": "MedlinePlus",
+    "title": "Neck Injuries and Disorders",
+    "url": "https://medlineplus.gov/neckdisordersandinjuries.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus neck injuries and disorders link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.chest_injuries.reference",
+    "source": "MedlinePlus",
+    "title": "Chest Injuries and Disorders",
+    "url": "https://medlineplus.gov/chestinjuriesanddisorders.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus chest injuries and disorders link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.urinary_tract_infections.reference",
+    "source": "MedlinePlus",
+    "title": "Urinary Tract Infections",
+    "url": "https://medlineplus.gov/urinarytractinfections.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus urinary tract infections link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.pelvic_inflammatory_disease.reference",
+    "source": "MedlinePlus",
+    "title": "Pelvic Inflammatory Disease",
+    "url": "https://medlineplus.gov/pelvicinflammatorydisease.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus pelvic inflammatory disease link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.pelvic_pain.reference",
+    "source": "MedlinePlus",
+    "title": "Pelvic Pain",
+    "url": "https://medlineplus.gov/pelvicpain.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus pelvic pain link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.back_injuries.reference",
+    "source": "MedlinePlus",
+    "title": "Back Injuries",
+    "url": "https://medlineplus.gov/backinjuries.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus back injuries link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.sprains_strains.reference",
+    "source": "MedlinePlus",
+    "title": "Sprains and Strains",
+    "url": "https://medlineplus.gov/sprainsandstrains.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus sprains and strains link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.tendinitis.reference",
+    "source": "MedlinePlus",
+    "title": "Tendinitis",
+    "url": "https://medlineplus.gov/tendinitis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus tendinitis link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.hives.reference",
+    "source": "MedlinePlus",
+    "title": "Hives",
+    "url": "https://medlineplus.gov/hives.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus hives link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.rotator_cuff.reference",
+    "source": "MedlinePlus",
+    "title": "Rotator Cuff Injuries",
+    "url": "https://medlineplus.gov/rotatorcuffinjuries.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus rotator cuff injuries link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.herniated_disk.reference",
+    "source": "MedlinePlus",
+    "title": "Herniated Disk",
+    "url": "https://medlineplus.gov/herniateddisk.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus herniated disk link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.sciatica.reference",
+    "source": "MedlinePlus",
+    "title": "Sciatica",
+    "url": "https://medlineplus.gov/sciatica.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus sciatica link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.carpal_tunnel.reference",
+    "source": "MedlinePlus",
+    "title": "Carpal Tunnel Syndrome",
+    "url": "https://medlineplus.gov/carpaltunnelsyndrome.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus carpal tunnel syndrome link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.hand_injuries.reference",
+    "source": "MedlinePlus",
+    "title": "Hand Injuries and Disorders",
+    "url": "https://medlineplus.gov/handinjuriesanddisorders.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus hand injuries and disorders link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.osteoarthritis.reference",
+    "source": "MedlinePlus",
+    "title": "Osteoarthritis",
+    "url": "https://medlineplus.gov/osteoarthritis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus osteoarthritis link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.knee_injuries.reference",
+    "source": "MedlinePlus",
+    "title": "Knee Injuries and Disorders",
+    "url": "https://medlineplus.gov/kneeinjuriesanddisorders.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus knee injuries and disorders link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.plantar_fasciitis.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Plantar fasciitis",
+    "url": "https://medlineplus.gov/ency/article/007021.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus Medical Encyclopedia plantar fasciitis link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.foot_injuries.reference",
+    "source": "MedlinePlus",
+    "title": "Foot Injuries and Disorders",
+    "url": "https://medlineplus.gov/footinjuriesanddisorders.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-16",
+    "claim_summary": "MedlinePlus foot injuries and disorders link is used as reference metadata for candidate explanations."
+  }
+]

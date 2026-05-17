@@ -1,0 +1,91 @@
+{
+  "source": "DDXPlus",
+  "baseline_type": "frequency",
+  "baseline_path": "app\\data\\processed\\ddxplus_frequency_baseline.json",
+  "approved_mapping_path": "app\\data\\processed\\ddxplus_approved_condition_mappings.json",
+  "evaluated_splits": [
+    {
+      "split": "release_validate_patients",
+      "total_rows": 132448,
+      "evaluated_rows": 32024,
+      "coverage_ratio": 0.24178545542401547,
+      "top_1_accuracy": 0.8831501373969523,
+      "top_3_accuracy": 0.9400137396952286,
+      "top_5_accuracy": 1.0,
+      "candidate_set_metrics": {
+        "candidate_set_size": 5,
+        "candidate_set_recall": 1.0,
+        "mean_expected_rank": 1.2853172620534599,
+        "mean_reciprocal_rank": 0.9184960238154514,
+        "primary_goal": "safe_explainable_candidate_set"
+      },
+      "baseline_usage_policy": {
+        "candidate_usage": "tie_break_only",
+        "condition_specific_exclusions": false,
+        "reason": "Avoid cherry-picking condition-level behavior from validation metrics."
+      },
+      "condition_metrics": [
+        {
+          "internal_condition_code": "allergic_rhinitis",
+          "rows": 2136,
+          "top_1_accuracy": 1.0,
+          "mean_expected_rank": 1.0,
+          "mean_reciprocal_rank": 1.0,
+          "review_note": "no_action_from_metric_alone"
+        },
+        {
+          "internal_condition_code": "anemia",
+          "rows": 6903,
+          "top_1_accuracy": 1.0,
+          "mean_expected_rank": 1.0,
+          "mean_reciprocal_rank": 1.0,
+          "review_note": "no_action_from_metric_alone"
+        },
+        {
+          "internal_condition_code": "arrhythmia_candidate",
+          "rows": 2609,
+          "top_1_accuracy": 1.0,
+          "mean_expected_rank": 1.0,
+          "mean_reciprocal_rank": 1.0,
+          "review_note": "no_action_from_metric_alone"
+        },
+        {
+          "internal_condition_code": "common_cold",
+          "rows": 8656,
+          "top_1_accuracy": 0.9690388170055453,
+          "mean_expected_rank": 1.0309611829944547,
+          "mean_reciprocal_rank": 0.9845194085027726,
+          "review_note": "no_action_from_metric_alone"
+        },
+        {
+          "internal_condition_code": "otitis_media",
+          "rows": 3474,
+          "top_1_accuracy": 0.0,
+          "mean_expected_rank": 3.552964881980426,
+          "mean_reciprocal_rank": 0.28725292650163775,
+          "review_note": "needs_mapping_review"
+        },
+        {
+          "internal_condition_code": "upper_respiratory_infection",
+          "rows": 8246,
+          "top_1_accuracy": 1.0,
+          "mean_expected_rank": 1.0,
+          "mean_reciprocal_rank": 1.0,
+          "review_note": "no_action_from_metric_alone"
+        }
+      ]
+    }
+  ],
+  "evaluation_policy": {
+    "default_splits": [
+      "validate"
+    ],
+    "test_split_usage": "final_evaluation_only",
+    "do_not_tune_with_test": true
+  },
+  "usage_policy": {
+    "candidate_ranking_only": true,
+    "red_flag_usage": false,
+    "requires_human_review_before_service_integration": true
+  }
+}

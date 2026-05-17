@@ -1,0 +1,44 @@
+{
+  "goal": "safe_explainable_candidate_set",
+  "non_goal": "single_best_diagnosis_or_treatment_recommendation",
+  "source": "DDXPlus",
+  "allowed_usage": {
+    "candidate_support_metadata": true,
+    "candidate_ranking_tie_break": true,
+    "red_flag_generation": false,
+    "red_flag_severity": false,
+    "confidence_upgrade_to_high": false
+  },
+  "split_policy": {
+    "train": "build_frequency_baseline_or_train_model",
+    "validate": "review_mapping_quality_and_tune_predefined_global_parameters_only",
+    "test": "final_reporting_only"
+  },
+  "condition_mapping_approval_criteria": [
+    "DDXPlus condition name is a direct synonym of the internal condition candidate category.",
+    "DDXPlus ICD metadata is clinically consistent with the internal condition candidate category.",
+    "The internal candidate category is not materially broader or narrower than the DDXPlus condition.",
+    "The mapping can be justified without using validate/test performance."
+  ],
+  "condition_mapping_rejection_criteria": [
+    "The mapping is only a loose clinical neighborhood.",
+    "The internal candidate combines multiple conditions that cannot be fairly represented by one DDXPlus pathology.",
+    "The mapping would change or imply red flag behavior.",
+    "The mapping was selected because it improves validate/test metrics."
+  ],
+  "evidence_mapping_approval_criteria": [
+    "DDXPlus question meaning directly matches an internal symptom_code or context_code.",
+    "Value-coded evidence is mapped only when the value meaning is reviewed.",
+    "Antecedent evidence is not treated as a current symptom unless the question explicitly describes a current symptom.",
+    "The mapping can be justified without using validate/test performance."
+  ],
+  "overfitting_controls": [
+    "Do not reshape symptoms, contexts, candidates, or red flags just to improve DDXPlus metrics.",
+    "Parameter tuning is allowed only for predefined global parameters with clinical or UX rationale.",
+    "Do not add condition-specific exceptions based on train/validate/test performance.",
+    "Do not approve or reject mappings based on test metrics.",
+    "Do not exclude individual approved conditions based only on validate performance.",
+    "Record low validate performance as needs_mapping_review, not as a service exclusion.",
+    "Use test split only with an explicit final-evaluation command option."
+  ]
+}
