@@ -8,7 +8,7 @@ ConfidenceLevel = Literal["low", "medium", "high"]
 Gender = Literal["male", "female"]
 ProfileSource = Literal["request", "authenticated_user"]
 ContextUsage = Literal["candidate_boost", "red_flag", "explanation_context"]
-RuleStrength = Literal["weak", "medium", "strong"]
+RuleStrength = Literal["weak", "medium", "strong", "review"]
 MatchedReasonType = Literal["required_symptom", "optional_symptom", "boosting_context"]
 RedFlagSeverity = Literal["urgent", "emergency"]
 ExternalSourceType = Literal["bodhi_s", "ddxplus", "medlineplus", "hpo", "manual_seed"]
@@ -37,6 +37,29 @@ class BodyRegionResponse(BaseModel):
 class BodyPartResponse(BaseModel):
     id: str
     name: str
+
+
+class AnatomyClinicalRegionResponse(BodyRegionResponse):
+    pass
+
+
+class AnatomySelectablePartResponse(BaseModel):
+    id: str
+    name: str
+    meaning: Optional[str] = None
+    body_region_id: str
+    body_part_id: str
+    symptom_endpoint: str
+    context_guide_endpoint: str
+
+
+class AnatomyAreaResponse(BaseModel):
+    id: str
+    name: str
+    display_order: int
+    surface: Literal["front", "back", "both", "whole"]
+    clinical_regions: List[AnatomyClinicalRegionResponse]
+    selectable_parts: List[AnatomySelectablePartResponse]
 
 
 class SymptomOptionResponse(BaseModel):
@@ -86,6 +109,9 @@ class FollowUpQuestionResponse(BaseModel):
 
 class ContextGuideResponse(BaseModel):
     region_id: str
+    body_part_id: Optional[str] = None
+    context_scope: Literal["region", "body_part"] = "region"
+    fallback_to_region_context: bool = False
     quick_contexts: List[ContextOptionResponse]
     context_chips: List[ContextChipResponse]
     free_text_sections: List[GuidedFreeTextSectionResponse]
@@ -193,6 +219,19 @@ class SymptomStructureRequest(BaseModel):
         return value
 
 
+class SymptomAssessmentDraftRequest(SymptomStructureRequest):
+    body_part: Optional[str] = None
+    default_severity: Optional[int] = Field(default=None, ge=1, le=10)
+    default_duration_hours: Optional[int] = Field(default=None, ge=0)
+
+    @field_validator("body_part")
+    @classmethod
+    def body_part_cannot_be_blank(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None and not value.strip():
+            raise ValueError("빈 문자열은 사용할 수 없습니다.")
+        return value
+
+
 class RejectedStructuredInputResponse(BaseModel):
     body_region: Optional[str] = None
     symptom_candidates: List[str] = Field(default_factory=list)
@@ -217,6 +256,24 @@ class SymptomStructureResponse(BaseModel):
     ignored_judgment_fields: List[str] = Field(default_factory=list)
     judgment_fields_ignored: bool = True
     final_judgment_performed: bool = False
+
+
+class SymptomAssessmentDraftResponse(BaseModel):
+    source: StructuredInputSource
+    body_region: Optional[str] = None
+    body_part: Optional[str] = None
+    symptoms: List[SymptomInput]
+    contexts: Dict[str, bool]
+    additional_context: AdditionalContextInput
+    rejected: RejectedStructuredInputResponse
+    rejection_reasons: StructuredInputRejectionReasonResponse = Field(
+        default_factory=StructuredInputRejectionReasonResponse
+    )
+    ignored_judgment_fields: List[str] = Field(default_factory=list)
+    judgment_fields_ignored: bool = True
+    final_judgment_performed: bool = False
+    ready_for_assessment: bool
+    missing_required_fields: List[str] = Field(default_factory=list)
 
 
 class StructuredProviderMetadata(BaseModel):
@@ -318,17 +375,54 @@ class ConditionCandidateResponse(BaseModel):
     dataset_support: Optional[DatasetSupportResponse] = None
 
 
+class PossibleConditionCandidateResponse(BaseModel):
+    rule_id: str
+    condition_code: str
+    condition_name: str
+    matched_evidence: List[str] = Field(default_factory=list)
+    missing_required_symptoms: List[str] = Field(default_factory=list)
+    missing_evidence_questions: List[str] = Field(default_factory=list)
+    reason: str
+
+
 class AssessmentProfileResponse(BaseModel):
     gender: Gender
     birth_date: date
     source: ProfileSource
+    age: int
+
+
+class AssessmentInputAnalysisResponse(BaseModel):
+    body_region: str
+    body_part: Optional[str] = None
+    selected_symptom_codes: List[str]
+    selected_context_codes: List[str]
+    free_text: Optional[str] = None
+    free_text_symptom_candidates: List[str] = Field(default_factory=list)
+    free_text_context_candidates: List[str] = Field(default_factory=list)
+    merged_symptom_codes: List[str]
+    merged_context_codes: List[str]
+    free_text_used_for_candidate_matching: bool = False
+
+
+class CandidateGenerationMetadataResponse(BaseModel):
+    mode: Literal["reviewed_rule_based_candidate_ranking"] = "reviewed_rule_based_candidate_ranking"
+    source_layers: List[str] = Field(default_factory=list)
+    ddxplus_usage: Literal["approved_frequency_tie_break_only"] = "approved_frequency_tie_break_only"
+    rag_usage: Literal["explanation_only_not_judgment"] = "explanation_only_not_judgment"
+    explain_endpoint: str = "/symptom-checker/explain"
+    judgment_mutation_allowed_by_rag: bool = False
 
 
 class SymptomAssessResponse(BaseModel):
     disclaimer: str
     profile: AssessmentProfileResponse
+    input_analysis: AssessmentInputAnalysisResponse
+    candidate_generation: CandidateGenerationMetadataResponse
     red_flags: List[RedFlagResponse]
     candidates: List[ConditionCandidateResponse]
+    possible_candidates: List[PossibleConditionCandidateResponse] = Field(default_factory=list)
+    missing_evidence_questions: List[str] = Field(default_factory=list)
 
 
 class SymptomExplanationItemResponse(BaseModel):
@@ -366,3 +460,11 @@ class SymptomExplainResponse(BaseModel):
     safety: SymptomExplainSafetyResponse
     generated_summary_ko: Optional[str] = None
     provider_metadata: StructuredProviderMetadata = Field(default_factory=StructuredProviderMetadata)
+
+
+class SymptomAssessWithExplanationResponse(SymptomAssessResponse):
+    explanations: List[SymptomExplanationItemResponse] = Field(default_factory=list)
+    explanation_safety: SymptomExplainSafetyResponse = Field(default_factory=SymptomExplainSafetyResponse)
+    generated_summary_ko: Optional[str] = None
+    provider_metadata: StructuredProviderMetadata = Field(default_factory=StructuredProviderMetadata)
+

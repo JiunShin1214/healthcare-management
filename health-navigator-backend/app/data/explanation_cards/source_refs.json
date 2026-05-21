@@ -457,5 +457,23 @@
     "usage_policy": "restricted/reference_only",
     "accessed_at": "2026-05-16",
     "claim_summary": "MedlinePlus foot injuries and disorders link is used as reference metadata for candidate explanations."
+  },
+  {
+    "source_id": "cdc.asthma.about.reference",
+    "source": "CDC",
+    "title": "About Asthma",
+    "url": "https://www.cdc.gov/asthma/about/index.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-21",
+    "claim_summary": "CDC asthma page is used as reference metadata for cough, wheezing, breathlessness, and asthma attack symptom context."
+  },
+  {
+    "source_id": "medlineplus.wheezing.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Wheezing",
+    "url": "https://medlineplus.gov/ency/article/003070.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-21",
+    "claim_summary": "MedlinePlus wheezing page is used as reference metadata for breathing-tube wheezing and related respiratory candidate explanations."
   }
 ]

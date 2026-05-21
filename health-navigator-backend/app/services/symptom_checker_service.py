@@ -1,8 +1,16 @@
-import json
+﻿import json
 from pathlib import Path
 from typing import Protocol
+from datetime import date
 
 from app.core.config import (
+    MEDICAL_BERT_MODEL_DIR,
+    MEDICAL_BERT_MODEL_ID,
+    MEDICAL_BERT_SCORE_THRESHOLD,
+    MEDICAL_BERT_STRUCTURE_ENABLED,
+    RAG_EMBEDDING_CACHE_DIR,
+    RAG_EMBEDDING_MODEL_NAME,
+    RAG_VECTOR_SEARCH_ENABLED,
     SYMPTOM_STRUCTURE_MODEL_ID,
     SYMPTOM_STRUCTURE_PROVIDER_ENABLED,
     SYMPTOM_STRUCTURE_PROVIDER_NAME,
@@ -14,6 +22,7 @@ from app.schemas.symptom_checker import (
     SymptomExplainRequest,
     SymptomStructureRequest,
 )
+from app.services.explanation_vector_store import search_explanation_documents
 
 
 DISCLAIMER = "이 결과는 진단이 아닌 참고용 정보입니다."
@@ -37,61 +46,153 @@ DEFAULT_RED_FLAG_REVIEW_METADATA = {
     "review_status": "reviewed",
     "last_reviewed_at": DEFAULT_REVIEWED_AT,
 }
+_RAG_EMBEDDING_MODEL = None
 STRUCTURED_INPUT_SOURCES = {"llm", "medical_bert", "alias_dictionary", "manual"}
 MAX_STRUCTURED_SYMPTOM_CANDIDATES = 5
 MAX_STRUCTURED_CONTEXT_CANDIDATES = 10
+STRUCTURE_PROVIDER_ALLOWED_OUTPUT_FIELDS = (
+    "body_region",
+    "symptom_candidates",
+    "context_candidates",
+)
+STRUCTURE_PROVIDER_FORBIDDEN_JUDGMENT_FIELDS = (
+    "condition_candidates",
+    "red_flags",
+    "confidence",
+    "severity",
+    "diagnosis",
+    "treatment",
+)
 MAX_EXPLANATION_RAG_CARDS = 6
 MAX_EXPLANATION_RAG_SOURCES = 8
 MAX_EXPLANATION_FIELD_CHARS = 500
 MAX_PROVIDER_GENERATED_SUMMARY_CHARS = 700
 BODY_REGION_ALIAS_HINTS = {
-    "chest": ["가슴", "흉부", "흉통", "숨참", "숨이 차", "호흡곤란"],
-    "head_face": ["머리", "두통", "얼굴"],
-    "eye": ["눈", "시야", "시력"],
-    "abdomen": ["배", "복부", "복통"],
-    "ear_nose_throat": ["귀", "코", "목", "인후통"],
-    "arm_hand": ["팔", "손", "손목", "손가락"],
+    "chest": ["가슴", "가슴이", "흉부", "흉통", "심장", "두근", "숨참", "숨이 차", "숨쉬기 힘", "숨 쉬기 힘", "호흡곤란"],
+    "head_face": ["머리", "머리가", "두통", "얼굴"],
+    "eye": ["눈", "눈이", "눈앞", "눈 주변", "안구", "시야", "시력"],
+    "abdomen": ["배가", "배에", "복부", "복통", "속이", "구토", "설사", "울렁", "더부룩"],
+    "ear_nose_throat": [
+        "귀",
+        "귀가",
+        "귀 안",
+        "귀 안쪽",
+        "귓속",
+        "귓구멍",
+        "코",
+        "코가",
+        "콧물",
+        "코막힘",
+        "목",
+        "목 안",
+        "목구멍",
+        "목소리",
+        "삼키기",
+        "인후통",
+    ],
+    "arm_hand": ["팔", "팔이", "팔에", "손", "손이", "손끝", "한쪽 손", "손목", "손목이", "손가락", "손가락이"],
     "leg_foot": ["다리", "발", "무릎", "발목"],
+    "pelvis_urinary": ["소변", "배뇨", "골반", "아랫배", "하복부", "방광"],
+    "neck_shoulder": ["어깨", "뒷목", "목덜미", "목/어깨"],
+    "general": ["온몸", "전신", "무기력", "피곤", "열이", "열과", "발열", "오한", "어지럽", "기침"],
+    "skin": ["피부", "두드러기", "발진"],
 }
 STRUCTURED_INPUT_ALIAS_HINTS = {
-    "pain": ["아파", "아픔", "통증", "흉통", "복통", "두통"],
-    "shortness_of_breath": ["숨이 차", "숨쉬기 어려", "숨참", "호흡곤란"],
-    "palpitation": ["두근", "심장이 빨리"],
-    "nausea": ["메스꺼", "울렁"],
-    "vomiting": ["구토", "토했", "토함", "토할"],
+    "pain": [
+        "아파",
+        "아프",
+        "아픔",
+        "통증",
+        "흉통",
+        "복통",
+        "두통",
+        "찌르듯",
+        "터질 듯",
+        "욱신",
+    ],
+    "shortness_of_breath": [
+        "숨이 차",
+        "숨도 차",
+        "숨도 좀 차",
+        "숨쉬기 어려",
+        "숨쉬기 힘",
+        "숨 쉬기 힘",
+        "숨참",
+        "호흡곤란",
+    ],
+    "palpitation": ["두근", "두근거", "심장이 빨리", "심장이 빠르게"],
+    "nausea": ["메스꺼", "울렁", "속이 울렁", "속이 메스"],
+    "vomiting": ["구토", "토했", "토함", "토할", "토한", "토를"],
     "diarrhea": ["설사"],
     "dizziness": ["어지러"],
-    "fever": ["열이", "발열"],
+    "fever": ["열이", "열과", "열나", "열이 나", "발열", "고열"],
     "cough": ["기침"],
-    "sore_throat": ["목이 아", "인후통"],
+    "sore_throat": ["목이 아", "목이 따갑", "목 따갑", "삼킬 때 아", "인후통"],
+    "fatigue": ["피로", "피곤", "무기력", "기운이 없"],
     "weakness": ["힘 빠", "힘이 빠"],
-    "numbness": ["저림", "감각이 둔"],
-    "swelling": ["부었", "붓기", "부음"],
-    "chest_pressure": ["가슴 답답", "가슴이 답답", "압박감", "조이는"],
+    "numbness": ["저림", "저려", "저리", "감각이 둔", "감각 둔"],
+    "swelling": ["부었", "부어", "부은", "부기", "붓기", "부음", "붓고", "붓는", "붓"],
+    "hives": ["두드러기"],
+    "chest_pressure": ["가슴 답답", "가슴이 답답", "가슴 압박", "가슴이 꽉", "꽉 막히", "꽉 누르는", "가슴 조이", "가슴이 조이", "압박감"],
     "cold_sweat": ["식은땀", "창백"],
-    "radiating_left_arm_or_jaw_or_back": ["왼팔로 퍼", "턱으로 퍼", "등으로 퍼"],
-    "persistent_pain": ["계속 아", "반복되"],
+    "radiating_left_arm_or_jaw_or_back": ["왼팔로 퍼", "왼팔까지", "왼쪽 팔까지", "턱으로 퍼", "등으로 퍼"],
+    "persistent_pain": ["계속 아", "반복되", "몇 분 이상", "지속"],
     "rest_chest_pain": ["쉬고 있어도", "가만히 있어도"],
     "hemoptysis": ["객혈", "피 섞인 가래", "피가 섞인 가래"],
-    "pleuritic_chest_pain": ["숨쉴 때 심", "깊게 숨", "기침할 때 가슴"],
-    "wheezing_or_stridor": ["쌕쌕", "거친 숨소리"],
+    "pleuritic_chest_pain": ["숨쉴 때 심", "숨 쉴 때", "숨쉴 때", "깊게 숨", "기침할 때 가슴"],
+    "wheezing_or_stridor": ["쌕쌕", "거친 숨소리", "거친 소리", "숨 들이쉴 때"],
     "facial_lip_tongue_throat_swelling": ["입술이 부", "혀가 부", "목이 부", "얼굴이 부"],
-    "difficulty_swallowing_or_drooling": ["삼키기 어려", "침을 흘"],
+    "difficulty_swallowing_or_drooling": ["삼키기 어려", "삼키기가 어려", "삼키기 힘", "침을 흘", "침이 고"],
     "voice_hoarseness": ["목소리가 쉬", "쉰 목소리"],
     "sudden_onset": ["갑자기", "갑작"],
-    "max_intensity_within_minutes": ["몇 분 안에", "순식간"],
+    "max_intensity_within_minutes": ["몇 분 안에", "몇 분 사이", "순식간", "최고로 심"],
     "one_sided": ["한쪽"],
-    "vision_change": ["시야", "시력", "흐리게 보여", "잘 안 보여"],
-    "vision_loss": ["시력 저하", "보이지 않", "안 보여"],
+    "vision_change": ["시야", "시력", "눈앞", "흐리게 보여", "잘 안 보여", "달무리"],
+    "vision_loss": ["시력 저하", "보이지 않", "안 보여", "안 보이", "잘 안 보"],
     "curtain_or_shadow_over_vision": ["커튼", "그림자"],
     "new_flashes": ["번쩍"],
-    "new_floaters": ["날파리", "점이 보여", "선이 보여"],
-    "bloody_stool": ["혈변", "피 섞인 변"],
+    "new_floaters": ["날파리", "검은 점", "점이 보여", "선이 보여", "떠다녀"],
+    "bloody_stool": ["혈변", "피 섞인 변", "검붉은 변"],
     "bloody_vomit": ["토혈", "피를 토"],
     "black_stool": ["검은 변"],
-    "after_injury": ["다친 후", "부딪힌 후", "넘어진 후", "외상 후"],
+    "speech_difficulty": ["말이 어눌", "말이 잘 안", "발음이 이상"],
+    "vision_trouble": ["시야 문제", "갑자기 안 보여", "시야가 이상"],
+    "balance_trouble": ["균형", "비틀", "휘청"],
+    "face_droop": ["얼굴 처짐", "입꼬리", "한쪽 얼굴"],
+    "known_allergen_exposure": ["새 음식", "음식을 먹", "먹은 뒤", "알레르기"],
+    "sleep_deprivation": ["잠을 못", "잠을 거의 못", "수면 부족", "잠을 적게"],
+    "after_injury": ["다친 후", "다친 뒤", "다친", "부딪힌 후", "부딪힌 뒤", "넘어진 후", "넘어진 뒤", "삐끗", "외상 후"],
     "deformity": ["변형", "휘어"],
-    "unable_to_bear_weight": ["딛기 어려", "걷기 어려"],
+    "unable_to_use_joint_or_limb": ["움직일 수 없", "움직이지 못", "쓸 수 없", "사용할 수 없", "사용하기 어려", "들기 어려"],
+    "unable_to_bear_weight": ["딛기 어려", "디딜 수 없", "체중을 싣", "걷기 어려"],
+    "limited_motion": ["움직이기 어려", "움직일 때 제한", "잘 안 움직", "굽히기 어려", "펴기 어려", "들기 어려"],
+    "stiffness": ["뻣뻣", "뻐근", "굳"],
+    "lower_abdominal_discomfort": ["아랫배", "하복부", "아래 배"],
+    "frequent_urination": ["자주 소변", "소변을 자주", "화장실을 자주", "빈뇨"],
+    "painful_urination": ["소변볼 때 아", "소변 볼 때 아", "배뇨할 때 따끔", "배뇨통", "소변이 따가"],
+    "pelvic_pain": ["골반 통증", "골반이 아", "골반 부위", "골반 안쪽", "묵직"],
+    "redness": ["빨갛", "충혈"],
+    "runny_nose": ["콧물"],
+    "nasal_congestion": ["코가 막", "코막힘", "코 막"],
+    "hearing_change": ["잘 안 들", "소리가 작", "청력"],
+    "ear_fullness": ["귀가 먹먹", "먹먹"],
+    "dryness": ["뻑뻑", "건조"],
+    "walking_difficulty": ["걷기 어려", "비틀", "보행"],
+    "itching": ["가려", "가렵"],
+    "rash": ["발진", "작은 점", "자주색 점"],
+    "neck_stiffness": ["목이 뻣뻣", "고개 숙이기", "목 경직"],
+    "worsening": ["점점", "더 심해", "심해져", "악화"],
+    "recent_exercise": ["운동 후", "운동한 뒤", "무리한 활동"],
+    "walking_difficulty_from_weakness": ["힘이 빠져 걷", "힘 빠져 걷"],
+    "confusion": ["정신이 멍", "혼란"],
+    "head_injury": ["머리를 부딪", "머리 부딪"],
+    "repeated_vomiting": ["여러 번 토", "반복 구토"],
+    "halos_around_lights": ["무지개", "불빛 주위", "달무리"],
+    "overeating": ["과식한 뒤", "과식"],
+    "petechial_rash": ["작은 점 같은 발진", "점 같은 발진", "자주색 점"],
+    "cold_extremity": ["차가워", "차갑"],
+    "discolored_extremity": ["색이 변", "푸르게", "창백"],
+    "photophobia": ["밝은 빛", "빛이 불편"],
 }
 
 
@@ -102,11 +203,145 @@ class StructuredInputProvider(Protocol):
         """Return structured input candidates. Implementations must not perform final judgment."""
 
 
+class LocalMedicalBertStructureProvider:
+    source = "medical_bert"
+
+    def __init__(self, model_dir: str, model_id: str = "", score_threshold: float = 0.5):
+        self.model_dir = Path(model_dir)
+        self.model_id = model_id
+        self.score_threshold = score_threshold
+        self._pipeline = None
+
+    def structure(self, free_text: str) -> dict:
+        pipeline = self._load_pipeline()
+        predictions = pipeline(free_text, top_k=None)
+        return _medical_bert_predictions_to_structure_payload(predictions, self.score_threshold)
+
+    def _load_pipeline(self):
+        if self._pipeline is not None:
+            return self._pipeline
+        if not self.model_dir.exists():
+            raise RuntimeError(f"medical BERT model directory does not exist: {self.model_dir}")
+        try:
+            from transformers import pipeline
+        except ImportError as exc:
+            raise RuntimeError("transformers is required for local medical BERT structure extraction") from exc
+
+        self._pipeline = pipeline(
+            "text-classification",
+            model=str(self.model_dir),
+            tokenizer=str(self.model_dir),
+            function_to_apply="sigmoid",
+        )
+        return self._pipeline
+
+
 class SafeExplanationProvider(Protocol):
     source: str
 
     def generate(self, assessment: dict, rag_context: dict) -> str:
         """Return user-facing explanation text. Implementations must not change judgment fields."""
+
+
+def build_medical_bert_structure_adapter_contract():
+    """Describe the zero-cost KM-BERT adapter boundary before any real model call is added."""
+    return {
+        "provider_name": "km-bert",
+        "source": "medical_bert",
+        "default_enabled": False,
+        "actual_model_call_implemented": False,
+        "cost_policy": "zero_external_api_cost_local_open_weight_candidate",
+        "license_policy": "non_commercial_research_demo_candidate_citation_required",
+        "commercial_use_policy": "reconfirm_before_commercial_or_paid_service_use",
+        "allowed_output_fields": list(STRUCTURE_PROVIDER_ALLOWED_OUTPUT_FIELDS),
+        "forbidden_judgment_fields": list(STRUCTURE_PROVIDER_FORBIDDEN_JUDGMENT_FIELDS),
+        "max_symptom_candidates": MAX_STRUCTURED_SYMPTOM_CANDIDATES,
+        "max_context_candidates": MAX_STRUCTURED_CONTEXT_CANDIDATES,
+        "validation_layer": "validate_structured_input_candidates",
+        "fallback_behavior": "manual_alias_validation",
+        "model_source_policy": {
+            "preferred_source": "official_ku_rias_artifacts",
+            "preferred_artifacts": ["KM-BERT", "KM-BERT-vocab"],
+            "converted_huggingface_artifact_allowed": False,
+            "converted_huggingface_artifact_reason": "unofficial_conversion_and_redistribution_status_must_be_rechecked",
+            "selected_for_real_connection": "not_selected_yet",
+        },
+        "dependency_policy": {
+            "requirements_file": "health-navigator-backend/requirements.txt",
+            "add_to_default_requirements_when_real_connection_is_approved": True,
+            "install_before_real_connection": False,
+        },
+        "required_dependencies_before_real_connection": [
+            "torch",
+            "transformers",
+        ],
+        "model_artifact_policy": {
+            "download_required_before_real_connection": True,
+            "do_not_commit_weights": True,
+            "do_not_commit_raw_medical_text": True,
+            "cache_location_must_be_approved": True,
+            "prefer_repo_external_or_gitignored_cache": True,
+            "candidate_local_cache": "C:/tmp/health-navigator-models/kmbert",
+            "candidate_ec2_cache": "/opt/health-navigator/models/kmbert",
+        },
+        "runtime_check_policy": {
+            "must_check_cpu_latency_before_user_facing_enablement": True,
+            "must_keep_provider_disabled_until_runtime_check_passes": True,
+            "timeout_ms_default": SYMPTOM_STRUCTURE_TIMEOUT_MS,
+        },
+        "citation_license_policy": {
+            "record_location": "docs/SYMPTOM_CHECKER_DATASETS.md",
+            "must_record_before_real_connection": True,
+        },
+    }
+
+
+def build_body_region_structure_adapter_contract():
+    return {
+        "provider_name": "km-bert-body-region",
+        "source": "medical_bert",
+        "default_enabled": False,
+        "actual_service_connection_implemented": False,
+        "model_head": "single_label_body_region_classification",
+        "allowed_output_fields": ["body_region"],
+        "forbidden_output_fields": [
+            "symptom_candidates",
+            "context_candidates",
+            "condition_candidates",
+            "red_flags",
+            "confidence",
+            "severity",
+            "diagnosis",
+            "treatment",
+        ],
+        "fallback_policy": {
+            "alias_region_priority": True,
+            "discard_provider_region_when_alias_conflicts": True,
+            "use_provider_only_when_alias_region_missing": True,
+            "unknown_or_unwhitelisted_region_rejected_by": "validate_structured_input_candidates",
+            "manual_or_alias_fallback_when_disabled": True,
+        },
+        "evaluation_policy": {
+            "train_split_only_for_training": True,
+            "validate_split_quality_signal_only": True,
+            "test_split_used": False,
+            "do_not_add_labels_from_validate_failures": True,
+            "do_not_change_rules_or_candidates_for_model_metrics": True,
+        },
+        "current_validation_signal": {
+            "metrics_path": "app/data/processed/korean_body_region_classifier_metrics.json",
+            "validate_rows": 34,
+            "validate_accuracy": 0.5294117647058824,
+            "validate_top3_accuracy": 0.6764705882352942,
+            "decision": "candidate_optional_provider_not_default_route",
+            "reason": "better_than_current_multilabel_body_head_but_below_alias_baseline",
+        },
+        "model_artifact_policy": {
+            "do_not_commit_weights": True,
+            "prefer_gitignored_cache": True,
+            "candidate_local_cache": ".model-cache/experiments/kmbert-body-region",
+        },
+    }
 
 
 RED_FLAG_METADATA = {
@@ -473,6 +708,149 @@ BODY_REGIONS = [
 ]
 
 
+ANATOMY_AREAS = [
+    {
+        "id": "head",
+        "name": "머리",
+        "display_order": 1,
+        "surface": "both",
+        "body_region_ids": ["head_face", "eye", "ear_nose_throat"],
+        "selectable_parts": [
+            {"id": 909, "name": "두피", "body_region_id": "head_face", "body_part_id": "back_head"},
+            {"id": 904, "name": "이마", "body_region_id": "head_face", "body_part_id": "forehead"},
+            {"id": 902, "name": "눈", "body_region_id": "eye", "body_part_id": "both_eyes"},
+            {"id": 908, "name": "코", "body_region_id": "ear_nose_throat", "body_part_id": "nose"},
+            {"id": 901, "name": "귀", "body_region_id": "ear_nose_throat", "body_part_id": "ear"},
+            {"id": 903, "name": "얼굴", "body_region_id": "head_face", "body_part_id": "face"},
+            {"id": 907, "name": "입", "body_region_id": "ear_nose_throat", "body_part_id": "mouth_tongue"},
+            {"id": 906, "name": "턱", "body_region_id": "head_face", "body_part_id": "jaw"},
+        ],
+    },
+    {
+        "id": "neck",
+        "name": "목",
+        "display_order": 2,
+        "surface": "both",
+        "body_region_ids": ["neck_shoulder"],
+        "selectable_parts": [
+            {"id": 11, "name": "목", "body_region_id": "neck_shoulder", "body_part_id": "front_neck"},
+        ],
+    },
+    {
+        "id": "chest",
+        "name": "가슴",
+        "display_order": 3,
+        "surface": "front",
+        "body_region_ids": ["chest"],
+        "selectable_parts": [
+            {"id": 602, "name": "윗가슴", "body_region_id": "chest", "body_part_id": "center_chest"},
+            {"id": 603, "name": "흉골", "body_region_id": "chest", "body_part_id": "center_chest"},
+            {"id": 601, "name": "유방", "body_region_id": "chest", "body_part_id": "left_chest"},
+        ],
+    },
+    {
+        "id": "arms",
+        "name": "팔",
+        "display_order": 4,
+        "surface": "both",
+        "body_region_ids": ["neck_shoulder", "arm_hand"],
+        "selectable_parts": [
+            {"id": 207, "name": "어깨", "body_region_id": "neck_shoulder", "body_part_id": "both_shoulders"},
+            {"id": 202, "name": "겨드랑이", "body_region_id": "arm_hand", "body_part_id": "arm"},
+            {"id": 201, "name": "위팔", "body_region_id": "arm_hand", "body_part_id": "arm"},
+            {"id": 203, "name": "팔꿈치", "body_region_id": "arm_hand", "body_part_id": "elbow"},
+            {"id": 205, "name": "아래팔", "body_region_id": "arm_hand", "body_part_id": "arm"},
+            {"id": 208, "name": "손목", "body_region_id": "arm_hand", "body_part_id": "wrist"},
+            {"id": 206, "name": "손", "body_region_id": "arm_hand", "body_part_id": "hand"},
+            {"id": 204, "name": "손가락", "body_region_id": "arm_hand", "body_part_id": "finger"},
+        ],
+    },
+    {
+        "id": "abdomen",
+        "name": "복부",
+        "display_order": 5,
+        "surface": "front",
+        "body_region_ids": ["abdomen"],
+        "selectable_parts": [
+            {"id": 102, "name": "윗배", "body_region_id": "abdomen", "body_part_id": "upper_abdomen"},
+            {"id": 103, "name": "명치", "meaning": "복부 위쪽 중앙", "body_region_id": "abdomen", "body_part_id": "upper_abdomen"},
+            {"id": 101, "name": "아랫배", "body_region_id": "abdomen", "body_part_id": "lower_abdomen"},
+        ],
+    },
+    {
+        "id": "pelvis",
+        "name": "골반",
+        "display_order": 6,
+        "surface": "front",
+        "body_region_ids": ["pelvis_urinary"],
+        "selectable_parts": [
+            {"id": 1203, "name": "고관절", "body_region_id": "pelvis_urinary", "body_part_id": "pelvis"},
+            {"id": 1202, "name": "사타구니", "body_region_id": "pelvis_urinary", "body_part_id": "genital_area"},
+            {"id": 1204, "name": "치골 위", "meaning": "치골 위쪽", "body_region_id": "pelvis_urinary", "body_part_id": "lower_center_abdomen"},
+            {"id": 1201, "name": "생식기", "body_region_id": "pelvis_urinary", "body_part_id": "genital_area"},
+        ],
+    },
+    {
+        "id": "back",
+        "name": "등",
+        "display_order": 7,
+        "surface": "back",
+        "body_region_ids": ["back_waist"],
+        "selectable_parts": [
+            {"id": 401, "name": "등 위쪽", "body_region_id": "back_waist", "body_part_id": "upper_back"},
+            {"id": 402, "name": "옆구리", "body_region_id": "back_waist", "body_part_id": "middle_back"},
+            {"id": 403, "name": "허리", "body_region_id": "back_waist", "body_part_id": "lower_back"},
+            {"id": 404, "name": "꼬리뼈", "body_region_id": "back_waist", "body_part_id": "tailbone_area"},
+        ],
+    },
+    {
+        "id": "buttocks",
+        "name": "엉덩이",
+        "display_order": 8,
+        "surface": "back",
+        "body_region_ids": ["pelvis_urinary"],
+        "selectable_parts": [
+            {"id": 1203, "name": "고관절", "body_region_id": "pelvis_urinary", "body_part_id": "pelvis"},
+            {"id": 501, "name": "직장/항문", "body_region_id": "pelvis_urinary", "body_part_id": "genital_area"},
+        ],
+    },
+    {
+        "id": "legs",
+        "name": "다리",
+        "display_order": 9,
+        "surface": "both",
+        "body_region_ids": ["leg_foot"],
+        "selectable_parts": [
+            {"id": 1008, "name": "허벅지", "body_region_id": "leg_foot", "body_part_id": "thigh"},
+            {"id": 1004, "name": "허벅지 뒤쪽", "body_region_id": "leg_foot", "body_part_id": "thigh"},
+            {"id": 1005, "name": "무릎", "body_region_id": "leg_foot", "body_part_id": "knee"},
+            {"id": 1006, "name": "오금", "meaning": "무릎 뒤쪽", "body_region_id": "leg_foot", "body_part_id": "knee"},
+            {"id": 1007, "name": "정강이", "body_region_id": "leg_foot", "body_part_id": "leg"},
+            {"id": 1002, "name": "종아리", "body_region_id": "leg_foot", "body_part_id": "calf"},
+            {"id": 1001, "name": "발목", "body_region_id": "leg_foot", "body_part_id": "ankle"},
+            {"id": 1003, "name": "발", "body_region_id": "leg_foot", "body_part_id": "foot"},
+            {"id": 1009, "name": "발가락", "body_region_id": "leg_foot", "body_part_id": "toe"},
+        ],
+    },
+    {
+        "id": "skin",
+        "name": "피부",
+        "display_order": 10,
+        "surface": "whole",
+        "body_region_ids": ["skin"],
+        "selectable_parts": [],
+    },
+    {
+        "id": "general",
+        "name": "전신/일반",
+        "display_order": 11,
+        "surface": "whole",
+        "body_region_ids": ["general"],
+        "selectable_parts": [],
+    },
+]
+
+
 BODY_PARTS = {
     "head_face": [
         {"id": "forehead", "name": "이마"},
@@ -555,6 +933,43 @@ BODY_PARTS = {
         {"id": "dizziness_general", "name": "어지러움"},
     ],
 }
+
+
+def _selectable_body_part_id(selectable_part: dict) -> str:
+    return selectable_part["body_part_id"]
+
+
+def _build_selectable_body_parts_by_region() -> dict[str, list[dict]]:
+    body_parts_by_region: dict[str, list[dict]] = {}
+    seen_ids_by_region: dict[str, set[str]] = {}
+
+    for area in ANATOMY_AREAS:
+        for selectable_part in area.get("selectable_parts", []):
+            region_id = selectable_part["body_region_id"]
+            body_part_id = _selectable_body_part_id(selectable_part)
+            seen_ids = seen_ids_by_region.setdefault(region_id, set())
+            if body_part_id in seen_ids:
+                continue
+
+            seen_ids.add(body_part_id)
+            body_parts_by_region.setdefault(region_id, []).append(
+                {
+                    "id": body_part_id,
+                    "name": selectable_part["name"],
+                }
+            )
+
+    return body_parts_by_region
+
+
+SELECTABLE_BODY_PARTS_BY_REGION = _build_selectable_body_parts_by_region()
+for _region_id, _selectable_body_parts in SELECTABLE_BODY_PARTS_BY_REGION.items():
+    _known_body_part_ids = {part["id"] for part in BODY_PARTS.setdefault(_region_id, [])}
+    BODY_PARTS[_region_id].extend(
+        body_part
+        for body_part in _selectable_body_parts
+        if body_part["id"] not in _known_body_part_ids
+    )
 
 
 COMMON_SYMPTOMS = [
@@ -1448,6 +1863,211 @@ REGION_CONTEXT_CHIPS = {
 }
 
 
+BODY_PART_CONTEXT_CHIP_CODES = {
+    "eye": {
+        "left_eye": [
+            "sudden_onset",
+            "one_sided",
+            "vision_loss",
+            "curtain_or_shadow_over_vision",
+            "new_flashes",
+            "new_floaters",
+            "halos_around_lights",
+            "sleep_deprivation",
+        ],
+        "right_eye": [
+            "sudden_onset",
+            "one_sided",
+            "vision_loss",
+            "curtain_or_shadow_over_vision",
+            "new_flashes",
+            "new_floaters",
+            "halos_around_lights",
+            "sleep_deprivation",
+        ],
+        "both_eyes": [
+            "sudden_onset",
+            "vision_loss",
+            "curtain_or_shadow_over_vision",
+            "new_flashes",
+            "new_floaters",
+            "halos_around_lights",
+            "sleep_deprivation",
+        ],
+        "eye_area": ["sudden_onset", "worsening", "known_allergen_exposure", "sleep_deprivation"],
+    },
+    "head_face": {
+        "forehead": [
+            "sudden_onset",
+            "max_intensity_within_minutes",
+            "neurologic_deficit",
+            "head_injury",
+            "sleep_deprivation",
+            "stress",
+        ],
+        "temple": [
+            "sudden_onset",
+            "max_intensity_within_minutes",
+            "neurologic_deficit",
+            "head_injury",
+            "sleep_deprivation",
+            "stress",
+        ],
+        "back_head": [
+            "sudden_onset",
+            "max_intensity_within_minutes",
+            "neurologic_deficit",
+            "head_injury",
+            "sleep_deprivation",
+            "stress",
+        ],
+        "face": ["sudden_onset", "neurologic_deficit", "head_injury", "stress"],
+        "jaw": ["sudden_onset", "neurologic_deficit", "stress"],
+    },
+    "ear_nose_throat": {
+        "ear": ["sudden_onset", "one_sided", "worsening", "after_injury"],
+        "nose": ["worsening", "known_allergen_exposure", "stress"],
+        "throat": [
+            "difficulty_swallowing_or_drooling",
+            "voice_hoarseness",
+            "wheezing_or_stridor",
+            "facial_lip_tongue_throat_swelling",
+            "worsening",
+            "known_allergen_exposure",
+        ],
+        "mouth_tongue": [
+            "difficulty_swallowing_or_drooling",
+            "facial_lip_tongue_throat_swelling",
+            "worsening",
+            "known_allergen_exposure",
+        ],
+        "tonsil_area": ["difficulty_swallowing_or_drooling", "voice_hoarseness", "worsening"],
+    },
+    "chest": {
+        "center_chest": [
+            "chest_pressure",
+            "radiating_left_arm_or_jaw_or_back",
+            "cold_sweat",
+            "persistent_pain",
+            "rest_chest_pain",
+            "exertional_chest_pain_relieved_by_rest",
+        ],
+        "left_chest": [
+            "chest_pressure",
+            "radiating_left_arm_or_jaw_or_back",
+            "cold_sweat",
+            "persistent_pain",
+            "rest_chest_pain",
+            "exertional_chest_pain_relieved_by_rest",
+        ],
+        "right_chest": [
+            "chest_pressure",
+            "persistent_pain",
+            "pleuritic_chest_pain",
+            "hemoptysis",
+        ],
+        "rib_area": ["persistent_pain", "pleuritic_chest_pain", "hemoptysis"],
+    },
+    "abdomen": {
+        "upper_abdomen": ["bloody_vomit", "overeating", "alcohol_yesterday", "worsening"],
+        "lower_abdomen": ["bloody_stool", "black_stool", "worsening"],
+        "right_abdomen": ["bloody_stool", "black_stool", "worsening"],
+        "left_abdomen": ["bloody_stool", "black_stool", "worsening"],
+        "whole_abdomen": ["bloody_stool", "black_stool", "bloody_vomit", "overeating", "worsening"],
+    },
+    "neck_shoulder": {
+        "front_neck": ["after_injury", "recent_exercise", "stress", "neurologic_deficit"],
+        "back_neck": ["after_injury", "recent_exercise", "stress", "neurologic_deficit"],
+        "left_shoulder": ["after_injury", "recent_exercise", "deformity", "unable_to_use_joint_or_limb"],
+        "right_shoulder": ["after_injury", "recent_exercise", "deformity", "unable_to_use_joint_or_limb"],
+        "both_shoulders": ["after_injury", "recent_exercise", "deformity", "unable_to_use_joint_or_limb"],
+    },
+    "arm_hand": {
+        "arm": [
+            "after_injury",
+            "deformity",
+            "unable_to_use_joint_or_limb",
+            "discolored_extremity",
+            "cold_extremity",
+            "recent_exercise",
+            "progressive_weakness",
+        ],
+        "elbow": ["after_injury", "deformity", "unable_to_use_joint_or_limb", "recent_exercise"],
+        "wrist": [
+            "after_injury",
+            "deformity",
+            "unable_to_use_joint_or_limb",
+            "discolored_extremity",
+            "cold_extremity",
+            "recent_exercise",
+        ],
+        "hand": [
+            "after_injury",
+            "deformity",
+            "unable_to_use_joint_or_limb",
+            "discolored_extremity",
+            "cold_extremity",
+            "progressive_weakness",
+        ],
+        "finger": [
+            "after_injury",
+            "deformity",
+            "unable_to_use_joint_or_limb",
+            "discolored_extremity",
+            "cold_extremity",
+        ],
+    },
+    "pelvis_urinary": {
+        "pelvis": ["worsening", "sudden_onset", "stress"],
+        "lower_center_abdomen": ["worsening", "sudden_onset", "stress"],
+        "urination": ["worsening", "sudden_onset"],
+        "genital_area": ["worsening", "sudden_onset", "stress"],
+    },
+    "back_waist": {
+        "upper_back": ["after_injury", "recent_exercise", "worsening", "neurologic_deficit"],
+        "middle_back": ["after_injury", "recent_exercise", "worsening", "neurologic_deficit"],
+        "lower_back": ["after_injury", "recent_exercise", "worsening", "neurologic_deficit"],
+        "tailbone_area": ["after_injury", "recent_exercise", "worsening"],
+    },
+    "leg_foot": {
+        "thigh": [
+            "after_injury",
+            "deformity",
+            "unable_to_bear_weight",
+            "recent_exercise",
+            "progressive_weakness",
+            "walking_difficulty_from_weakness",
+        ],
+        "knee": ["after_injury", "deformity", "unable_to_bear_weight", "recent_exercise"],
+        "calf": [
+            "after_injury",
+            "recent_exercise",
+            "discolored_extremity",
+            "cold_extremity",
+            "progressive_weakness",
+            "walking_difficulty_from_weakness",
+        ],
+        "ankle": [
+            "after_injury",
+            "deformity",
+            "unable_to_bear_weight",
+            "discolored_extremity",
+            "cold_extremity",
+        ],
+        "leg": [
+            "after_injury",
+            "deformity",
+            "unable_to_bear_weight",
+            "recent_exercise",
+            "progressive_weakness",
+            "walking_difficulty_from_weakness",
+        ],
+        "foot": ["after_injury", "deformity", "unable_to_bear_weight", "discolored_extremity", "cold_extremity"],
+        "toe": ["after_injury", "deformity", "discolored_extremity", "cold_extremity"],
+    },
+}
+
+
 DEFAULT_FREE_TEXT_SECTIONS = [
     {
         "id": "recent_medications",
@@ -1858,6 +2478,7 @@ REGION_SYMPTOMS = {
         {"code": "vision_change", "name": "시야 변화", "supports_severity": True, "supports_duration": True},
         {"code": "discharge", "name": "분비물", "supports_severity": True, "supports_duration": True},
         {"code": "dryness", "name": "건조감", "supports_severity": True, "supports_duration": True},
+        {"code": "itching", "name": "가려움", "supports_severity": True, "supports_duration": True},
     ],
     "ear_nose_throat": COMMON_SYMPTOMS
     + [
@@ -1874,6 +2495,7 @@ REGION_SYMPTOMS = {
     ],
     "chest": COMMON_SYMPTOMS
     + [
+        {"code": "cough", "name": "기침", "supports_severity": True, "supports_duration": True},
         {"code": "shortness_of_breath", "name": "호흡곤란", "supports_severity": True, "supports_duration": True},
         {"code": "palpitation", "name": "두근거림", "supports_severity": True, "supports_duration": True},
     ],
@@ -2379,13 +3001,61 @@ def get_body_regions():
     return BODY_REGIONS
 
 
+def get_anatomy_areas():
+    areas = []
+    for area in sorted(ANATOMY_AREAS, key=lambda item: item["display_order"]):
+        clinical_regions = []
+        selectable_parts = []
+        for region_id in area["body_region_ids"]:
+            region = _find_region(region_id)
+            if region is None:
+                continue
+            clinical_regions.append(
+                region.copy()
+            )
+
+        for selectable_part in area.get("selectable_parts", []):
+            region_id = selectable_part["body_region_id"]
+            body_part_id = _selectable_body_part_id(selectable_part)
+            selectable_parts.append(
+                {
+                    "id": f"anatomy:{area['id']}:{selectable_part['id']}",
+                    "name": selectable_part["name"],
+                    "meaning": selectable_part.get("meaning"),
+                    "body_region_id": region_id,
+                    "body_part_id": body_part_id,
+                    "symptom_endpoint": f"/symptom-checker/body-regions/{region_id}/symptoms",
+                    "context_guide_endpoint": (
+                        f"/symptom-checker/body-regions/{region_id}/context-guide"
+                        f"?body_part={body_part_id}"
+                    ),
+                }
+            )
+
+        areas.append(
+            {
+                "id": area["id"],
+                "name": area["name"],
+                "display_order": area["display_order"],
+                "surface": area["surface"],
+                "clinical_regions": clinical_regions,
+                "selectable_parts": selectable_parts,
+            }
+        )
+    return areas
+
+
 def get_context_options():
     return CONTEXT_OPTIONS
 
 
-def get_context_guide(region_id: str):
+def get_context_guide(region_id: str, body_part_id: str | None = None):
     if _find_region(region_id) is None:
         return None
+    context_chips, context_scope, fallback_to_region_context = _get_context_chips_for_scope(
+        region_id,
+        body_part_id,
+    )
 
     free_text_sections = [section.copy() for section in DEFAULT_FREE_TEXT_SECTIONS]
     region_examples = REGION_CONTEXT_EXAMPLES.get(region_id)
@@ -2397,8 +3067,11 @@ def get_context_guide(region_id: str):
 
     return {
         "region_id": region_id,
+        "body_part_id": body_part_id,
+        "context_scope": context_scope,
+        "fallback_to_region_context": fallback_to_region_context,
         "quick_contexts": CONTEXT_OPTIONS,
-        "context_chips": _get_region_context_chips(region_id),
+        "context_chips": context_chips,
         "free_text_sections": free_text_sections,
         "follow_up_questions": REGION_FOLLOW_UP_QUESTIONS.get(region_id, []),
     }
@@ -2427,8 +3100,8 @@ def validate_structured_input_candidates(candidates: dict):
     }
     allowed_contexts = set(CONTEXT_OPTIONS_BY_CODE)
 
-    symptom_candidates = (candidates.get("symptom_candidates") or [])[:MAX_STRUCTURED_SYMPTOM_CANDIDATES]
-    context_candidates = (candidates.get("context_candidates") or [])[:MAX_STRUCTURED_CONTEXT_CANDIDATES]
+    symptom_candidates = candidates.get("symptom_candidates") or []
+    context_candidates = candidates.get("context_candidates") or []
     rejection_reasons = {
         "body_region": None if accepted_region == region_id else "unknown_body_region",
         "symptom_candidates": {},
@@ -2439,7 +3112,8 @@ def validate_structured_input_candidates(candidates: dict):
     rejected_symptoms = []
     for code in symptom_candidates:
         if code in allowed_symptoms:
-            accepted_symptoms.append(code)
+            if code not in accepted_symptoms and len(accepted_symptoms) < MAX_STRUCTURED_SYMPTOM_CANDIDATES:
+                accepted_symptoms.append(code)
         else:
             rejected_symptoms.append(code)
             rejection_reasons["symptom_candidates"][code] = (
@@ -2452,7 +3126,8 @@ def validate_structured_input_candidates(candidates: dict):
     rejected_contexts = []
     for code in context_candidates:
         if code in allowed_contexts:
-            accepted_contexts.append(code)
+            if code not in accepted_contexts and len(accepted_contexts) < MAX_STRUCTURED_CONTEXT_CANDIDATES:
+                accepted_contexts.append(code)
         else:
             rejected_contexts.append(code)
             rejection_reasons["context_candidates"][code] = "unknown_context"
@@ -2482,6 +3157,84 @@ def structure_symptom_input(request: SymptomStructureRequest):
         "judgment_fields_ignored": True,
         "final_judgment_performed": False,
     }
+
+
+def build_assessment_draft(request):
+    """Build an /assess-ready draft from structured candidates without doing final judgment."""
+    structure_result = structure_symptom_input(request)
+    symptoms = [
+        {
+            "code": code,
+            "severity": request.default_severity,
+            "duration_hours": request.default_duration_hours,
+        }
+        for code in structure_result["symptom_candidates"]
+    ]
+    contexts = {
+        code: True
+        for code in structure_result["context_candidates"]
+    }
+    missing_required_fields = []
+    if structure_result["body_region"] is None:
+        missing_required_fields.append("body_region")
+    if not symptoms:
+        missing_required_fields.append("symptoms")
+
+    body_part = _optional_text(getattr(request, "body_part", None))
+    if structure_result["body_region"] is None:
+        body_part = None
+    elif body_part:
+        body_part_ids = {part["id"] for part in BODY_PARTS.get(structure_result["body_region"], [])}
+        if body_part not in body_part_ids:
+            body_part = None
+            missing_required_fields.append("valid_body_part")
+
+    return {
+        "source": structure_result["source"],
+        "body_region": structure_result["body_region"],
+        "body_part": body_part,
+        "symptoms": symptoms,
+        "contexts": contexts,
+        "additional_context": {
+            "recent_medications": [],
+            "recent_conditions": [],
+            "lab_values": [],
+            "free_text": _optional_text(request.free_text),
+        },
+        "rejected": structure_result["rejected"],
+        "rejection_reasons": structure_result["rejection_reasons"],
+        "ignored_judgment_fields": structure_result["ignored_judgment_fields"],
+        "judgment_fields_ignored": True,
+        "final_judgment_performed": False,
+        "ready_for_assessment": not missing_required_fields,
+        "missing_required_fields": missing_required_fields,
+    }
+
+
+def build_assessment_draft_from_local_medical_bert(request):
+    structure_result = structure_symptom_input_from_local_medical_bert(request.free_text or "")
+    merged_request = request.model_copy(
+        update={
+            "source": "medical_bert" if structure_result.get("provider_used") else request.source,
+            "body_region": request.body_region or structure_result.get("body_region"),
+            "symptom_candidates": [
+                *request.symptom_candidates,
+                *structure_result.get("symptom_candidates", []),
+            ],
+            "context_candidates": [
+                *request.context_candidates,
+                *structure_result.get("context_candidates", []),
+            ],
+        }
+    )
+    draft = build_assessment_draft(merged_request)
+    draft["ignored_judgment_fields"] = _dedupe_preserving_order(
+        [
+            *draft.get("ignored_judgment_fields", []),
+            *structure_result.get("ignored_judgment_fields", []),
+        ]
+    )
+    return draft
 
 
 def structure_symptom_input_from_provider(
@@ -2562,6 +3315,23 @@ def structure_symptom_input_from_provider(
     }
 
 
+def structure_symptom_input_from_local_medical_bert(free_text: str):
+    provider = LocalMedicalBertStructureProvider(
+        model_dir=MEDICAL_BERT_MODEL_DIR,
+        model_id=MEDICAL_BERT_MODEL_ID,
+        score_threshold=MEDICAL_BERT_SCORE_THRESHOLD,
+    )
+    return structure_symptom_input_from_provider(
+        free_text=free_text,
+        provider=provider,
+        source="medical_bert",
+        provider_enabled=MEDICAL_BERT_STRUCTURE_ENABLED,
+        provider_name="local_medical_bert",
+        model_id=MEDICAL_BERT_MODEL_ID or MEDICAL_BERT_MODEL_DIR,
+        timeout_ms=SYMPTOM_STRUCTURE_TIMEOUT_MS,
+    )
+
+
 def load_explanation_cards():
     return [
         *_load_json_list(RED_FLAG_EXPLANATION_CARDS_PATH),
@@ -2575,6 +3345,8 @@ def load_explanation_source_refs():
 
 def select_explanation_cards(rule_result: dict, cards: list[dict] | None = None, source_refs: list[dict] | None = None):
     cards = cards if cards is not None else load_explanation_cards()
+    if cards is not None:
+        cards = _order_cards_with_vector_store(rule_result, cards)
     source_refs_by_id = {
         source_ref["source_id"]: source_ref
         for source_ref in (source_refs if source_refs is not None else load_explanation_source_refs())
@@ -2627,6 +3399,87 @@ def select_explanation_cards(rule_result: dict, cards: list[dict] | None = None,
             selected_targets.add(target)
 
     return selected_cards
+
+
+def _order_cards_with_vector_store(rule_result: dict, cards: list[dict]):
+    target_codes = [
+        *[red_flag.get("code") for red_flag in rule_result.get("red_flags", []) if red_flag.get("code")],
+        *[
+            candidate.get("condition_code")
+            for candidate in rule_result.get("candidates", [])
+            if candidate.get("condition_code")
+        ],
+    ]
+    if not target_codes:
+        return cards
+
+    vector_docs = search_explanation_documents(
+        target_codes,
+        query_embedding=_build_rag_query_embedding(rule_result),
+        limit=MAX_EXPLANATION_RAG_CARDS,
+    )
+    if not vector_docs:
+        return cards
+
+    cards_by_id = {card["card_id"]: card for card in cards}
+    ordered_card_ids = [doc["card_id"] for doc in vector_docs if doc["card_id"] in cards_by_id]
+    ordered_cards = [cards_by_id[card_id] for card_id in ordered_card_ids]
+    remaining_cards = [card for card in cards if card["card_id"] not in set(ordered_card_ids)]
+    return [*ordered_cards, *remaining_cards]
+
+
+def _build_rag_query_embedding(rule_result: dict):
+    if not RAG_VECTOR_SEARCH_ENABLED:
+        return None
+    query_text = _build_rag_query_text(rule_result)
+    if not query_text:
+        return None
+    try:
+        model = _load_rag_embedding_model()
+        return model.encode(query_text, normalize_embeddings=True).tolist()
+    except Exception:
+        return None
+
+
+def _load_rag_embedding_model():
+    global _RAG_EMBEDDING_MODEL
+    if _RAG_EMBEDDING_MODEL is not None:
+        return _RAG_EMBEDDING_MODEL
+    from sentence_transformers import SentenceTransformer
+
+    cache_folder = RAG_EMBEDDING_CACHE_DIR or None
+    _RAG_EMBEDDING_MODEL = SentenceTransformer(RAG_EMBEDDING_MODEL_NAME, cache_folder=cache_folder)
+    return _RAG_EMBEDDING_MODEL
+
+
+def _build_rag_query_text(rule_result: dict):
+    red_flag_lines = [
+        " ".join(
+            str(value)
+            for value in [
+                red_flag.get("code"),
+                red_flag.get("message"),
+                red_flag.get("reason"),
+                " ".join(red_flag.get("triggered_by", [])),
+            ]
+            if value
+        )
+        for red_flag in rule_result.get("red_flags", [])
+    ]
+    candidate_lines = [
+        " ".join(
+            str(value)
+            for value in [
+                candidate.get("condition_code"),
+                candidate.get("condition_name"),
+                candidate.get("summary"),
+                " ".join(candidate.get("matched_reasons", [])),
+            ]
+            if value
+        )
+        for candidate in rule_result.get("candidates", [])
+    ]
+    return "\n".join([*red_flag_lines, *candidate_lines]).strip()
 
 
 def build_explanation_rag_context(rule_result: dict, cards: list[dict] | None = None, source_refs: list[dict] | None = None):
@@ -2738,6 +3591,11 @@ def build_safe_explanation(
     ]
     blocked_claims = _find_blocked_claims(generated_text or "", selected_cards)
     fallback_used = bool(blocked_claims)
+    safe_summary = (
+        None
+        if fallback_used
+        else _optional_text(generated_text) or _build_reviewed_explanation_summary(selected_cards)
+    )
 
     explanations = []
     for card in selected_cards:
@@ -2766,7 +3624,7 @@ def build_safe_explanation(
             "blocked_claims": blocked_claims,
             "missing_explanation_targets": missing_explanation_targets,
         },
-        "generated_summary_ko": None if fallback_used else _optional_text(generated_text),
+        "generated_summary_ko": safe_summary,
         "provider_metadata": provider_metadata or StructuredProviderMetadata().model_dump(),
     }
 
@@ -2777,6 +3635,18 @@ def explain_symptom_assessment(request: SymptomExplainRequest):
         request.assessment.model_dump(),
         generated_text=request.generated_text,
     )
+
+
+def attach_explanation_to_assessment(rule_result: dict):
+    """Attach reviewed RAG explanation cards directly to an assessment response."""
+    explanation = build_safe_explanation(rule_result)
+    return {
+        **_copy_json_compatible(rule_result),
+        "explanations": explanation["explanations"],
+        "explanation_safety": explanation["safety"],
+        "generated_summary_ko": explanation["generated_summary_ko"],
+        "provider_metadata": explanation["provider_metadata"],
+    }
 
 
 def explain_symptom_assessment_from_provider(
@@ -2945,6 +3815,29 @@ def _safe_fallback_summary(target_type: str):
     )
 
 
+def _build_reviewed_explanation_summary(selected_cards: list[dict]):
+    if not selected_cards:
+        return None
+
+    has_red_flag = any(card.get("target_type") == "red_flag" for card in selected_cards)
+    has_condition = any(card.get("target_type") == "condition" for card in selected_cards)
+
+    if has_red_flag and has_condition:
+        return (
+            "선택한 증상 조합에서 빠른 상담이 필요할 수 있는 위험 신호와 참고 후보 설명을 함께 정리했습니다. "
+            "이 내용은 진단이나 처방이 아니라 검수된 설명 카드 기반의 참고 정보입니다."
+        )
+    if has_red_flag:
+        return (
+            "선택한 증상 조합에서 빠른 상담이 필요할 수 있는 위험 신호 설명을 정리했습니다. "
+            "이 내용은 특정 질환을 확정하지 않는 참고 정보입니다."
+        )
+    return (
+        "선택한 증상과 관련된 참고 후보 설명을 정리했습니다. "
+        "이 내용은 진단이나 처방이 아니라 검수된 설명 카드 기반의 참고 정보입니다."
+    )
+
+
 def _copy_json_compatible(data):
     return json.loads(json.dumps(data, ensure_ascii=False, default=str))
 
@@ -3000,17 +3893,9 @@ def _dedupe_preserving_order(values: list[str]):
 
 
 def _present_judgment_fields(data: dict):
-    judgment_fields = [
-        "condition_candidates",
-        "red_flags",
-        "confidence",
-        "severity",
-        "diagnosis",
-        "treatment",
-    ]
     return [
         field
-        for field in judgment_fields
+        for field in STRUCTURE_PROVIDER_FORBIDDEN_JUDGMENT_FIELDS
         if data.get(field) not in (None, "", [])
     ]
 
@@ -3037,11 +3922,25 @@ def _merge_free_text_alias_candidates(data: dict):
 
     alias_candidates = _extract_alias_candidates_from_free_text(
         free_text,
-        body_region=_optional_text(data.get("body_region")),
+        body_region=None,
     )
+    provider_region = _optional_text(data.get("body_region"))
+    alias_region = alias_candidates["body_region"]
+    source = data.get("source")
+    if provider_region and alias_region and provider_region != alias_region and source in {"llm", "medical_bert"}:
+        body_region = alias_region
+    else:
+        body_region = provider_region or alias_region
+
+    if body_region != alias_region and alias_region is not None:
+        alias_candidates = _extract_alias_candidates_from_free_text(
+            free_text,
+            body_region=body_region,
+        )
+
     merged = {
         **data,
-        "body_region": data.get("body_region") or alias_candidates["body_region"],
+        "body_region": body_region,
         "symptom_candidates": [
             *(data.get("symptom_candidates") or []),
             *alias_candidates["symptom_candidates"],
@@ -3163,6 +4062,43 @@ def _structured_provider_source(provider: StructuredInputProvider | None, source
     return provider_source if provider_source in STRUCTURED_INPUT_SOURCES else "manual"
 
 
+def _medical_bert_predictions_to_structure_payload(predictions, score_threshold: float):
+    prediction_items = predictions[0] if predictions and isinstance(predictions[0], list) else predictions
+    body_region_scores = []
+    symptom_candidates = []
+    context_candidates = []
+    for prediction in prediction_items or []:
+        if not isinstance(prediction, dict):
+            continue
+        if float(prediction.get("score", 0)) < score_threshold:
+            continue
+        label = str(prediction.get("label", ""))
+        label_type, code = _parse_medical_bert_label(label)
+        if not code:
+            continue
+        if label_type == "BODY_REGION":
+            body_region_scores.append((float(prediction.get("score", 0)), code))
+        elif label_type == "SYMPTOM":
+            symptom_candidates.append(code)
+        elif label_type == "CONTEXT":
+            context_candidates.append(code)
+
+    body_region_scores.sort(key=lambda item: (-item[0], item[1]))
+    return {
+        "body_region": body_region_scores[0][1] if body_region_scores else None,
+        "symptom_candidates": _dedupe_preserving_order(symptom_candidates),
+        "context_candidates": _dedupe_preserving_order(context_candidates),
+    }
+
+
+def _parse_medical_bert_label(label: str):
+    normalized = label.strip()
+    if "__" not in normalized:
+        return "", ""
+    label_type, code = normalized.split("__", 1)
+    return label_type.upper(), code.strip()
+
+
 def _optional_text(value):
     if not isinstance(value, str):
         return None
@@ -3202,14 +4138,73 @@ def _get_region_context_chips(region_id: str):
     return chips
 
 
+def _get_context_chips_for_scope(region_id: str, body_part_id: str | None):
+    region_chips = _get_region_context_chips(region_id)
+    if body_part_id is None:
+        return region_chips, "region", False
+
+    body_part_ids = {part["id"] for part in BODY_PARTS.get(region_id, [])}
+    if body_part_id not in body_part_ids:
+        raise ValueError(
+            f"Unsupported body_part '{body_part_id}' for body_region '{region_id}'. "
+            f"Allowed body_parts: {', '.join(sorted(body_part_ids))}"
+        )
+
+    scoped_codes = BODY_PART_CONTEXT_CHIP_CODES.get(region_id, {}).get(body_part_id)
+    if not scoped_codes:
+        return region_chips, "region", True
+
+    region_chips_by_code = {chip["code"]: chip for chip in region_chips}
+    filtered_chips = []
+    for code in scoped_codes:
+        if code in region_chips_by_code:
+            filtered_chips.append(region_chips_by_code[code])
+            continue
+        context = CONTEXT_OPTIONS_BY_CODE.get(code)
+        if context is None:
+            continue
+        filtered_chips.append(
+            {
+                **context,
+                "display_group": _context_display_group(context),
+                "display_priority": 0,
+                "selection_rationale": "세부 부위에 맞춘 추가 확인 항목입니다.",
+                "evidence_basis": "body_part_scoped_context",
+            }
+        )
+    if not filtered_chips:
+        return region_chips, "region", True
+
+    scoped_chips = [
+        {**chip, "display_priority": display_priority}
+        for display_priority, chip in enumerate(filtered_chips, start=1)
+    ]
+    return scoped_chips, "body_part", False
+
+
+def _context_display_group(context: dict) -> str:
+    if context.get("category") == "lifestyle":
+        return "lifestyle"
+    if context.get("category") == "pattern":
+        return "pattern"
+    if "red_flag" in context.get("usage", []):
+        return "safety"
+    return "pattern"
+
+
 def assess_symptoms(request: SymptomAssessRequest, profile_source: str = "request"):
     if _find_region(request.body_region) is None:
         return None
 
     _validate_assessment_request(request)
 
-    symptom_codes = {symptom.code for symptom in request.symptoms}
-    active_contexts = {key for key, value in request.contexts.items() if value}
+    selected_symptom_codes = {symptom.code for symptom in request.symptoms}
+    selected_contexts = {key for key, value in request.contexts.items() if value}
+    symptom_codes = set(selected_symptom_codes)
+    active_contexts = set(selected_contexts)
+    free_text_structure = _structure_assessment_free_text(request)
+    symptom_codes.update(free_text_structure["symptom_candidates"])
+    active_contexts.update(free_text_structure["context_candidates"])
     candidate_boost_contexts = active_contexts & _get_context_codes_by_usage("candidate_boost")
     max_severity = max((symptom.severity or 0 for symptom in request.symptoms), default=0)
 
@@ -3224,17 +4219,86 @@ def assess_symptoms(request: SymptomAssessRequest, profile_source: str = "reques
         symptom_codes=symptom_codes,
         contexts=candidate_boost_contexts,
     )
+    possible_candidates = _find_possible_condition_candidates(
+        body_region=request.body_region,
+        symptom_codes=symptom_codes,
+        contexts=candidate_boost_contexts,
+        excluded_condition_codes={candidate["condition_code"] for candidate in candidates},
+    )
+    missing_evidence_questions = _dedupe_preserving_order(
+        question
+        for candidate in possible_candidates
+        for question in candidate["missing_evidence_questions"]
+    )[:5]
 
     return {
         "disclaimer": DISCLAIMER,
         "profile": {
             "gender": request.gender,
             "birth_date": request.birth_date,
+            "age": _age_from_birth_date(request.birth_date),
             "source": profile_source,
+        },
+        "input_analysis": {
+            "body_region": request.body_region,
+            "body_part": request.body_part,
+            "selected_symptom_codes": sorted(selected_symptom_codes),
+            "selected_context_codes": sorted(selected_contexts),
+            "free_text": _optional_text(getattr(request.additional_context, "free_text", None)),
+            "free_text_symptom_candidates": free_text_structure["symptom_candidates"],
+            "free_text_context_candidates": free_text_structure["context_candidates"],
+            "merged_symptom_codes": sorted(symptom_codes),
+            "merged_context_codes": sorted(active_contexts),
+            "free_text_used_for_candidate_matching": bool(
+                free_text_structure["symptom_candidates"] or free_text_structure["context_candidates"]
+            ),
+        },
+        "candidate_generation": {
+            "mode": "reviewed_rule_based_candidate_ranking",
+            "source_layers": [
+                "manual_seed_rules",
+                "approved_ddxplus_frequency_tie_break",
+                "reviewed_explanation_cards_available_via_explain",
+            ],
+            "ddxplus_usage": "approved_frequency_tie_break_only",
+            "rag_usage": "explanation_only_not_judgment",
+            "explain_endpoint": "/symptom-checker/explain",
+            "judgment_mutation_allowed_by_rag": False,
         },
         "red_flags": red_flags,
         "candidates": candidates,
+        "possible_candidates": possible_candidates,
+        "missing_evidence_questions": missing_evidence_questions,
     }
+
+
+def _structure_assessment_free_text(request: SymptomAssessRequest):
+    free_text = _optional_text(getattr(request.additional_context, "free_text", None))
+    if not free_text:
+        return {"symptom_candidates": [], "context_candidates": []}
+
+    structured = structure_symptom_input(
+        SymptomStructureRequest(
+            free_text=free_text,
+            body_region=request.body_region,
+            source="manual",
+        )
+    )
+    if structured["body_region"] != request.body_region:
+        return {"symptom_candidates": [], "context_candidates": []}
+
+    return {
+        "symptom_candidates": structured["symptom_candidates"],
+        "context_candidates": structured["context_candidates"],
+    }
+
+
+def _age_from_birth_date(birth_date):
+    today = date.today()
+    age = today.year - birth_date.year
+    if (today.month, today.day) < (birth_date.month, birth_date.day):
+        age -= 1
+    return age
 
 
 def _find_region(region_id: str):
@@ -3578,6 +4642,7 @@ def _match_condition_candidates(body_region: str, symptom_codes: set[str], conte
         )
         dataset_support = _dataset_support_for_condition(rule["condition_code"], ddxplus_baseline)
         dataset_prior = dataset_support["prior_probability_within_approved_rows"] if dataset_support else 0
+        ranking_priority = int(rule.get("ranking_priority", 0))
         candidates.append(
             {
                 "rule_id": rule.get("rule_id", f"rule_{rule['condition_code']}"),
@@ -3599,16 +4664,70 @@ def _match_condition_candidates(body_region: str, symptom_codes: set[str], conte
                 "external_symptom_mappings": rule.get("external_symptom_mappings", []),
                 "dataset_support": dataset_support,
                 "_score": score,
+                "_ranking_priority": ranking_priority,
                 "_dataset_prior": dataset_prior,
             }
         )
 
-    candidates.sort(key=lambda item: (-item["_score"], -item["_dataset_prior"], item["condition_name"]))
+    candidates.sort(key=lambda item: (-item["_score"], item["_ranking_priority"], -item["_dataset_prior"], item["condition_name"]))
     for candidate in candidates:
         candidate.pop("_score", None)
+        candidate.pop("_ranking_priority", None)
         candidate.pop("_dataset_prior", None)
 
     return candidates[:5]
+
+
+def _find_possible_condition_candidates(
+    body_region: str,
+    symptom_codes: set[str],
+    contexts: set[str],
+    excluded_condition_codes: set[str],
+):
+    possible_candidates = []
+
+    for rule in CONDITION_RULES:
+        if rule["region"] != body_region or rule["condition_code"] in excluded_condition_codes:
+            continue
+
+        required_symptoms = set(rule["required_symptoms"])
+        optional_symptoms = set(rule["optional_symptoms"])
+        boosting_contexts = set(rule["boosting_contexts"])
+        matched_optional = symptom_codes & optional_symptoms
+        matched_contexts = contexts & boosting_contexts
+        matched_evidence = sorted(matched_optional | matched_contexts)
+        if not matched_evidence:
+            continue
+
+        missing_required = sorted(required_symptoms - symptom_codes)
+        if not missing_required:
+            continue
+
+        possible_candidates.append(
+            {
+                "rule_id": rule.get("rule_id", f"rule_{rule['condition_code']}"),
+                "condition_code": rule["condition_code"],
+                "condition_name": rule["condition_name"],
+                "matched_evidence": matched_evidence,
+                "missing_required_symptoms": missing_required,
+                "missing_evidence_questions": [
+                    _missing_evidence_question(rule, code)
+                    for code in missing_required
+                ],
+                "reason": "일부 증상이나 상황은 맞지만 필수 확인 항목이 부족해 참고 후보로만 표시합니다.",
+                "_score": len(matched_optional) * 2 + len(matched_contexts),
+            }
+        )
+
+    possible_candidates.sort(key=lambda item: (-item["_score"], item["condition_name"]))
+    for candidate in possible_candidates:
+        candidate.pop("_score", None)
+    return possible_candidates[:5]
+
+
+def _missing_evidence_question(rule, code: str):
+    label = rule.get("reasons", {}).get(code, code)
+    return f"{label}이(가) 있나요?"
 
 
 def _load_ddxplus_frequency_baseline():
@@ -3726,3 +4845,4 @@ def _cap_confidence(confidence: str, cap: str):
         return confidence
 
     return cap
+
