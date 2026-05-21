@@ -1,0 +1,46 @@
+[
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Bronchitis",
+    "source_condition_name_eng": "Bronchitis",
+    "source_icd10_id": "j40",
+    "suggested_internal_condition_code": "common_cold",
+    "suggested_internal_condition_name": "감기/상기도 감염",
+    "match_type": "loose_alias",
+    "approval_status": "rejected_draft",
+    "rejection_basis": "The mapping is only a loose clinical neighborhood and is not approved by the mapping protocol."
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "GERD",
+    "source_condition_name_eng": "GERD",
+    "source_icd10_id": "K21",
+    "suggested_internal_condition_code": "gastritis_or_peptic_ulcer",
+    "suggested_internal_condition_name": "위염/소화성 궤양 가능성",
+    "match_type": "loose_alias",
+    "approval_status": "rejected_draft",
+    "rejection_basis": "The mapping is only a loose clinical neighborhood and is not approved by the mapping protocol."
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Influenza",
+    "source_condition_name_eng": "Influenza",
+    "source_icd10_id": "j11.1",
+    "suggested_internal_condition_code": "viral_infection",
+    "suggested_internal_condition_name": "바이러스 감염",
+    "match_type": "loose_alias",
+    "approval_status": "rejected_draft",
+    "rejection_basis": "The mapping is only a loose clinical neighborhood and is not approved by the mapping protocol."
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Panic attack",
+    "source_condition_name_eng": "Panic attack",
+    "source_icd10_id": "f41",
+    "suggested_internal_condition_code": "arrhythmia_candidate",
+    "suggested_internal_condition_name": "부정맥 관련 가능성",
+    "match_type": "loose_alias",
+    "approval_status": "rejected_draft",
+    "rejection_basis": "The mapping is only a loose clinical neighborhood and is not approved by the mapping protocol."
+  }
+]

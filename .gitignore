@@ -194,3 +194,29 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Local model/cache artifacts
+.model-cache/
+
+# Generated documents and local planning/demo artifacts
+extracted_docs/
+docs/*.html
+docs/*DEMO*.md
+docs/*PLAN*.md
+docs/*POLICY*.md
+
+# Local/raw dataset drops. Keep reviewed runtime seed data in app/data tracked.
+health-navigator-backend/app/data/raw/release_*
+
+# Generated analysis, model metrics, reports, and local vector stores.
+# Runtime seed files such as app/data/symptom_checker_conditions.json are not in this folder.
+health-navigator-backend/app/data/processed/*
+!health-navigator-backend/app/data/processed/ddxplus_frequency_baseline.json
+
+# Local review/model-label drafts that are not required for runtime symptom search.
+health-navigator-backend/app/data/review/ddxplus_candidate_expansion_draft.json
+health-navigator-backend/app/data/review/korean_*.json
+
+# Local verification/training/analysis code. Runtime deployment should use app/ only.
+health-navigator-backend/tests/
+health-navigator-backend/tools/

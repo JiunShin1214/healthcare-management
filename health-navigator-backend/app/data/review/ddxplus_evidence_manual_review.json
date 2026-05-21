@@ -1,0 +1,187 @@
+{
+  "reviewed_at": "2026-05-14",
+  "scope": "First manual review of DDXPlus respiratory, allergy, airway, swelling, hemoptysis, and chest-pain-pattern evidence.",
+  "policy": {
+    "ddxplus_role": "review_hint_only",
+    "active_rule_change": false,
+    "active_api_change": false,
+    "overfitting_guard": [
+      "Do not add a symptom, context, candidate, or red flag only to improve DDXPlus train/validate/test metrics.",
+      "Use DDXPlus evidence only as a review queue.",
+      "Promote a code only when user UX, safety need, existing rule policy, and official/public/specialist guidance support it."
+    ]
+  },
+  "official_reference_candidates": [
+    {
+      "topic": "anaphylaxis_or_severe_allergic_reaction",
+      "sources": [
+        "https://www.cdc.gov/vaccines/covid-19/clinical-considerations/managing-anaphylaxis.html",
+        "https://www.fda.gov/food/nutrition-food-labeling-and-critical-foods/food-allergies"
+      ]
+    },
+    {
+      "topic": "upper_airway_obstruction_or_epiglottitis",
+      "sources": [
+        "https://www.nhs.uk/conditions/epiglottitis/",
+        "https://medlineplus.gov/ency/article/000605.htm"
+      ]
+    },
+    {
+      "topic": "heart_attack_or_acute_coronary_syndrome_warning_signs",
+      "sources": [
+        "https://www.cdc.gov/heart-disease/about/heart-attack.html",
+        "https://www.nhs.uk/conditions/heart-attack/symptoms/"
+      ]
+    },
+    {
+      "topic": "pulmonary_embolism_warning_signs",
+      "sources": [
+        "https://www.nhs.uk/conditions/pulmonary-embolism/",
+        "https://medlineplus.gov/pulmonaryembolism.html"
+      ]
+    }
+  ],
+  "manual_decisions": [
+    {
+      "ddxplus_evidence_id": "E_66",
+      "question_en": "Are you experiencing shortness of breath or difficulty breathing in a significant way?",
+      "current_triage": "current_symptom_review",
+      "decision": "keep_existing_symptom_mapping",
+      "internal_code": "shortness_of_breath",
+      "activation_status": "already_active_symptom",
+      "notes": "Directly matches the existing symptom code. It can participate in the existing broad chest safety rule, but DDXPlus does not create red flags."
+    },
+    {
+      "ddxplus_evidence_id": "E_64",
+      "question_en": "Do you feel out of breath with minimal physical effort?",
+      "current_triage": "unmapped_evidence_review",
+      "decision": "candidate_context_only",
+      "internal_code": "severe_shortness_of_breath",
+      "activation_status": "inactive_candidate",
+      "notes": "Useful severity/detail context for airway, allergy, cardiopulmonary, or neurologic safety review. Do not make it a standalone red flag."
+    },
+    {
+      "ddxplus_evidence_id": "E_194",
+      "question_en": "Have you noticed a high pitched sound when breathing in?",
+      "current_triage": "unmapped_evidence_review",
+      "decision": "candidate_context_only",
+      "internal_code": "wheezing_or_stridor",
+      "activation_status": "inactive_candidate",
+      "notes": "Better understood as inspiratory stridor/noisy breathing, not itching. Keep inactive until airway/allergy rule criteria are reviewed."
+    },
+    {
+      "ddxplus_evidence_id": "E_214",
+      "question_en": "Have you noticed a wheezing sound when you exhale?",
+      "current_triage": "unmapped_evidence_review",
+      "decision": "candidate_context_only",
+      "internal_code": "wheezing_or_stridor",
+      "activation_status": "inactive_candidate",
+      "notes": "Useful respiratory detail, but it should not be a standalone emergency signal without severity, exposure, swelling, or breathing difficulty context."
+    },
+    {
+      "ddxplus_evidence_id": "E_112",
+      "question_en": "Do you wheeze while inhaling or is your breathing noisy after coughing spells?",
+      "current_triage": "current_symptom_review",
+      "decision": "reject_current_cough_mapping",
+      "internal_code": "wheezing_or_stridor",
+      "activation_status": "inactive_candidate",
+      "notes": "The existing keyword guess as cough is too broad. Treat as noisy breathing review candidate, not an approved cough mapping."
+    },
+    {
+      "ddxplus_evidence_id": "E_65",
+      "question_en": "Do you have difficulty swallowing, or have a feeling of discomfort/blockage when swallowing?",
+      "current_triage": "unmapped_evidence_review",
+      "decision": "candidate_context_only",
+      "internal_code": "difficulty_swallowing_or_drooling",
+      "activation_status": "inactive_candidate",
+      "notes": "Useful for airway/allergy/neurologic safety review. Drooling is not explicitly present, so the label may need split codes before activation."
+    },
+    {
+      "ddxplus_evidence_id": "E_42",
+      "question_en": "Have you been in contact with or ate something that you have an allergy to?",
+      "current_triage": "unmapped_evidence_review",
+      "decision": "candidate_context_only",
+      "internal_code": "known_allergen_exposure",
+      "activation_status": "inactive_candidate",
+      "notes": "Exposure context is useful only in combination with respiratory, swelling, skin, or hemodynamic danger signals."
+    },
+    {
+      "ddxplus_evidence_id": "E_12",
+      "question_en": "Do you have a known severe food allergy?",
+      "current_triage": "antecedent_context_review",
+      "decision": "history_context_only",
+      "internal_code": "severe_food_allergy_history",
+      "activation_status": "inactive_candidate",
+      "notes": "This is history/risk context, not a current symptom. It must not trigger a red flag by itself."
+    },
+    {
+      "ddxplus_evidence_id": "E_151",
+      "question_en": "Do you have swelling in one or more areas of your body?",
+      "current_triage": "current_symptom_review",
+      "decision": "keep_generic_symptom_review",
+      "internal_code": "swelling",
+      "activation_status": "existing_generic_symptom",
+      "notes": "Generic swelling is too nonspecific for anaphylaxis or airway danger. Location-specific swelling is required before safety rules use it."
+    },
+    {
+      "ddxplus_evidence_id": "E_152",
+      "question_en": "Where is the swelling located?",
+      "current_triage": "value_coded_evidence_review",
+      "decision": "value_mapping_needed",
+      "internal_code": "facial_lip_tongue_throat_swelling",
+      "activation_status": "inactive_candidate",
+      "notes": "Only face, lip, tongue, mouth, throat, uvula, or laryngeal-adjacent values are relevant to airway/allergy safety. Do not map all swelling locations."
+    },
+    {
+      "ddxplus_evidence_id": "E_45",
+      "question_en": "Have you been coughing up blood?",
+      "current_triage": "current_symptom_review",
+      "decision": "reject_current_cough_mapping",
+      "internal_code": "hemoptysis",
+      "activation_status": "inactive_candidate",
+      "notes": "This is hemoptysis, not generic cough. It may support pulmonary embolism-like danger review with shortness of breath or pleuritic pain."
+    },
+    {
+      "ddxplus_evidence_id": "E_14",
+      "question_en": "Do you have chest pain even at rest?",
+      "current_triage": "current_symptom_review",
+      "decision": "candidate_context_only",
+      "internal_code": "rest_chest_pain",
+      "activation_status": "inactive_candidate",
+      "notes": "Relevant chest pain pattern, but the project already decided not to split active chest red flags yet."
+    },
+    {
+      "ddxplus_evidence_id": "E_218",
+      "question_en": "Do you have symptoms that are increased with physical exertion but alleviated with rest?",
+      "current_triage": "unmapped_evidence_review",
+      "decision": "candidate_context_only",
+      "internal_code": "exertional_chest_pain_relieved_by_rest",
+      "activation_status": "inactive_candidate",
+      "notes": "Potential angina-like pattern only when the selected region/symptom is chest pain. Do not use globally."
+    },
+    {
+      "ddxplus_evidence_id": "E_220",
+      "question_en": "Do you have pain that is increased when you breathe in deeply?",
+      "current_triage": "unmapped_evidence_review",
+      "decision": "candidate_context_only",
+      "internal_code": "pleuritic_chest_pain",
+      "activation_status": "inactive_candidate",
+      "notes": "Potential pleuritic chest pain context only when region/symptom matches chest pain. Not a standalone red flag."
+    },
+    {
+      "ddxplus_evidence_id": "E_13",
+      "question_en": "Do you find that your symptoms have worsened over the last 2 weeks and that progressively less effort is required to cause the symptoms?",
+      "current_triage": "context_review",
+      "decision": "candidate_context_only",
+      "internal_code": "progressive_exertional_worsening",
+      "activation_status": "inactive_candidate",
+      "notes": "Useful progression context, but too broad to attach to a specific condition or emergency rule without region and symptom constraints."
+    }
+  ],
+  "next_step_candidates": [
+    "If implementation is approved later, add inactive code definitions first without changing active red flag logic.",
+    "Split difficulty_swallowing_or_drooling if UX needs swallowing difficulty and drooling as separate chips.",
+    "For swelling location, map only airway/allergy-relevant values instead of generic swelling.",
+    "Add tests that DDXPlus-reviewed candidates do not trigger red flags until explicit active rules are implemented."
+  ]
+}

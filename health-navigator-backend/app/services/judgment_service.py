@@ -32,7 +32,7 @@ def judge_hemoglobin(value, gender):
         return None, None
 
     if gender == "male":
-        low, high = 13.0, 17.5
+        low, high = 13.0, 16.5
     else:
         low, high = 12.0, 15.5
 
@@ -128,7 +128,7 @@ def judge_dyslipidemia(total, hdl, ldl, tg):
 def judge_creatinine(value):
     if value is None:
         return None
-    return "정상" if value <= 1.2 else "신장기능 이상 의심"
+    return "정상" if value <= 1.5 else "신장기능 이상 의심"
 
 
 def judge_egfr(value):
@@ -149,19 +149,19 @@ def judge_kidney_disease(creatinine_status, egfr_status):
 def judge_ast(value):
     if value is None:
         return None
-    return "정상" if value <= 33 else "간기능 이상 의심"
+    return "정상" if value <= 40 else "간기능 이상 의심"
 
 
 def judge_alt(value):
     if value is None:
         return None
-    return "정상" if value <= 38 else "간기능 이상 의심"
+    return "정상" if value <= 35 else "간기능 이상 의심"
 
 
 def judge_gamma_gtp(value, gender):
     if value is None or gender is None:
         return None
-    limit = 56 if gender == "male" else 38
+    limit = 63 if gender == "male" else 35
     return "정상" if value <= limit else "간기능 이상 의심"
 
 

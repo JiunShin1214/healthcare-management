@@ -1,0 +1,564 @@
+{
+  "conditions_count": 49,
+  "evidences_count": 223,
+  "condition_mapping_match_counts": {
+    "alias": 6,
+    "loose_alias": 4,
+    "unmapped": 39
+  },
+  "evidence_mapping_match_counts": {
+    "keyword": 66,
+    "unmapped": 157
+  },
+  "approved_condition_mapping_count": 6,
+  "rejected_condition_mapping_count": 4,
+  "needs_review_condition_mapping_count": 39,
+  "patient_splits": [
+    {
+      "file": "release_train_patients",
+      "columns": [
+        "AGE",
+        "DIFFERENTIAL_DIAGNOSIS",
+        "SEX",
+        "PATHOLOGY",
+        "EVIDENCES",
+        "INITIAL_EVIDENCE"
+      ],
+      "row_count": 1025602,
+      "pathology_count": 49,
+      "initial_evidence_count": 96,
+      "sex_counts": {
+        "F": 527798,
+        "M": 497804
+      },
+      "top_pathologies": [
+        [
+          "URTI",
+          64368
+        ],
+        [
+          "Viral pharyngitis",
+          61642
+        ],
+        [
+          "Anemia",
+          50665
+        ],
+        [
+          "HIV (initial infection)",
+          29013
+        ],
+        [
+          "Localized edema",
+          27825
+        ],
+        [
+          "Anaphylaxis",
+          27718
+        ],
+        [
+          "Pulmonary embolism",
+          27468
+        ],
+        [
+          "Influenza",
+          26812
+        ],
+        [
+          "Bronchitis",
+          26400
+        ],
+        [
+          "Allergic sinusitis",
+          26203
+        ],
+        [
+          "Acute dystonic reactions",
+          25982
+        ],
+        [
+          "GERD",
+          25979
+        ],
+        [
+          "Acute otitis media",
+          25917
+        ],
+        [
+          "Pneumonia",
+          25761
+        ],
+        [
+          "Panic attack",
+          25019
+        ],
+        [
+          "Acute laryngitis",
+          24129
+        ],
+        [
+          "Guillain-Barré syndrome",
+          22867
+        ],
+        [
+          "Pericarditis",
+          22785
+        ],
+        [
+          "Sarcoidosis",
+          21285
+        ],
+        [
+          "Possible NSTEMI / STEMI",
+          21260
+        ]
+      ],
+      "top_initial_evidences": [
+        [
+          "E_53",
+          188480
+        ],
+        [
+          "E_66",
+          86081
+        ],
+        [
+          "E_201",
+          75741
+        ],
+        [
+          "E_181",
+          49190
+        ],
+        [
+          "E_91",
+          42317
+        ],
+        [
+          "E_129",
+          26917
+        ],
+        [
+          "E_45",
+          24216
+        ],
+        [
+          "E_151",
+          23220
+        ],
+        [
+          "E_50",
+          20673
+        ],
+        [
+          "E_77",
+          20508
+        ],
+        [
+          "E_155",
+          18769
+        ],
+        [
+          "E_148",
+          18541
+        ],
+        [
+          "E_214",
+          18539
+        ],
+        [
+          "E_89",
+          17857
+        ],
+        [
+          "E_218",
+          16344
+        ],
+        [
+          "E_194",
+          15696
+        ],
+        [
+          "E_82",
+          15279
+        ],
+        [
+          "E_97",
+          15231
+        ],
+        [
+          "E_220",
+          13573
+        ],
+        [
+          "E_144",
+          12670
+        ]
+      ]
+    },
+    {
+      "file": "release_validate_patients",
+      "columns": [
+        "AGE",
+        "DIFFERENTIAL_DIAGNOSIS",
+        "SEX",
+        "PATHOLOGY",
+        "EVIDENCES",
+        "INITIAL_EVIDENCE"
+      ],
+      "row_count": 132448,
+      "pathology_count": 49,
+      "initial_evidence_count": 96,
+      "sex_counts": {
+        "F": 68133,
+        "M": 64315
+      },
+      "top_pathologies": [
+        [
+          "URTI",
+          8656
+        ],
+        [
+          "Viral pharyngitis",
+          8246
+        ],
+        [
+          "Anemia",
+          6903
+        ],
+        [
+          "HIV (initial infection)",
+          3852
+        ],
+        [
+          "Anaphylaxis",
+          3754
+        ],
+        [
+          "Pulmonary embolism",
+          3725
+        ],
+        [
+          "Localized edema",
+          3694
+        ],
+        [
+          "Influenza",
+          3590
+        ],
+        [
+          "Bronchitis",
+          3543
+        ],
+        [
+          "Pneumonia",
+          3484
+        ],
+        [
+          "Acute otitis media",
+          3474
+        ],
+        [
+          "GERD",
+          3426
+        ],
+        [
+          "Acute laryngitis",
+          3407
+        ],
+        [
+          "Acute dystonic reactions",
+          3281
+        ],
+        [
+          "Panic attack",
+          3237
+        ],
+        [
+          "Pericarditis",
+          3032
+        ],
+        [
+          "Sarcoidosis",
+          3028
+        ],
+        [
+          "Possible NSTEMI / STEMI",
+          2943
+        ],
+        [
+          "Cluster headache",
+          2841
+        ],
+        [
+          "Unstable angina",
+          2748
+        ]
+      ],
+      "top_initial_evidences": [
+        [
+          "E_53",
+          25216
+        ],
+        [
+          "E_66",
+          10926
+        ],
+        [
+          "E_201",
+          9588
+        ],
+        [
+          "E_181",
+          6364
+        ],
+        [
+          "E_91",
+          5634
+        ],
+        [
+          "E_129",
+          3535
+        ],
+        [
+          "E_45",
+          3144
+        ],
+        [
+          "E_151",
+          3078
+        ],
+        [
+          "E_50",
+          2752
+        ],
+        [
+          "E_77",
+          2640
+        ],
+        [
+          "E_89",
+          2464
+        ],
+        [
+          "E_155",
+          2343
+        ],
+        [
+          "E_148",
+          2339
+        ],
+        [
+          "E_218",
+          2255
+        ],
+        [
+          "E_214",
+          2161
+        ],
+        [
+          "E_82",
+          2033
+        ],
+        [
+          "E_97",
+          2030
+        ],
+        [
+          "E_220",
+          1861
+        ],
+        [
+          "E_76",
+          1679
+        ],
+        [
+          "E_144",
+          1654
+        ]
+      ]
+    },
+    {
+      "file": "release_test_patients",
+      "columns": [
+        "AGE",
+        "DIFFERENTIAL_DIAGNOSIS",
+        "SEX",
+        "PATHOLOGY",
+        "EVIDENCES",
+        "INITIAL_EVIDENCE"
+      ],
+      "row_count": 134529,
+      "pathology_count": 49,
+      "initial_evidence_count": 96,
+      "sex_counts": {
+        "F": 69342,
+        "M": 65187
+      },
+      "top_pathologies": [
+        [
+          "URTI",
+          8743
+        ],
+        [
+          "Viral pharyngitis",
+          8334
+        ],
+        [
+          "Anemia",
+          6842
+        ],
+        [
+          "HIV (initial infection)",
+          3919
+        ],
+        [
+          "Anaphylaxis",
+          3799
+        ],
+        [
+          "Localized edema",
+          3734
+        ],
+        [
+          "Pulmonary embolism",
+          3679
+        ],
+        [
+          "Bronchitis",
+          3594
+        ],
+        [
+          "Influenza",
+          3554
+        ],
+        [
+          "GERD",
+          3543
+        ],
+        [
+          "Pneumonia",
+          3542
+        ],
+        [
+          "Acute otitis media",
+          3516
+        ],
+        [
+          "Panic attack",
+          3387
+        ],
+        [
+          "Acute dystonic reactions",
+          3302
+        ],
+        [
+          "Acute laryngitis",
+          3217
+        ],
+        [
+          "Pericarditis",
+          3095
+        ],
+        [
+          "Possible NSTEMI / STEMI",
+          2911
+        ],
+        [
+          "Sarcoidosis",
+          2902
+        ],
+        [
+          "Unstable angina",
+          2880
+        ],
+        [
+          "Atrial fibrillation",
+          2831
+        ]
+      ],
+      "top_initial_evidences": [
+        [
+          "E_53",
+          25721
+        ],
+        [
+          "E_66",
+          11305
+        ],
+        [
+          "E_201",
+          9618
+        ],
+        [
+          "E_181",
+          6270
+        ],
+        [
+          "E_91",
+          5628
+        ],
+        [
+          "E_129",
+          3597
+        ],
+        [
+          "E_151",
+          3212
+        ],
+        [
+          "E_45",
+          3128
+        ],
+        [
+          "E_50",
+          2759
+        ],
+        [
+          "E_77",
+          2701
+        ],
+        [
+          "E_148",
+          2506
+        ],
+        [
+          "E_89",
+          2468
+        ],
+        [
+          "E_155",
+          2387
+        ],
+        [
+          "E_214",
+          2341
+        ],
+        [
+          "E_218",
+          2228
+        ],
+        [
+          "E_82",
+          2008
+        ],
+        [
+          "E_97",
+          1992
+        ],
+        [
+          "E_220",
+          1877
+        ],
+        [
+          "E_144",
+          1789
+        ],
+        [
+          "E_76",
+          1668
+        ]
+      ]
+    }
+  ]
+}

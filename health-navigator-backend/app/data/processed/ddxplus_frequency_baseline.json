@@ -1,0 +1,760 @@
+{
+  "source": "DDXPlus",
+  "baseline_type": "frequency",
+  "training_split": "release_train_patients",
+  "approved_mapping_path": "app\\data\\processed\\ddxplus_approved_condition_mappings.json",
+  "total_train_rows": 1025602,
+  "used_train_rows": 249831,
+  "coverage_ratio": 0.24359449377048797,
+  "approved_source_condition_count": 6,
+  "internal_condition_count": 6,
+  "source_condition_counts": {
+    "Acute otitis media": 25917,
+    "Allergic sinusitis": 26203,
+    "Anemia": 50665,
+    "Atrial fibrillation": 21036,
+    "URTI": 64368,
+    "Viral pharyngitis": 61642
+  },
+  "conditions": [
+    {
+      "internal_condition_code": "allergic_rhinitis",
+      "row_count": 26203,
+      "prior_probability_within_approved_rows": 0.10488290084096849,
+      "top_initial_evidences": [
+        {
+          "evidence_id": "E_181",
+          "count": 8338,
+          "frequency": 0.3182078387970843
+        },
+        {
+          "evidence_id": "E_169",
+          "count": 6976,
+          "frequency": 0.26622905774148
+        },
+        {
+          "evidence_id": "E_170",
+          "count": 6013,
+          "frequency": 0.22947754073960996
+        },
+        {
+          "evidence_id": "E_201",
+          "count": 4876,
+          "frequency": 0.18608556272182575
+        }
+      ],
+      "top_evidences": [
+        {
+          "evidence_id": "E_204",
+          "count": 26203,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_181",
+          "count": 23029,
+          "frequency": 0.8788688318131511
+        },
+        {
+          "evidence_id": "E_169",
+          "count": 21655,
+          "frequency": 0.8264320879288631
+        },
+        {
+          "evidence_id": "E_124",
+          "count": 19936,
+          "frequency": 0.7608289127199176
+        },
+        {
+          "evidence_id": "E_170",
+          "count": 19093,
+          "frequency": 0.728657024004885
+        },
+        {
+          "evidence_id": "E_226",
+          "count": 18808,
+          "frequency": 0.7177804068236462
+        },
+        {
+          "evidence_id": "E_86",
+          "count": 18152,
+          "frequency": 0.6927451055222684
+        },
+        {
+          "evidence_id": "E_201",
+          "count": 16526,
+          "frequency": 0.6306911422356218
+        },
+        {
+          "evidence_id": "E_207",
+          "count": 16367,
+          "frequency": 0.6246231347555623
+        },
+        {
+          "evidence_id": "E_87",
+          "count": 13561,
+          "frequency": 0.5175361599816815
+        }
+      ]
+    },
+    {
+      "internal_condition_code": "anemia",
+      "row_count": 50665,
+      "prior_probability_within_approved_rows": 0.2027970908334034,
+      "top_initial_evidences": [
+        {
+          "evidence_id": "E_53",
+          "count": 8741,
+          "frequency": 0.17252541202013225
+        },
+        {
+          "evidence_id": "E_82",
+          "count": 5547,
+          "frequency": 0.10948386460080924
+        },
+        {
+          "evidence_id": "E_88",
+          "count": 5201,
+          "frequency": 0.10265469258857199
+        },
+        {
+          "evidence_id": "E_89",
+          "count": 4956,
+          "frequency": 0.09781900720418435
+        },
+        {
+          "evidence_id": "E_66",
+          "count": 4930,
+          "frequency": 0.09730583242869831
+        },
+        {
+          "evidence_id": "E_179",
+          "count": 4923,
+          "frequency": 0.09716766998914438
+        },
+        {
+          "evidence_id": "E_154",
+          "count": 4918,
+          "frequency": 0.09706898253232014
+        },
+        {
+          "evidence_id": "E_76",
+          "count": 4915,
+          "frequency": 0.0970097700582256
+        },
+        {
+          "evidence_id": "E_140",
+          "count": 4880,
+          "frequency": 0.09631895786045594
+        },
+        {
+          "evidence_id": "E_145",
+          "count": 1654,
+          "frequency": 0.03264581071745781
+        }
+      ],
+      "top_evidences": [
+        {
+          "evidence_id": "E_55",
+          "count": 152585,
+          "frequency": 3.01164511990526
+        },
+        {
+          "evidence_id": "E_54",
+          "count": 122121,
+          "frequency": 2.410362182966545
+        },
+        {
+          "evidence_id": "E_56",
+          "count": 50665,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_57",
+          "count": 50665,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_58",
+          "count": 50665,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_59",
+          "count": 50665,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_204",
+          "count": 50665,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_53",
+          "count": 50175,
+          "frequency": 0.9903286292312247
+        },
+        {
+          "evidence_id": "E_146",
+          "count": 40464,
+          "frequency": 0.7986578505871904
+        },
+        {
+          "evidence_id": "E_24",
+          "count": 39373,
+          "frequency": 0.7771242475081417
+        },
+        {
+          "evidence_id": "E_208",
+          "count": 39331,
+          "frequency": 0.7762952728708181
+        },
+        {
+          "evidence_id": "E_113",
+          "count": 38079,
+          "frequency": 0.751583933682029
+        },
+        {
+          "evidence_id": "E_7",
+          "count": 37957,
+          "frequency": 0.7491759597355176
+        },
+        {
+          "evidence_id": "E_26",
+          "count": 36097,
+          "frequency": 0.7124642257969012
+        },
+        {
+          "evidence_id": "E_82",
+          "count": 33813,
+          "frequency": 0.6673837955195895
+        },
+        {
+          "evidence_id": "E_88",
+          "count": 32135,
+          "frequency": 0.6342642850093753
+        },
+        {
+          "evidence_id": "E_66",
+          "count": 30612,
+          "frequency": 0.6042040856607125
+        },
+        {
+          "evidence_id": "E_76",
+          "count": 30507,
+          "frequency": 0.6021316490674036
+        },
+        {
+          "evidence_id": "E_154",
+          "count": 30445,
+          "frequency": 0.600907924602783
+        },
+        {
+          "evidence_id": "E_89",
+          "count": 30439,
+          "frequency": 0.6007894996545939
+        },
+        {
+          "evidence_id": "E_179",
+          "count": 30410,
+          "frequency": 0.6002171124050133
+        },
+        {
+          "evidence_id": "E_140",
+          "count": 30320,
+          "frequency": 0.598440738182177
+        },
+        {
+          "evidence_id": "E_167",
+          "count": 17384,
+          "frequency": 0.3431165498865094
+        },
+        {
+          "evidence_id": "E_145",
+          "count": 11035,
+          "frequency": 0.21780321721109247
+        }
+      ]
+    },
+    {
+      "internal_condition_code": "arrhythmia_candidate",
+      "row_count": 21036,
+      "prior_probability_within_approved_rows": 0.08420091982179953,
+      "top_initial_evidences": [
+        {
+          "evidence_id": "E_164",
+          "count": 4770,
+          "frequency": 0.22675413576725614
+        },
+        {
+          "evidence_id": "E_155",
+          "count": 4492,
+          "frequency": 0.2135386955694999
+        },
+        {
+          "evidence_id": "E_66",
+          "count": 4379,
+          "frequency": 0.2081669518919947
+        },
+        {
+          "evidence_id": "E_76",
+          "count": 3996,
+          "frequency": 0.18996006845407873
+        },
+        {
+          "evidence_id": "E_218",
+          "count": 3399,
+          "frequency": 0.16158014831717057
+        }
+      ],
+      "top_evidences": [
+        {
+          "evidence_id": "E_204",
+          "count": 21036,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_22",
+          "count": 16121,
+          "frequency": 0.7663529188058567
+        },
+        {
+          "evidence_id": "E_164",
+          "count": 16051,
+          "frequency": 0.7630252899790835
+        },
+        {
+          "evidence_id": "E_31",
+          "count": 15703,
+          "frequency": 0.7464822209545541
+        },
+        {
+          "evidence_id": "E_104",
+          "count": 15538,
+          "frequency": 0.7386385244343031
+        },
+        {
+          "evidence_id": "E_155",
+          "count": 15394,
+          "frequency": 0.731793116562084
+        },
+        {
+          "evidence_id": "E_66",
+          "count": 15211,
+          "frequency": 0.7230937440578057
+        },
+        {
+          "evidence_id": "E_105",
+          "count": 15129,
+          "frequency": 0.7191956645750143
+        },
+        {
+          "evidence_id": "E_19",
+          "count": 14984,
+          "frequency": 0.712302719148127
+        },
+        {
+          "evidence_id": "E_76",
+          "count": 14551,
+          "frequency": 0.6917189579768017
+        },
+        {
+          "evidence_id": "E_139",
+          "count": 14015,
+          "frequency": 0.666238828674653
+        },
+        {
+          "evidence_id": "E_70",
+          "count": 13153,
+          "frequency": 0.625261456550675
+        },
+        {
+          "evidence_id": "E_69",
+          "count": 12120,
+          "frequency": 0.576155162578437
+        },
+        {
+          "evidence_id": "E_218",
+          "count": 12099,
+          "frequency": 0.575156873930405
+        }
+      ]
+    },
+    {
+      "internal_condition_code": "common_cold",
+      "row_count": 64368,
+      "prior_probability_within_approved_rows": 0.25764616881011565,
+      "top_initial_evidences": [
+        {
+          "evidence_id": "E_53",
+          "count": 11926,
+          "frequency": 0.1852783992045737
+        },
+        {
+          "evidence_id": "E_181",
+          "count": 9513,
+          "frequency": 0.14779082774049218
+        },
+        {
+          "evidence_id": "E_97",
+          "count": 9167,
+          "frequency": 0.1424154859557544
+        },
+        {
+          "evidence_id": "E_91",
+          "count": 8003,
+          "frequency": 0.1243319661943823
+        },
+        {
+          "evidence_id": "E_201",
+          "count": 7691,
+          "frequency": 0.11948483718617947
+        },
+        {
+          "evidence_id": "E_50",
+          "count": 7183,
+          "frequency": 0.11159271687795178
+        },
+        {
+          "evidence_id": "E_144",
+          "count": 6494,
+          "frequency": 0.10088864031817052
+        },
+        {
+          "evidence_id": "E_77",
+          "count": 4391,
+          "frequency": 0.06821712652249565
+        }
+      ],
+      "top_evidences": [
+        {
+          "evidence_id": "E_55",
+          "count": 239210,
+          "frequency": 3.7162875963211532
+        },
+        {
+          "evidence_id": "E_54",
+          "count": 111339,
+          "frequency": 1.7297259507829978
+        },
+        {
+          "evidence_id": "E_56",
+          "count": 64368,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_57",
+          "count": 64368,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_58",
+          "count": 64368,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_59",
+          "count": 64368,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_204",
+          "count": 64368,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_53",
+          "count": 64121,
+          "frequency": 0.9961626895351727
+        },
+        {
+          "evidence_id": "E_181",
+          "count": 51938,
+          "frequency": 0.806891623166791
+        },
+        {
+          "evidence_id": "E_97",
+          "count": 50206,
+          "frequency": 0.779983842903306
+        },
+        {
+          "evidence_id": "E_48",
+          "count": 45946,
+          "frequency": 0.7138018891374596
+        },
+        {
+          "evidence_id": "E_91",
+          "count": 45036,
+          "frequency": 0.6996644295302014
+        },
+        {
+          "evidence_id": "E_201",
+          "count": 43930,
+          "frequency": 0.6824819786229183
+        },
+        {
+          "evidence_id": "E_41",
+          "count": 42192,
+          "frequency": 0.6554809843400448
+        },
+        {
+          "evidence_id": "E_50",
+          "count": 41650,
+          "frequency": 0.6470606512552821
+        },
+        {
+          "evidence_id": "E_222",
+          "count": 40593,
+          "frequency": 0.6306394481730052
+        },
+        {
+          "evidence_id": "E_49",
+          "count": 39577,
+          "frequency": 0.6148552075565499
+        },
+        {
+          "evidence_id": "E_144",
+          "count": 37857,
+          "frequency": 0.5881338553318419
+        },
+        {
+          "evidence_id": "E_79",
+          "count": 37051,
+          "frequency": 0.5756121053939846
+        },
+        {
+          "evidence_id": "E_77",
+          "count": 26509,
+          "frequency": 0.41183507332836194
+        }
+      ]
+    },
+    {
+      "internal_condition_code": "otitis_media",
+      "row_count": 25917,
+      "prior_probability_within_approved_rows": 0.10373812697383432,
+      "top_initial_evidences": [
+        {
+          "evidence_id": "E_53",
+          "count": 9046,
+          "frequency": 0.3490373114172165
+        },
+        {
+          "evidence_id": "E_181",
+          "count": 4545,
+          "frequency": 0.17536751938881814
+        },
+        {
+          "evidence_id": "E_91",
+          "count": 4240,
+          "frequency": 0.16359918200409
+        },
+        {
+          "evidence_id": "E_114",
+          "count": 4140,
+          "frequency": 0.1597407107304086
+        },
+        {
+          "evidence_id": "E_201",
+          "count": 3946,
+          "frequency": 0.15225527645946677
+        }
+      ],
+      "top_evidences": [
+        {
+          "evidence_id": "E_55",
+          "count": 41422,
+          "frequency": 1.598255970984296
+        },
+        {
+          "evidence_id": "E_54",
+          "count": 40532,
+          "frequency": 1.5639155766485318
+        },
+        {
+          "evidence_id": "E_56",
+          "count": 25917,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_57",
+          "count": 25917,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_58",
+          "count": 25917,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_59",
+          "count": 25917,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_204",
+          "count": 25917,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_53",
+          "count": 25868,
+          "frequency": 0.9981093490758961
+        },
+        {
+          "evidence_id": "E_181",
+          "count": 15698,
+          "frequency": 0.605702820542501
+        },
+        {
+          "evidence_id": "E_91",
+          "count": 14634,
+          "frequency": 0.5646486861905313
+        },
+        {
+          "evidence_id": "E_114",
+          "count": 14157,
+          "frequency": 0.5462437782150712
+        },
+        {
+          "evidence_id": "E_1",
+          "count": 14125,
+          "frequency": 0.5450090674074931
+        },
+        {
+          "evidence_id": "E_201",
+          "count": 13589,
+          "frequency": 0.524327661380561
+        },
+        {
+          "evidence_id": "E_209",
+          "count": 12882,
+          "frequency": 0.49704826947563374
+        }
+      ]
+    },
+    {
+      "internal_condition_code": "upper_respiratory_infection",
+      "row_count": 61642,
+      "prior_probability_within_approved_rows": 0.24673479271987864,
+      "top_initial_evidences": [
+        {
+          "evidence_id": "E_53",
+          "count": 20171,
+          "frequency": 0.3272281885727264
+        },
+        {
+          "evidence_id": "E_181",
+          "count": 12631,
+          "frequency": 0.20490899062327633
+        },
+        {
+          "evidence_id": "E_201",
+          "count": 10788,
+          "frequency": 0.1750105447584439
+        },
+        {
+          "evidence_id": "E_45",
+          "count": 9730,
+          "frequency": 0.1578469225528049
+        },
+        {
+          "evidence_id": "E_91",
+          "count": 8322,
+          "frequency": 0.13500535349274845
+        }
+      ],
+      "top_evidences": [
+        {
+          "evidence_id": "E_55",
+          "count": 278716,
+          "frequency": 4.521527529930891
+        },
+        {
+          "evidence_id": "E_54",
+          "count": 100805,
+          "frequency": 1.6353298075987153
+        },
+        {
+          "evidence_id": "E_53",
+          "count": 61642,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_56",
+          "count": 61642,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_57",
+          "count": 61642,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_58",
+          "count": 61642,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_59",
+          "count": 61642,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_204",
+          "count": 61642,
+          "frequency": 1.0
+        },
+        {
+          "evidence_id": "E_41",
+          "count": 49271,
+          "frequency": 0.799308912754291
+        },
+        {
+          "evidence_id": "E_49",
+          "count": 44176,
+          "frequency": 0.7166542292592712
+        },
+        {
+          "evidence_id": "E_181",
+          "count": 42230,
+          "frequency": 0.6850848447487103
+        },
+        {
+          "evidence_id": "E_48",
+          "count": 39446,
+          "frequency": 0.6399208331981441
+        },
+        {
+          "evidence_id": "E_79",
+          "count": 37071,
+          "frequency": 0.6013919081145972
+        },
+        {
+          "evidence_id": "E_201",
+          "count": 37032,
+          "frequency": 0.6007592226079621
+        },
+        {
+          "evidence_id": "E_227",
+          "count": 36544,
+          "frequency": 0.5928425424223743
+        },
+        {
+          "evidence_id": "E_45",
+          "count": 34037,
+          "frequency": 0.5521722202394471
+        },
+        {
+          "evidence_id": "E_91",
+          "count": 30414,
+          "frequency": 0.49339735894357745
+        }
+      ]
+    }
+  ],
+  "usage_policy": {
+    "candidate_ranking_only": true,
+    "red_flag_usage": false,
+    "requires_human_review_before_service_integration": true
+  }
+}

@@ -1,0 +1,899 @@
+[
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Acute dystonic reactions",
+    "source_condition_name_eng": "Acute dystonic reactions",
+    "source_icd10_id": "G24.02",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Acute pulmonary edema",
+    "source_condition_name_eng": "Acute pulmonary edema",
+    "source_icd10_id": "J81.0",
+    "source_severity": 1,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Anaphylaxis",
+    "source_condition_name_eng": "Anaphylaxis",
+    "source_icd10_id": "T78.0",
+    "source_severity": 1,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Boerhaave",
+    "source_condition_name_eng": "Boerhaave",
+    "source_icd10_id": "K22.3",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Croup",
+    "source_condition_name_eng": "Croup",
+    "source_icd10_id": "J05.0",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Ebola",
+    "source_condition_name_eng": "Ebola",
+    "source_icd10_id": "a98.4",
+    "source_severity": 1,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Epiglottitis",
+    "source_condition_name_eng": "Epiglottitis",
+    "source_icd10_id": "J05.1",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Guillain-Barré syndrome",
+    "source_condition_name_eng": "Guillain-Barré syndrome",
+    "source_icd10_id": "G61.0",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Larygospasm",
+    "source_condition_name_eng": "Larygospasm",
+    "source_icd10_id": "J38.5",
+    "source_severity": 1,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Myocarditis",
+    "source_condition_name_eng": "Myocarditis",
+    "source_icd10_id": "I51.4",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "PSVT",
+    "source_condition_name_eng": "PSVT",
+    "source_icd10_id": "I47.1",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Possible NSTEMI / STEMI",
+    "source_condition_name_eng": "Possible NSTEMI / STEMI",
+    "source_icd10_id": "I21",
+    "source_severity": 1,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Pulmonary embolism",
+    "source_condition_name_eng": "Pulmonary embolism",
+    "source_icd10_id": "i26",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Scombroid food poisoning",
+    "source_condition_name_eng": "Scombroid food poisoning",
+    "source_icd10_id": "T61.1",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Spontaneous pneumothorax",
+    "source_condition_name_eng": "Spontaneous pneumothorax",
+    "source_icd10_id": "J93",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Stable angina",
+    "source_condition_name_eng": "Stable angina",
+    "source_icd10_id": "I20.9",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Unstable angina",
+    "source_condition_name_eng": "Unstable angina",
+    "source_icd10_id": "I20.0",
+    "source_severity": 2,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "red_flag_policy_review",
+    "review_priority": "high",
+    "triage_basis": "High-acuity or red-flag-like DDXPlus condition. Review separately from candidate mapping.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Acute COPD exacerbation / infection",
+    "source_condition_name_eng": "Acute COPD exacerbation / infection",
+    "source_icd10_id": "j44.1",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "No direct alias was found. Human review is required before mapping or adding a new internal condition.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Acute laryngitis",
+    "source_condition_name_eng": "Acute laryngitis",
+    "source_icd10_id": "J04.0",
+    "source_severity": 4,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "Condition appears related to current symptom-checker candidate domains, but no direct alias was found.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Acute rhinosinusitis",
+    "source_condition_name_eng": "Acute rhinosinusitis",
+    "source_icd10_id": "j01",
+    "source_severity": 4,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "Condition appears related to current symptom-checker candidate domains, but no direct alias was found.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Bronchiectasis",
+    "source_condition_name_eng": "Bronchiectasis",
+    "source_icd10_id": "J47",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "No direct alias was found. Human review is required before mapping or adding a new internal condition.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Bronchiolitis",
+    "source_condition_name_eng": "Bronchiolitis",
+    "source_icd10_id": "j21",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "Condition appears related to current symptom-checker candidate domains, but no direct alias was found.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Bronchospasm / acute asthma exacerbation",
+    "source_condition_name_eng": "Bronchospasm / acute asthma exacerbation",
+    "source_icd10_id": "J45",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "Condition appears related to current symptom-checker candidate domains, but no direct alias was found.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Chronic rhinosinusitis",
+    "source_condition_name_eng": "Chronic rhinosinusitis",
+    "source_icd10_id": "j32",
+    "source_severity": 5,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "Condition appears related to current symptom-checker candidate domains, but no direct alias was found.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Cluster headache",
+    "source_condition_name_eng": "Cluster headache",
+    "source_icd10_id": "g44.009",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "Condition appears related to current symptom-checker candidate domains, but no direct alias was found.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Inguinal hernia",
+    "source_condition_name_eng": "Inguinal hernia",
+    "source_icd10_id": "K40",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "No direct alias was found. Human review is required before mapping or adding a new internal condition.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Localized edema",
+    "source_condition_name_eng": "Localized edema",
+    "source_icd10_id": "R60.0",
+    "source_severity": 4,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "Condition appears related to current symptom-checker candidate domains, but no direct alias was found.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Myasthenia gravis",
+    "source_condition_name_eng": "Myasthenia gravis",
+    "source_icd10_id": "G70.0",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "No direct alias was found. Human review is required before mapping or adding a new internal condition.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Pericarditis",
+    "source_condition_name_eng": "Pericarditis",
+    "source_icd10_id": "I30",
+    "source_severity": 4,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "Condition appears related to current symptom-checker candidate domains, but no direct alias was found.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Pneumonia",
+    "source_condition_name_eng": "Pneumonia",
+    "source_icd10_id": "j17, j18",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "Condition appears related to current symptom-checker candidate domains, but no direct alias was found.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Spontaneous rib fracture",
+    "source_condition_name_eng": "Spontaneous rib fracture",
+    "source_icd10_id": "S22.9",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "No direct alias was found. Human review is required before mapping or adding a new internal condition.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Whooping cough",
+    "source_condition_name_eng": "Whooping cough",
+    "source_icd10_id": "A37",
+    "source_severity": 4,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "candidate_scope_review",
+    "review_priority": "medium",
+    "triage_basis": "No direct alias was found. Human review is required before mapping or adding a new internal condition.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Chagas",
+    "source_condition_name_eng": "Chagas",
+    "source_icd10_id": "B57",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "scope_review",
+    "review_priority": "low",
+    "triage_basis": "Condition may be outside current MVP symptom-checker candidate scope.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "HIV (initial infection)",
+    "source_condition_name_eng": "HIV (initial infection)",
+    "source_icd10_id": "B20",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "scope_review",
+    "review_priority": "low",
+    "triage_basis": "Condition may be outside current MVP symptom-checker candidate scope.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Pancreatic neoplasm",
+    "source_condition_name_eng": "Pancreatic neoplasm",
+    "source_icd10_id": "c25",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "scope_review",
+    "review_priority": "low",
+    "triage_basis": "Condition may be outside current MVP symptom-checker candidate scope.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Pulmonary neoplasm",
+    "source_condition_name_eng": "Pulmonary neoplasm",
+    "source_icd10_id": "c34",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "scope_review",
+    "review_priority": "low",
+    "triage_basis": "Condition may be outside current MVP symptom-checker candidate scope.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "SLE",
+    "source_condition_name_eng": "SLE",
+    "source_icd10_id": "M32",
+    "source_severity": 4,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "scope_review",
+    "review_priority": "low",
+    "triage_basis": "Condition may be outside current MVP symptom-checker candidate scope.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Sarcoidosis",
+    "source_condition_name_eng": "Sarcoidosis",
+    "source_icd10_id": "d86",
+    "source_severity": 4,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "scope_review",
+    "review_priority": "low",
+    "triage_basis": "Condition may be outside current MVP symptom-checker candidate scope.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  },
+  {
+    "source": "DDXPlus",
+    "source_condition_name": "Tuberculosis",
+    "source_condition_name_eng": "Tuberculosis",
+    "source_icd10_id": "a15",
+    "source_severity": 3,
+    "approval_status": "needs_review",
+    "review_basis": "No direct internal condition mapping was found by protocol-safe alias rules.",
+    "review_track": "scope_review",
+    "review_priority": "low",
+    "triage_basis": "Condition may be outside current MVP symptom-checker candidate scope.",
+    "allowed_next_actions": [
+      "map_to_existing_condition_if_protocol_direct_match_exists",
+      "propose_new_internal_condition_code",
+      "keep_out_of_scope",
+      "reject_mapping"
+    ],
+    "forbidden_next_actions": [
+      "approve_based_on_validate_metric",
+      "use_for_red_flag_without_guideline_review",
+      "merge_into_loose_internal_candidate"
+    ]
+  }
+]
