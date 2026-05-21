@@ -4,9 +4,14 @@ requests
 python-multipart
 python-dotenv
 pydantic
+email-validator
 pwdlib[argon2]
 python-jose
 sqlalchemy
 pymysql
 cryptography
 pytest
+torch
+transformers
+sentence-transformers
+accelerate

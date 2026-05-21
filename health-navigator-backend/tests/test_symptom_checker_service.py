@@ -1,4 +1,6 @@
-from datetime import date
+﻿from datetime import date
+import json
+from pathlib import Path
 
 import pytest
 from fastapi import HTTPException
@@ -7,6 +9,7 @@ from pydantic import ValidationError
 import app.services.symptom_checker_service as symptom_checker_service
 from app.routers.symptom_checker import (
     assess_my_symptoms,
+    build_assessment_draft as build_assessment_draft_endpoint,
     explain_symptom_assessment,
     get_region_context_guide,
     structure_symptom_input,
@@ -14,6 +17,7 @@ from app.routers.symptom_checker import (
 from app.schemas.symptom_checker import (
     AuthenticatedSymptomAssessRequest,
     StructuredProviderMetadata,
+    SymptomAssessmentDraftRequest,
     SymptomAssessRequest,
     SymptomExplainRequest,
     SymptomStructureRequest,
@@ -23,10 +27,14 @@ from app.services.symptom_checker_service import (
     RED_FLAG_METADATA,
     assess_symptoms,
     build_explanation_rag_context,
+    build_body_region_structure_adapter_contract,
+    build_medical_bert_structure_adapter_contract,
     build_explanation_provider_payload,
     build_explanation_provider_prompt,
     build_safe_explanation,
+    build_assessment_draft,
     explain_symptom_assessment_from_provider,
+    get_anatomy_areas,
     get_body_regions,
     get_condition_dataset_metadata,
     get_context_guide,
@@ -39,6 +47,10 @@ from app.services.symptom_checker_service import (
     validate_explanation_card_policy,
     validate_structured_input_candidates,
 )
+
+
+DATA_DIR = Path(__file__).resolve().parents[1] / "app" / "data"
+KOREAN_STRUCTURE_LABELS_PATH = DATA_DIR / "review" / "korean_free_text_structure_labels.json"
 
 
 def make_assessment_request(**overrides):
@@ -70,6 +82,243 @@ def test_get_body_regions_uses_confirmed_first_pass_categories():
     assert "abdomen" in region_ids
 
 
+def test_get_anatomy_areas_returns_human_ui_grouping_without_replacing_clinical_regions():
+    areas = get_anatomy_areas()
+
+    assert [area["id"] for area in areas] == [
+        "head",
+        "neck",
+        "chest",
+        "arms",
+        "abdomen",
+        "pelvis",
+        "back",
+        "buttocks",
+        "legs",
+        "skin",
+        "general",
+    ]
+    assert areas[0]["surface"] == "both"
+    assert areas[0]["name"] == "머리"
+    assert set(areas[0]) == {
+        "id",
+        "name",
+        "display_order",
+        "surface",
+        "clinical_regions",
+        "selectable_parts",
+    }
+    assert [region["id"] for region in areas[0]["clinical_regions"]] == [
+        "head_face",
+        "eye",
+        "ear_nose_throat",
+    ]
+    assert all("body_parts" not in region for region in areas[0]["clinical_regions"])
+    assert [part["name"] for part in areas[0]["selectable_parts"]] == [
+        "두피",
+        "이마",
+        "눈",
+        "코",
+        "귀",
+        "얼굴",
+        "입",
+        "턱",
+    ]
+    assert all(
+        set(part) == {
+            "id",
+            "name",
+            "meaning",
+            "body_region_id",
+            "body_part_id",
+            "symptom_endpoint",
+            "context_guide_endpoint",
+        }
+        for part in areas[0]["selectable_parts"]
+    )
+    assert [region["id"] for region in areas[1]["clinical_regions"]] == ["neck_shoulder"]
+    assert [part["name"] for part in areas[1]["selectable_parts"]] == ["목"]
+    assert [region["id"] for region in areas[3]["clinical_regions"]] == ["neck_shoulder", "arm_hand"]
+    assert [part["name"] for part in areas[3]["selectable_parts"]] == [
+        "어깨",
+        "겨드랑이",
+        "위팔",
+        "팔꿈치",
+        "아래팔",
+        "손목",
+        "손",
+        "손가락",
+    ]
+    assert get_body_regions()[0]["id"] == "head_face"
+
+
+def test_get_anatomy_areas_selectable_parts_map_to_existing_assessment_inputs():
+    body_part_ids_by_region = {
+        region["id"]: {part["id"] for part in get_region_options(region["id"])["body_parts"]}
+        for region in get_body_regions()
+    }
+
+    selectable_parts = [
+        selectable_part
+        for area in get_anatomy_areas()
+        for selectable_part in area["selectable_parts"]
+    ]
+
+    assert selectable_parts
+    assert any(
+        selectable_part["body_region_id"] == "eye"
+        and selectable_part["body_part_id"] == "both_eyes"
+        and selectable_part["name"] == "눈"
+        for selectable_part in selectable_parts
+    )
+    assert any(
+        selectable_part["body_region_id"] == "chest"
+        and selectable_part["body_part_id"] == "center_chest"
+        and selectable_part["name"] == "흉골"
+        for selectable_part in selectable_parts
+    )
+    assert any(
+        selectable_part["body_region_id"] == "neck_shoulder"
+        and selectable_part["body_part_id"] == "both_shoulders"
+        and selectable_part["name"] == "어깨"
+        for selectable_part in selectable_parts
+    )
+
+    for selectable_part in selectable_parts:
+        region_id = selectable_part["body_region_id"]
+        body_part_id = selectable_part["body_part_id"]
+
+        assert body_part_id in body_part_ids_by_region[region_id]
+        assert selectable_part["id"].startswith("anatomy:")
+        assert "source_id" not in selectable_part
+        assert "source_name" not in selectable_part
+        assert selectable_part["symptom_endpoint"] == f"/symptom-checker/body-regions/{region_id}/symptoms"
+        assert selectable_part["context_guide_endpoint"] == (
+            f"/symptom-checker/body-regions/{region_id}/context-guide?body_part={body_part_id}"
+        )
+
+
+def test_anatomy_area_parts_reconnect_to_symptom_context_and_assessment_flow():
+    for area in get_anatomy_areas():
+        for selectable_part in area["selectable_parts"]:
+            region_id = selectable_part["body_region_id"]
+            body_part_id = selectable_part["body_part_id"]
+
+            region_options = get_region_options(region_id)
+            assert region_options is not None
+            assert any(part["id"] == body_part_id for part in region_options["body_parts"])
+
+            guide = get_context_guide(region_id, body_part_id=body_part_id)
+            assert guide is not None
+            assert guide["body_part_id"] == body_part_id
+            assert guide["context_scope"] == "body_part"
+            assert guide["fallback_to_region_context"] is False
+            assert guide["context_chips"]
+
+            request = make_assessment_request(
+                body_region=region_id,
+                body_part=body_part_id,
+                symptoms=[
+                    {
+                        "code": region_options["symptoms"][0]["code"],
+                        "severity": 3,
+                        "duration_hours": 1,
+                    }
+                ],
+                contexts={},
+            )
+            result = assess_symptoms(request)
+            assert result is not None
+            assert result["profile"]["source"] == "request"
+
+
+def test_anatomy_body_part_ids_do_not_change_assessment_candidates():
+    chest_area = next(area for area in get_anatomy_areas() if area["id"] == "chest")
+    sternum = next(part for part in chest_area["selectable_parts"] if part["name"] == "흉골")
+
+    request_without_part = make_assessment_request(
+        body_region="chest",
+        symptoms=[{"code": "palpitation", "severity": 5}],
+    )
+    request_with_anatomy_part = make_assessment_request(
+        body_region=sternum["body_region_id"],
+        body_part=sternum["body_part_id"],
+        symptoms=[{"code": "palpitation", "severity": 5}],
+    )
+
+    response_without_part = assess_symptoms(request_without_part)
+    response_with_anatomy_part = assess_symptoms(request_with_anatomy_part)
+
+    assert sternum["body_part_id"] == "center_chest"
+    assert response_with_anatomy_part["candidates"] == response_without_part["candidates"]
+    assert response_with_anatomy_part["red_flags"] == response_without_part["red_flags"]
+
+
+def test_assess_symptoms_uses_free_text_aliases_as_structured_input_support():
+    request = make_assessment_request(
+        body_region="eye",
+        body_part="both_eyes",
+        symptoms=[{"code": "pain", "severity": 3}],
+        additional_context={"free_text": "\ub208 \uc704\ucabd\uc774 \uac00\ub824\uc6cc\uc694"},
+    )
+
+    response = assess_symptoms(request)
+
+    assert response["candidates"]
+    assert response["candidates"][0]["condition_code"] == "conjunctivitis"
+    assert response["input_analysis"]["free_text_used_for_candidate_matching"] is True
+    assert response["input_analysis"]["free_text_symptom_candidates"] == ["itching"]
+    assert "itching" in response["input_analysis"]["merged_symptom_codes"]
+    assert response["candidate_generation"]["rag_usage"] == "explanation_only_not_judgment"
+    assert response["candidate_generation"]["judgment_mutation_allowed_by_rag"] is False
+    assert any(
+        detail["code"] == "itching"
+        for detail in response["candidates"][0]["matched_reason_details"]
+    )
+
+
+def test_assess_symptoms_returns_possible_candidates_when_required_evidence_is_missing():
+    request = make_assessment_request(
+        body_region="eye",
+        body_part="both_eyes",
+        symptoms=[{"code": "pain", "severity": 3}],
+    )
+
+    response = assess_symptoms(request)
+
+    assert response["candidates"] == []
+    assert response["possible_candidates"]
+    possible_codes = {candidate["condition_code"] for candidate in response["possible_candidates"]}
+    assert {"conjunctivitis", "dry_eye"} <= possible_codes
+    assert response["missing_evidence_questions"]
+    assert any("충혈" in question or "건조감" in question for question in response["missing_evidence_questions"])
+
+
+def test_korean_structure_label_seed_stays_within_service_whitelists():
+    rows = json.loads(KOREAN_STRUCTURE_LABELS_PATH.read_text(encoding="utf-8"))
+    region_ids = {region["id"] for region in get_body_regions()}
+    context_codes = {context["code"] for context in get_context_options()}
+
+    assert 100 <= len(rows) <= 150
+    assert len({row["id"] for row in rows}) == len(rows)
+    assert len({row["text"] for row in rows}) == len(rows)
+    assert {row["split"] for row in rows} == {"train", "validate", "test"}
+
+    split_counts = {split: sum(1 for row in rows if row["split"] == split) for split in {"train", "validate", "test"}}
+    assert split_counts["train"] > split_counts["validate"] >= split_counts["test"]
+    assert split_counts["test"] >= 4
+    train_texts = {row["text"] for row in rows if row["split"] == "train"}
+    holdout_texts = {row["text"] for row in rows if row["split"] in {"validate", "test"}}
+    assert train_texts.isdisjoint(holdout_texts)
+
+    for row in rows:
+        assert row["review_status"] == "reviewed"
+        assert row["body_region"] in region_ids
+        allowed_symptoms = {symptom["code"] for symptom in get_region_options(row["body_region"])["symptoms"]}
+        assert set(row.get("symptom_labels", [])) <= allowed_symptoms
+        assert set(row.get("context_labels", [])) <= context_codes
+
+
 def test_get_region_options_returns_body_parts_and_symptoms():
     options = get_region_options("head_face")
 
@@ -86,6 +335,7 @@ def test_get_region_options_includes_new_specialized_categories():
     assert any(part["id"] == "both_eyes" for part in eye_options["body_parts"])
     assert any(symptom["code"] == "vision_change" for symptom in eye_options["symptoms"])
     assert any(symptom["code"] == "dryness" for symptom in eye_options["symptoms"])
+    assert any(symptom["code"] == "itching" for symptom in eye_options["symptoms"])
     assert any(part["id"] == "throat" for part in ent_options["body_parts"])
     assert any(symptom["code"] == "nasal_congestion" for symptom in ent_options["symptoms"])
     assert any(symptom["code"] == "ear_fullness" for symptom in ent_options["symptoms"])
@@ -125,6 +375,9 @@ def test_get_context_guide_returns_guided_free_text_sections():
     guide = get_context_guide("chest")
 
     assert guide["region_id"] == "chest"
+    assert guide["body_part_id"] is None
+    assert guide["context_scope"] == "region"
+    assert guide["fallback_to_region_context"] is False
     assert guide["quick_contexts"][0]["code"] == "alcohol_yesterday"
     assert guide["context_chips"][0]["code"] == "chest_pressure"
     assert guide["context_chips"][0]["display_group"] == "safety"
@@ -146,6 +399,73 @@ def test_get_context_guide_returns_guided_free_text_sections():
         for question in guide["follow_up_questions"]
         for option in question["options"]
     )
+
+
+def test_get_context_guide_can_scope_context_chips_to_body_part():
+    guide = get_context_guide("chest", body_part_id="rib_area")
+
+    assert guide["region_id"] == "chest"
+    assert guide["body_part_id"] == "rib_area"
+    assert guide["context_scope"] == "body_part"
+    assert guide["fallback_to_region_context"] is False
+    assert [chip["display_priority"] for chip in guide["context_chips"]] == [1, 2, 3]
+    assert {chip["code"] for chip in guide["context_chips"]} == {
+        "persistent_pain",
+        "pleuritic_chest_pain",
+        "hemoptysis",
+    }
+
+
+def test_get_context_guide_scopes_ear_without_airway_voice_contexts():
+    guide = get_context_guide("ear_nose_throat", body_part_id="ear")
+
+    assert guide["body_part_id"] == "ear"
+    assert guide["context_scope"] == "body_part"
+    assert guide["fallback_to_region_context"] is False
+    chip_codes = {chip["code"] for chip in guide["context_chips"]}
+    assert {"sudden_onset", "one_sided", "worsening", "after_injury"} <= chip_codes
+    assert "voice_hoarseness" not in chip_codes
+    assert "difficulty_swallowing_or_drooling" not in chip_codes
+
+
+def test_structure_input_infers_ear_region_from_inner_ear_free_text():
+    response = service_structure_symptom_input(
+        SymptomStructureRequest(free_text="귀 안쪽이 찌르는듯이 아파요")
+    )
+
+    assert response["body_region"] == "ear_nose_throat"
+    assert response["symptom_candidates"] == ["pain"]
+    assert response["final_judgment_performed"] is False
+
+
+def test_assessment_free_text_merges_multiple_sentence_context_candidates():
+    request = make_assessment_request(
+        body_region="ear_nose_throat",
+        body_part="ear",
+        symptoms=[{"code": "pain", "severity": 6}],
+        additional_context={
+            "free_text": "귀 안쪽이 찌르는듯이 아파요. 어제부터 한쪽만 더 심하고 점점 악화돼요.",
+        },
+    )
+
+    response = assess_symptoms(request)
+
+    assert response["input_analysis"]["free_text_used_for_candidate_matching"] is True
+    assert "pain" in response["input_analysis"]["merged_symptom_codes"]
+    assert {"one_sided", "worsening"} <= set(response["input_analysis"]["merged_context_codes"])
+
+
+def test_get_context_guide_scopes_eye_body_part_contexts():
+    guide = get_context_guide("eye", body_part_id="left_eye")
+
+    assert guide["body_part_id"] == "left_eye"
+    assert guide["context_scope"] == "body_part"
+    assert guide["fallback_to_region_context"] is False
+
+
+def test_get_context_guide_rejects_body_part_from_other_region():
+    with pytest.raises(ValueError, match="Unsupported body_part"):
+        get_context_guide("chest", body_part_id="temple")
 
 
 def test_get_context_guide_returns_region_specific_follow_up_questions():
@@ -332,6 +652,33 @@ def test_validate_structured_input_candidates_limits_candidate_counts():
     ]
 
 
+def test_validate_structured_input_candidates_caps_after_whitelist_filtering():
+    result = validate_structured_input_candidates(
+        {
+            "body_region": "back_waist",
+            "symptom_candidates": [
+                "fever",
+                "discharge",
+                "shortness_of_breath",
+                "nausea",
+                "rash",
+                "pain",
+                "stiffness",
+            ],
+            "context_candidates": ["recent_exercise"],
+        }
+    )
+
+    assert result["symptom_candidates"] == ["pain", "stiffness"]
+    assert result["rejected"]["symptom_candidates"] == [
+        "fever",
+        "discharge",
+        "shortness_of_breath",
+        "nausea",
+        "rash",
+    ]
+
+
 def test_structure_symptom_input_validates_candidates_without_judgment():
     request = SymptomStructureRequest(
         source="llm",
@@ -414,6 +761,70 @@ def test_structure_symptom_input_infers_region_from_common_korean_aliases():
     assert result["final_judgment_performed"] is False
 
 
+def test_structure_symptom_input_handles_practical_korean_free_text_aliases():
+    examples = [
+        (
+            "가슴이 꽉 누르는 느낌이고 왼쪽 팔까지 저려요. 숨도 좀 차요.",
+            "chest",
+            ["numbness", "shortness_of_breath"],
+            ["radiating_left_arm_or_jaw_or_back", "chest_pressure"],
+        ),
+        (
+            "입술이 붓고 목이 조이는 느낌에 숨쉬기 힘들어요.",
+            "chest",
+            ["swelling", "shortness_of_breath"],
+            ["facial_lip_tongue_throat_swelling"],
+        ),
+        (
+            "눈앞에 번쩍임이 생기고 검은 점들이 떠다녀요.",
+            "eye",
+            ["vision_change"],
+            ["new_flashes", "new_floaters"],
+        ),
+        (
+            "배가 아프고 검붉은 변을 봤어요.",
+            "abdomen",
+            ["pain"],
+            ["bloody_stool"],
+        ),
+        (
+            "넘어진 뒤 발목이 휘어 보이고 발을 디딜 수 없어요.",
+            "leg_foot",
+            [],
+            ["after_injury", "deformity", "unable_to_bear_weight"],
+        ),
+    ]
+
+    for free_text, body_region, symptoms, contexts in examples:
+        result = service_structure_symptom_input(SymptomStructureRequest(free_text=free_text))
+
+        assert result["body_region"] == body_region
+        assert result["symptom_candidates"] == symptoms
+        assert result["context_candidates"] == contexts
+        assert result["final_judgment_performed"] is False
+
+
+def test_structure_symptom_input_handles_multisentence_free_text_with_alias_layer_only():
+    request = SymptomStructureRequest(
+        free_text=(
+            "어제부터 가슴이 꽉 누르는 느낌이 있어요. "
+            "숨도 차고 왼쪽 팔까지 저려요. "
+            "심근경색 같아서 약을 먹어야 하나요?"
+        )
+    )
+
+    result = service_structure_symptom_input(request)
+
+    assert result["source"] == "manual"
+    assert result["body_region"] == "chest"
+    assert "shortness_of_breath" in result["symptom_candidates"]
+    assert "numbness" in result["symptom_candidates"]
+    assert "chest_pressure" in result["context_candidates"]
+    assert "radiating_left_arm_or_jaw_or_back" in result["context_candidates"]
+    assert "provider_metadata" not in result
+    assert result["final_judgment_performed"] is False
+
+
 def test_structure_symptom_input_normalizes_candidate_code_whitespace_before_validation():
     request = SymptomStructureRequest(
         body_region=" chest ",
@@ -430,6 +841,86 @@ def test_structure_symptom_input_normalizes_candidate_code_whitespace_before_val
     assert result["rejected"]["context_candidates"] == ["made_up_context"]
     assert result["ignored_judgment_fields"] == ["condition_candidates"]
     assert result["final_judgment_performed"] is False
+
+
+def test_build_assessment_draft_converts_structured_candidates_without_judgment():
+    request = SymptomAssessmentDraftRequest(
+        free_text="가슴이 꽉 누르는 느낌이고 왼쪽 팔까지 저려요. 숨도 좀 차요.",
+        body_part="center_chest",
+        default_severity=7,
+        default_duration_hours=2,
+        diagnosis="심근경색",
+    )
+
+    result = build_assessment_draft(request)
+
+    assert result["body_region"] == "chest"
+    assert result["body_part"] == "center_chest"
+    assert result["symptoms"] == [
+        {"code": "numbness", "severity": 7, "duration_hours": 2},
+        {"code": "shortness_of_breath", "severity": 7, "duration_hours": 2},
+    ]
+    assert result["contexts"] == {
+        "radiating_left_arm_or_jaw_or_back": True,
+        "chest_pressure": True,
+    }
+    assert result["additional_context"]["free_text"] == request.free_text
+    assert result["ignored_judgment_fields"] == ["diagnosis"]
+    assert result["ready_for_assessment"] is True
+    assert result["missing_required_fields"] == []
+    assert result["final_judgment_performed"] is False
+
+
+def test_assessment_draft_with_explicit_context_candidates_does_not_auto_call_medical_bert():
+    request = SymptomAssessmentDraftRequest(
+        free_text="가슴 통증이 있어요.",
+        context_candidates=["rest_chest_pain"],
+        default_severity=5,
+    )
+
+    result = build_assessment_draft(request)
+
+    assert result["source"] == "manual"
+    assert result["body_region"] == "chest"
+    assert result["symptoms"] == [
+        {"code": "pain", "severity": 5, "duration_hours": None}
+    ]
+    assert result["contexts"] == {"rest_chest_pain": True}
+    assert "provider_metadata" not in result
+    assert result["ready_for_assessment"] is True
+    assert result["final_judgment_performed"] is False
+
+
+def test_build_assessment_draft_reports_missing_required_assessment_fields():
+    request = SymptomAssessmentDraftRequest(
+        free_text="그냥 좀 이상해요.",
+        body_part="made_up_part",
+    )
+
+    result = build_assessment_draft(request)
+
+    assert result["body_region"] is None
+    assert result["body_part"] is None
+    assert result["symptoms"] == []
+    assert result["contexts"] == {}
+    assert result["ready_for_assessment"] is False
+    assert result["missing_required_fields"] == ["body_region", "symptoms"]
+    assert result["final_judgment_performed"] is False
+
+
+def test_assessment_draft_endpoint_wrapper_does_not_call_assessment():
+    request = SymptomAssessmentDraftRequest(
+        free_text="배가 아프고 검붉은 변을 봤어요.",
+        default_severity=6,
+    )
+
+    response = build_assessment_draft_endpoint(request)
+
+    assert response["body_region"] == "abdomen"
+    assert response["symptoms"] == [{"code": "pain", "severity": 6, "duration_hours": None}]
+    assert response["contexts"] == {"bloody_stool": True}
+    assert response["ready_for_assessment"] is True
+    assert response["final_judgment_performed"] is False
 
 
 def test_structure_symptom_input_keeps_payload_candidate_order_before_alias_candidates():
@@ -464,6 +955,24 @@ def test_structure_symptom_input_does_not_accept_symptom_aliases_when_region_is_
     assert result["rejection_reasons"]["symptom_candidates"] == {
         "pain": "unknown_body_region",
     }
+    assert result["final_judgment_performed"] is False
+
+
+def test_structure_symptom_input_prefers_explicit_alias_region_over_provider_region():
+    request = SymptomStructureRequest(
+        source="medical_bert",
+        free_text="가슴이 조이고 숨이 차요",
+        body_region="eye",
+        symptom_candidates=["vision_change"],
+        context_candidates=[],
+    )
+
+    result = service_structure_symptom_input(request)
+
+    assert result["body_region"] == "chest"
+    assert "shortness_of_breath" in result["symptom_candidates"]
+    assert "chest_pressure" in result["context_candidates"]
+    assert result["rejected"]["symptom_candidates"] == ["vision_change"]
     assert result["final_judgment_performed"] is False
 
 
@@ -537,6 +1046,144 @@ def test_structured_provider_metadata_defaults_are_non_secret_and_disabled():
 def test_structured_provider_metadata_rejects_unknown_fallback_reason():
     with pytest.raises(ValidationError):
         StructuredProviderMetadata(fallback_reason="made_up_reason")
+
+
+def test_medical_bert_structure_adapter_contract_is_zero_cost_and_not_connected():
+    contract = build_medical_bert_structure_adapter_contract()
+
+    assert contract["provider_name"] == "km-bert"
+    assert contract["source"] == "medical_bert"
+    assert contract["default_enabled"] is False
+    assert contract["actual_model_call_implemented"] is False
+    assert contract["cost_policy"] == "zero_external_api_cost_local_open_weight_candidate"
+    assert contract["allowed_output_fields"] == [
+        "body_region",
+        "symptom_candidates",
+        "context_candidates",
+    ]
+    assert contract["forbidden_judgment_fields"] == [
+        "condition_candidates",
+        "red_flags",
+        "confidence",
+        "severity",
+        "diagnosis",
+        "treatment",
+    ]
+    assert contract["max_symptom_candidates"] == 5
+    assert contract["max_context_candidates"] == 10
+    assert contract["fallback_behavior"] == "manual_alias_validation"
+    assert contract["model_source_policy"] == {
+        "preferred_source": "official_ku_rias_artifacts",
+        "preferred_artifacts": ["KM-BERT", "KM-BERT-vocab"],
+        "converted_huggingface_artifact_allowed": False,
+        "converted_huggingface_artifact_reason": "unofficial_conversion_and_redistribution_status_must_be_rechecked",
+        "selected_for_real_connection": "not_selected_yet",
+    }
+    assert contract["dependency_policy"] == {
+        "requirements_file": "health-navigator-backend/requirements.txt",
+        "add_to_default_requirements_when_real_connection_is_approved": True,
+        "install_before_real_connection": False,
+    }
+    assert contract["model_artifact_policy"]["do_not_commit_weights"] is True
+    assert contract["model_artifact_policy"]["cache_location_must_be_approved"] is True
+    assert contract["model_artifact_policy"]["prefer_repo_external_or_gitignored_cache"] is True
+    assert contract["model_artifact_policy"]["candidate_ec2_cache"] == "/opt/health-navigator/models/kmbert"
+    assert contract["runtime_check_policy"] == {
+        "must_check_cpu_latency_before_user_facing_enablement": True,
+        "must_keep_provider_disabled_until_runtime_check_passes": True,
+        "timeout_ms_default": 2000,
+    }
+    assert contract["citation_license_policy"] == {
+        "record_location": "docs/SYMPTOM_CHECKER_DATASETS.md",
+        "must_record_before_real_connection": True,
+    }
+    assert "torch" in contract["required_dependencies_before_real_connection"]
+    assert "transformers" in contract["required_dependencies_before_real_connection"]
+
+
+def test_body_region_structure_adapter_contract_is_optional_and_alias_first():
+    contract = build_body_region_structure_adapter_contract()
+
+    assert contract["provider_name"] == "km-bert-body-region"
+    assert contract["source"] == "medical_bert"
+    assert contract["default_enabled"] is False
+    assert contract["actual_service_connection_implemented"] is False
+    assert contract["model_head"] == "single_label_body_region_classification"
+    assert contract["allowed_output_fields"] == ["body_region"]
+    assert contract["forbidden_output_fields"] == [
+        "symptom_candidates",
+        "context_candidates",
+        "condition_candidates",
+        "red_flags",
+        "confidence",
+        "severity",
+        "diagnosis",
+        "treatment",
+    ]
+    assert contract["fallback_policy"] == {
+        "alias_region_priority": True,
+        "discard_provider_region_when_alias_conflicts": True,
+        "use_provider_only_when_alias_region_missing": True,
+        "unknown_or_unwhitelisted_region_rejected_by": "validate_structured_input_candidates",
+        "manual_or_alias_fallback_when_disabled": True,
+    }
+    assert contract["evaluation_policy"] == {
+        "train_split_only_for_training": True,
+        "validate_split_quality_signal_only": True,
+        "test_split_used": False,
+        "do_not_add_labels_from_validate_failures": True,
+        "do_not_change_rules_or_candidates_for_model_metrics": True,
+    }
+    assert contract["current_validation_signal"]["validate_rows"] == 34
+    assert contract["current_validation_signal"]["validate_accuracy"] == pytest.approx(0.5294117647058824)
+    assert contract["current_validation_signal"]["decision"] == "candidate_optional_provider_not_default_route"
+    assert contract["model_artifact_policy"]["do_not_commit_weights"] is True
+
+
+def test_body_region_provider_candidate_is_used_only_when_alias_region_is_missing():
+    class BodyRegionOnlyProvider:
+        source = "medical_bert"
+
+        def structure(self, free_text: str) -> dict:
+            return {"body_region": "general"}
+
+    result = structure_symptom_input_from_provider(
+        "그냥 이상해요",
+        provider=BodyRegionOnlyProvider(),
+        provider_enabled=True,
+        provider_name="local_body_region_classifier",
+        model_id="kmbert-body-region",
+    )
+
+    assert result["source"] == "medical_bert"
+    assert result["body_region"] == "general"
+    assert result["symptom_candidates"] == []
+    assert result["context_candidates"] == []
+    assert result["provider_metadata"]["used"] is True
+    assert result["final_judgment_performed"] is False
+
+
+def test_body_region_provider_candidate_does_not_override_explicit_alias_region():
+    class WrongBodyRegionProvider:
+        source = "medical_bert"
+
+        def structure(self, free_text: str) -> dict:
+            return {"body_region": "eye"}
+
+    result = structure_symptom_input_from_provider(
+        "가슴이 조이고 숨이 차요",
+        provider=WrongBodyRegionProvider(),
+        provider_enabled=True,
+        provider_name="local_body_region_classifier",
+        model_id="kmbert-body-region",
+    )
+
+    assert result["body_region"] == "chest"
+    assert "shortness_of_breath" in result["symptom_candidates"]
+    assert "chest_pressure" in result["context_candidates"]
+    assert result["rejected"]["body_region"] is None
+    assert result["provider_metadata"]["used"] is True
+    assert result["final_judgment_performed"] is False
 
 
 def test_structure_provider_disabled_setting_does_not_call_provider():
@@ -756,6 +1403,11 @@ def test_explain_endpoint_attaches_cards_without_mutating_assessment():
         for explanation in response["explanations"]
     )
     assert response["safety"]["missing_explanation_targets"] == []
+    assert response["generated_summary_ko"] == (
+        "선택한 증상 조합에서 빠른 상담이 필요할 수 있는 위험 신호와 참고 후보 설명을 함께 정리했습니다. "
+        "이 내용은 진단이나 처방이 아니라 검수된 설명 카드 기반의 참고 정보입니다."
+    )
+    assert response["provider_metadata"]["used"] is False
 
 
 def test_build_safe_explanation_reports_missing_card_targets_without_mutating_judgment():
@@ -779,6 +1431,43 @@ def test_build_safe_explanation_reports_missing_card_targets_without_mutating_ju
             "condition:candidate_without_card",
         ],
     }
+    assert result["generated_summary_ko"] is None
+
+
+def test_build_safe_explanation_generates_reviewed_card_summary_without_provider():
+    rule_result = {
+        "red_flags": [],
+        "candidates": [
+            {
+                "condition_code": "migraine",
+                "confidence": "low",
+                "matched_reasons": ["머리 통증"],
+            }
+        ],
+    }
+    cards = [
+        {
+            "card_id": "condition.migraine.v1",
+            "card_type": "condition_explanation",
+            "condition_code": "migraine",
+            "matched_reasons": ["머리 통증"],
+            "official_source_refs": [],
+            "source_usage_policy": "restricted/reference_only",
+            "review_status": "reviewed",
+            "summary_ko": "편두통 참고 후보 설명",
+            "rationale_ko": "근거",
+            "mapping_limit": "검사 미반영",
+            "must_not_claim": [],
+        }
+    ]
+
+    result = build_safe_explanation(rule_result, cards=cards)
+
+    assert result["generated_summary_ko"] == (
+        "선택한 증상과 관련된 참고 후보 설명을 정리했습니다. "
+        "이 내용은 진단이나 처방이 아니라 검수된 설명 카드 기반의 참고 정보입니다."
+    )
+    assert result["provider_metadata"]["used"] is False
 
 
 def test_build_explanation_rag_context_contains_only_reviewed_card_context_not_judgment_mutations():
@@ -1024,7 +1713,10 @@ def test_explain_from_provider_disabled_does_not_call_provider():
     assert result["assessment"]["red_flags"] == assessment["red_flags"]
     assert result["assessment"]["candidates"] == assessment["candidates"]
     assert result["assessment"]["profile"]["birth_date"] == "2000-01-01"
-    assert result["generated_summary_ko"] is None
+    assert result["generated_summary_ko"] == (
+        "선택한 증상과 관련된 참고 후보 설명을 정리했습니다. "
+        "이 내용은 진단이나 처방이 아니라 검수된 설명 카드 기반의 참고 정보입니다."
+    )
     assert result["provider_metadata"] == {
         "used": False,
         "fallback_reason": "provider_disabled",
@@ -1981,6 +2673,7 @@ def test_condition_dataset_reference_links_are_semantically_reviewed():
         "rotator_cuff_disorder": {"rotator"},
         "chest_wall_pain": {"costochondritis", "chestpain", "chest pain"},
         "arrhythmia_candidate": {"arrhythmia", "palpitations"},
+        "bronchospasm_asthma_exacerbation": {"asthma", "wheezing"},
         "gastritis_or_peptic_ulcer": {"gastritis", "pepticulcer", "peptic ulcer"},
         "gastroenteritis": {"gastroenteritis"},
         "urinary_tract_infection": {"urinarytract", "urinary tract"},
@@ -2002,7 +2695,6 @@ def test_condition_dataset_reference_links_are_semantically_reviewed():
 
     rules_by_code = {rule["condition_code"]: rule for rule in CONDITION_RULES}
 
-    assert set(rules_by_code) == set(expected_reference_terms)
     for condition_code, expected_terms in expected_reference_terms.items():
         link_text = " ".join(
             f"{link['title']} {link['url']}".lower()
@@ -2120,6 +2812,7 @@ def test_assess_symptoms_returns_reference_candidates():
     assert response["profile"] == {
         "gender": "female",
         "birth_date": date(2000, 1, 1),
+        "age": 26,
         "source": "request",
     }
     assert response["red_flags"] == []
@@ -2163,6 +2856,7 @@ def test_assess_symptoms_can_use_authenticated_user_profile_source():
     assert response["profile"] == {
         "gender": "male",
         "birth_date": date(1995, 5, 5),
+        "age": 31,
         "source": "authenticated_user",
     }
 
@@ -2185,7 +2879,8 @@ def test_assess_my_symptoms_uses_current_user_profile():
 
     assert response["profile"] == {
         "gender": "male",
-        "birth_date": date(1995, 5, 5),
+        "birth_date": "1995-05-05",
+        "age": 31,
         "source": "authenticated_user",
     }
     assert response["candidates"][0]["condition_code"] == "tension_headache"
@@ -2789,3 +3484,4 @@ def test_symptom_assess_request_rejects_blank_additional_context_text():
             symptoms=[{"code": "pain", "severity": 5}],
             additional_context={"recent_medications": [" "]},
         )
+

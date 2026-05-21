@@ -25,4 +25,3 @@ app.include_router(drugs.router)
 @app.get("/")
 def root():
     return {"message": "Health Navigator Backend is running"}
-

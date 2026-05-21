@@ -1,4 +1,123 @@
-# Symptom Checker Design
+﻿# Symptom Checker Design
+
+## 2026-05-21 Body-map based Candidate Generation Gap
+
+현재 인체 UI 흐름은 외부 증상체커의 `INFO -> SYMPTOMS -> CONDITIONS -> DETAILS -> TREATMENT` 흐름을 참고하지만, 후보 생성기는 아직 MVP seed 단계입니다.
+
+### 외부 증상체커 공개 흐름에서 가져올 수 있는 근거
+
+참고한 외부 증상체커의 공개 흐름에서 확인되는 기준은 다음과 같습니다.
+
+- 해당 증상체커는 age/sex 같은 기본 정보를 받고, body map 기반으로 증상을 선택한 뒤 가능한 condition 또는 issue를 보여주는 흐름입니다.
+- 앱 설명은 “불편한 신체 부위를 선택하고 증상을 고른 뒤 potential conditions or issues를 본다”는 제품 기준을 제시합니다.
+- 공개 페이지는 “body location으로 증상을 선택할 수 있고 여러 증상을 빠르게 선택할 수 있다”는 방향을 제시합니다.
+- 해당 서비스는 이 도구가 medical advice, diagnosis, treatment의 대체물이 아니며, 응급 상황에서는 doctor 또는 911에 연락하라고 명시합니다.
+
+따라서 우리 기능은 외부 증상체커의 UI 흐름을 참고하되, 다음 범위로 제한합니다.
+
+```text
+허용: body location + symptoms + basic profile 기반 참고 후보군 표시
+허용: 추가 확인 질문으로 후보군을 좁히기
+허용: reviewed source/card 기반 설명
+금지: 확정 진단, 처방, 치료 지시, RAG/LLM 기반 새 판단 생성
+```
+
+확인된 기준선:
+
+- active condition seed rule: 28개
+- DDXPlus approved condition mapping: 6개
+- DDXPlus frequency baseline: candidate ranking tie-break 보조 전용
+- RAG: 이미 생성된 후보/red flag 설명 전용
+
+따라서 현재 빈번한 `후보 없음`은 프론트 UI 문제가 아니라 `symptom/context -> condition candidate` 지식베이스와 scoring schema가 좁기 때문입니다.
+
+다음 개선 방향:
+
+1. UI의 `맥락` 입력을 `동반 증상`, `증상 특징`, `생활/상황 요인`, `위험 확인 항목`으로 분리합니다.
+2. `/assess`는 빠른 후보 생성만 수행하고, RAG 설명은 `/explain` 또는 후보 상세 단계로 분리합니다.
+3. 기존 `required_symptoms` rule은 유지하되, 신규 rule schema는 `required_all`, `required_any`, `supporting`, `less_likely`, `red_flag_exclusions`, `age_sex_applicability`, `score_weights`, `review_status`를 포함하도록 확장합니다.
+4. 후보가 없을 때 빈 배열만 반환하지 않고 `possible_candidates`와 `missing_evidence_questions`를 반환합니다.
+5. DDXPlus와 RAG는 판단을 새로 만들지 않습니다. DDXPlus는 reviewed candidate ranking 보강, RAG는 reviewed explanation card 조회에만 사용합니다.
+
+### Candidate coverage report
+
+인체 UI 흐름처럼 `부위 -> 세부 부위 -> 증상 -> 후보/추가 질문 JSON`이 안정적으로 나오려면 active rule coverage를 수치로 관리해야 합니다.
+
+리포트 생성:
+
+```powershell
+cd health-navigator-backend
+.\.venv\Scripts\python.exe tools\build_symptom_checker_candidate_coverage.py
+```
+
+출력:
+
+```text
+app/data/processed/symptom_checker_candidate_coverage_report.json
+```
+
+현재 1차 기준선:
+
+```json
+{
+  "active_condition_rule_count": 28,
+  "region_count": 12,
+  "symptom_option_count": 70,
+  "single_symptom_candidate_option_count": 26,
+  "uncovered_symptom_option_count": 14,
+  "single_symptom_candidate_option_ratio": 0.3714,
+  "uncovered_symptom_option_ratio": 0.2
+}
+```
+
+이 리포트는 다음을 함께 제공합니다.
+
+- 부위별 active candidate 수
+- 증상별 단일 선택 후보 연결 여부
+- 일부 근거만 맞는 `possible_candidates` 후보 연결 여부
+- DDXPlus condition/evidence needs-review 우선순위
+- RAG/LLM이 판단값을 만들지 않는 safety policy
+
+후보 확장 작업은 이 리포트의 `region_coverage`, `ddxplus_condition_review_queue`, `ddxplus_evidence_review_queue`를 기준으로 batch 단위로 진행합니다. `needs_review` DDXPlus 항목은 리포트와 검수 큐에만 쓰며, active service rule로 바로 올리지 않습니다.
+
+DDXPlus 후보 확장 초안 생성:
+
+```powershell
+cd health-navigator-backend
+.\.venv\Scripts\python.exe tools\draft_ddxplus_candidate_expansion.py
+```
+
+출력:
+
+```text
+app/data/review/ddxplus_candidate_expansion_draft.json
+```
+
+이 파일은 active service 입력이 아니라 검수용 초안입니다. 각 draft에는 다음 추천 상태가 붙습니다.
+
+| status | 의미 |
+| --- | --- |
+| `candidate_rule_batch_candidate` | 현재 symptom/context mapping이 비교적 작고 명확해 1차 rule 검수 batch 후보로 볼 수 있음 |
+| `needs_symptom_option_review` | 흔한 후보군이지만 내부 증상/context 선택지 추가 또는 DDXPlus evidence 검토가 먼저 필요함 |
+| `hold_for_clinical_scope_review` | 만성/고위험/범위가 넓은 질환이라 단순 참고 후보로 바로 올리기 어려움 |
+| `hold_for_scope_review` | 안정적인 body region mapping이 부족함 |
+| `hold_for_evidence_mapping` | 현재 증상 evidence가 내부 code로 직접 매핑되지 않음 |
+| `hold_for_mapping_cleanup` | evidence mapping이 넓어 active rule에 바로 쓰기 어려움 |
+
+현재 첫 batch 후보:
+
+```text
+candidate_rule_batch_candidate:
+- Bronchospasm / acute asthma exacerbation
+- Bronchiolitis
+
+needs_symptom_option_review:
+- Acute laryngitis
+- Cluster headache
+- Acute rhinosinusitis
+- Chronic rhinosinusitis
+- Pneumonia
+```
 
 이 문서는 인체 기반 UI에서 선택한 부위, 증상, 강도, 생활 컨텍스트를 바탕으로 `가능성 있는 질환 후보`와 `참고 정보`를 반환하는 백엔드 기능 초안을 정리합니다.
 
@@ -409,12 +528,228 @@ adapter 제한:
 - BioBERT 논문: https://pmc.ncbi.nlm.nih.gov/articles/PMC7703786/
 - 한국어 의료 BERT 논문: https://pubmed.ncbi.nlm.nih.gov/35974113/
 
+## 확정 작업 흐름
+
+현재 증상 탐색 고도화는 아래 순서로 진행합니다. LLM/Qwen API는 지금 단계에서 제외하고, 사용자가 다시 지시할 때까지 구현하지 않습니다.
+
+```text
+1. 사용자가 부위, 세부 부위, 증상, 강도, 기간을 선택한다.
+2. 사용자가 추가 컨텍스트를 직접 서술형으로 입력한다.
+3. 의료 BERT가 서술형 입력에서 symptom/context 후보 code만 추출한다.
+4. 후보 code는 내부 whitelist 검증을 통과해야 한다.
+5. 사용자 선택값과 BERT 후보를 병합한다. 사용자 직접 선택값을 우선한다.
+6. rule engine이 red_flags, candidates, confidence, severity, suggested_action을 만든다.
+7. 평가 결과를 기준으로 무료 로컬 vector DB에서 설명 카드/근거를 검색한다.
+8. RAG 검색 결과를 explanations, generated_summary_ko, source_refs에만 반영한다.
+9. 기능 묶음이 완성된 뒤 선별 테스트와 Swagger 검증을 수행한다.
+```
+
+역할 분리:
+
+| 구성요소 | 역할 | 금지 사항 |
+| --- | --- | --- |
+| 선택형 입력 | 사용자가 직접 고른 부위/증상/강도/기간/context | 없음 |
+| 의료 BERT | 서술형 입력에서 내부 symptom/context 후보 code 추출 | 진단, 처방, red flag, condition candidate, confidence, severity 생성 금지 |
+| whitelist 검증 | unknown code와 부위에 맞지 않는 symptom 제거 | 판단값 생성 금지 |
+| rule engine | red flag와 참고 candidate 판단 | DDXPlus/BERT/RAG 성능에 맞춘 질환별 예외 추가 금지 |
+| 무료 vector DB RAG | 이미 생성된 평가 결과를 설명할 카드/근거 검색 | red_flags, candidates, confidence, severity, suggested_action 변경 금지 |
+| Qwen/LLM | 현재 단계 제외. 나중에 사용자가 다시 지시할 때만 검토 | 현재 구현 금지 |
+
+## 의료 BERT 적용 계획
+
+의료 BERT는 API가 아니라 무료 로컬 모델로 적용합니다. 적용 위치는 `/symptom-checker/structure`와 `/symptom-checker/assessment-draft`의 서술형 입력 구조화 단계입니다.
+
+의료 BERT 입력:
+
+```json
+{
+  "body_region": "chest",
+  "selected_symptoms": ["pain"],
+  "selected_contexts": ["chest_pressure"],
+  "free_text": "숨도 차고 왼팔까지 저려요"
+}
+```
+
+의료 BERT 출력 후보:
+
+```json
+{
+  "symptom_candidates": ["shortness_of_breath", "numbness"],
+  "context_candidates": ["radiating_left_arm_or_jaw_or_back"]
+}
+```
+
+병합 원칙:
+
+- 사용자가 직접 선택한 값이 BERT 후보보다 우선합니다.
+- BERT 후보는 `validate_structured_input_candidates()`를 통과해야 합니다.
+- 동일 code는 중복 제거합니다.
+- body region에 허용되지 않는 symptom은 제외합니다.
+- whitelist 밖 context는 제외합니다.
+- BERT가 판단 필드(`condition_candidates`, `red_flags`, `confidence`, `severity`, `diagnosis`, `treatment`)를 만들거나 반환해도 사용하지 않습니다.
+
+다운로드 시점:
+
+- 현재 문서화된 흐름을 반영한 뒤, 의료 BERT adapter 구현 단계에서 다운로드합니다.
+- 사용자가 직접 다운로드해야 하는 파일이나 사이트 로그인이 필요한 경우에만 사용자에게 요청합니다.
+- 모델 weight는 Git에 커밋하지 않습니다.
+- 기본 cache 후보는 `C:/tmp/health-navigator-models/kmbert`입니다.
+- 필요한 의존성 후보는 `torch`, `transformers`입니다. 실제 `requirements.txt` 수정은 의료 BERT adapter 구현 시점에 진행합니다.
+
+모델 후보 기준:
+
+- 무료로 사용할 수 있어야 합니다.
+- 한국어 의료/임상 텍스트 후보 추출에 쓸 수 있어야 합니다.
+- 라이선스, 출처, 인용 정보를 문서에 남깁니다.
+- 공식 KU-RIAS/KM-BERT 계열 artifact를 우선 검토합니다.
+- 비공식 Hugging Face 변환본은 라이선스와 재배포 상태를 확인하기 전 기본 의존성으로 고정하지 않습니다.
+
+## 무료 vector DB RAG 적용 계획
+
+RAG는 무료 로컬 vector DB로 구현합니다. 유료 vector DB, 유료 hosted retrieval, 유료 embedding API는 사용하지 않습니다.
+
+1차 구현 후보:
+
+| 후보 | 판단 |
+| --- | --- |
+| SQLite + 로컬 embedding vector 저장 + cosine similarity 직접 계산 | 1차 선택. 무료, 로컬, 설치 부담이 작고 카드 수가 적은 현재 단계에 충분합니다. |
+| Chroma local persistent | 2차 후보. metadata filtering은 좋지만 의존성이 늘어납니다. |
+| FAISS local | 3차 후보. 빠르지만 Windows 설치 리스크가 있습니다. |
+
+RAG 인덱싱 대상:
+
+```text
+app/data/explanation_cards/red_flags.json
+app/data/explanation_cards/conditions.json
+app/data/explanation_cards/source_refs.json
+```
+
+vector document 구성:
+
+```text
+card_type
+target code(red_flag_code 또는 condition_code)
+summary_ko
+rationale_ko
+mapping_limit
+source claim 요약
+review/source policy metadata
+```
+
+metadata:
+
+```json
+{
+  "card_id": "red_flag.chest_pain_with_shortness_of_breath.v1",
+  "target_type": "red_flag",
+  "target_code": "chest_pain_with_shortness_of_breath",
+  "review_status": "reviewed",
+  "source_usage_policy": "approved"
+}
+```
+
+embedding 모델:
+
+- 무료 로컬 embedding 모델을 사용합니다.
+- 1차 후보는 `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`입니다.
+- cache 후보는 `C:/tmp/health-navigator-models/embeddings`입니다.
+- 모델 weight는 Git에 커밋하지 않습니다.
+
+RAG 검색 시점:
+
+```text
+/assess rule engine 결과
+  -> body_region, symptoms, contexts, red_flags, candidates 기반 query 생성
+  -> vector DB top-k 검색
+  -> reviewed card/source만 explanations에 첨부
+```
+
+RAG 성공 기준:
+
+- reviewed card만 검색 결과로 사용합니다.
+- rejected source는 사용하지 않습니다.
+- red flag 설명은 다른 red flag 설명으로 잘못 붙으면 안 됩니다.
+- RAG는 `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`을 바꾸지 않습니다.
+
+## LLM 이전 1차 기능 완성 TODO
+
+1차 완료는 LLM이 자연어 답변을 생성하기 전 단계까지의 데이터가 안정적으로 만들어지는 상태로 정의합니다. 이 단계의 산출물은 JSON이며, LLM은 아직 호출하지 않습니다.
+
+완료 기준:
+
+- `/symptom-checker/structure` 또는 `/symptom-checker/assessment-draft`가 사용자 입력을 평가 가능한 내부 code 후보와 평가 요청 초안으로 만든다.
+- `/symptom-checker/assess`와 `/symptom-checker/assess/me`가 `red_flags`, `candidates`, `profile`, `disclaimer`를 반환한다.
+- `/symptom-checker/assess?include_explanation=true`, `/symptom-checker/assess/me?include_explanation=true`, `/symptom-checker/explain`이 `explanations`, `source_refs`, `generated_summary_ko`, `safety`, `provider_metadata`를 붙인다.
+- RAG는 SQLite vector store에 저장된 reviewed 설명 카드 embedding을 검색/정렬 보조로만 사용하고, 판단값을 바꾸지 않는다.
+- KM-BERT 구조화 모델은 선택형/보조 경로로만 동작하며, 꺼져 있거나 실패해도 alias/whitelist fallback으로 기능이 죽지 않는다.
+- Swagger와 자동 테스트에서 대표 시나리오가 LLM 없이 끝까지 실행된다.
+
+진행 상태:
+
+| 항목 | 상태 | 확인 방법 |
+| --- | --- | --- |
+| 대표 시나리오 fixture | 완료 | `tests/test_symptom_checker_first_pass_completion.py` |
+| LLM 이전 데이터 완성도 smoke 검증 | 완료 | 대표 8개 시나리오에서 structure/draft/assess/explain 흐름 검증 |
+| RAG vector store 계약 검증 | 완료 | SQLite store schema, document count, embedding count, vector ordering, fallback 검증 |
+| KM-BERT 보조 경로 실행 계약 검증 | 완료 | disabled fallback 및 enabled fake provider whitelist 검증 |
+| LLM handoff payload 계약 | 완료 | provider payload/prompt가 판단값 변경 금지를 유지하는지 검증 |
+| Swagger 수동 검증 | 완료 | `/docs`, `/openapi.json`, `/`, symptom checker path 노출 확인 |
+| 1차 완료 보고 | 완료 | 이 문서의 latest local verification에 결과 기록 |
+
+완료된 1차 TODO:
+
+1. 대표 시나리오 fixture를 확정했다.
+   - 흉통+숨참, 시야 변화, 두통+신경학적 맥락, 복통+혈변, 낙상 후 변형, 알레르기/입술 부종, 전신 피로/어지럼, 낮은 위험도 단순 증상을 포함한다.
+   - 각 시나리오는 입력 payload와 최소 기대값(`body_region`, 주요 symptom/context, red flag 필요 여부, candidate 최소 개수, explanation 존재 여부)을 가진다.
+2. LLM 이전 데이터 완성도 smoke 검증을 추가했다.
+   - `/structure`, `/assessment-draft`, `/assess`, `/assess?include_explanation=true`, `/explain` 흐름을 대표 시나리오로 확인한다.
+   - 검증 목표는 성능 최적화가 아니라 실행 완성도, 필수 필드 존재, fallback, judgment mutation 방지다.
+3. RAG vector store 계약을 검증했다.
+   - `app/data/processed/explanation_vector_store.sqlite`에 `explanation_documents`가 존재하고, 문서 수와 embedding 수가 일치하는지 확인한다.
+   - vector search가 가능할 때 설명 카드 순서만 보조하고, store가 없거나 embedding model load에 실패해도 카드 기반 fallback이 동작하는지 확인한다.
+   - RAG 적용 전후 `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`이 동일한지 확인한다.
+4. KM-BERT 보조 경로 실행 계약을 검증했다.
+   - `MEDICAL_BERT_STRUCTURE_ENABLED=false`일 때 `/structure/medical-bert`와 `/assessment-draft/medical-bert`가 안전하게 fallback하는지 확인한다.
+   - 로컬 모델 artifact가 있고 명시적으로 enable된 경우 provider metadata가 `used: true`로 내려오고, 출력 후보가 whitelist 검증을 통과하는지 확인한다.
+   - 이 단계에서는 BERT accuracy/F1 개선을 목표로 하지 않는다.
+5. LLM handoff payload 계약을 고정했다.
+   - LLM에 넘길 수 있는 데이터는 profile/source, red flag 요약, candidate 요약, RAG context, safety/must-not-claim 범위로 제한한다.
+   - LLM이 새 판단값을 만들거나 바꿀 수 없도록 provider payload/prompt builder 테스트를 유지한다.
+   - 실제 LLM 호출과 문장 품질 개선은 1차 완료 이후로 미룬다.
+6. Swagger 수동 검증 체크리스트를 최신화했다.
+   - `/docs` 로드, `/` health 응답, symptom checker endpoint 노출, 대표 payload 실행 결과를 확인한다.
+   - DB/OCR/secret이 필요한 endpoint와 무관한 증상탐색 검증은 외부 의존성 없이 진행한다.
+7. 1차 완료 보고를 작성했다.
+   - 자동 테스트 결과, Swagger 검증 결과, RAG vector store 상태, KM-BERT fallback/enable 상태, 남은 성능 개선 항목을 분리해 기록한다.
+
+1차 완료에서 제외:
+
+- LLM 자연어 답변 생성
+- BERT accuracy/F1 개선과 라벨 증강
+- RAG 검색 품질/문장 품질 튜닝
+- DDXPlus test split 실행
+- 질환별 예외, 특수 가중치, red flag rule 성능 맞춤 수정
+- UI 고도화
+
+Latest local verification:
+
+| date | status | result |
+| --- | --- | --- |
+| 2026-05-20 | completed | 1차 시연/검증 패키지 문서화: `docs/SYMPTOM_CHECKER_FIRST_PASS_DEMO.md` |
+| 2026-05-20 | completed | LLM 이전 1차 기능 완성 smoke 검증 추가: 대표 8개 시나리오와 RAG/KM-BERT/LLM handoff 계약 테스트 포함 |
+| 2026-05-20 | completed | `.venv\Scripts\python.exe -m pytest`: 174 passed, 3 warnings |
+| 2026-05-20 | completed | local FastAPI server returned `/docs` 200 with Swagger UI, `/` healthy, and symptom checker endpoints exposed in OpenAPI |
+| 2026-05-20 | skipped | DDXPlus test split remains final-report only; `--include-test` was not run |
+
+1차 완료 상태를 시연하거나 재검증할 때는 `docs/SYMPTOM_CHECKER_FIRST_PASS_DEMO.md`를 기준 문서로 사용합니다.
+
 API 확장 순서:
 
 1. 기존 `/symptom-checker/assess`는 rule/model 판단 응답으로 유지합니다.
 2. `POST /symptom-checker/structure`로 자유 입력 구조화 endpoint를 별도 추가합니다.
-3. `POST /symptom-checker/explain`으로 판단 결과 설명 endpoint를 별도 추가합니다.
-4. 안정화 후 `/symptom-checker/assess?include_explanation=true`처럼 통합 응답을 검토합니다.
+3. `POST /symptom-checker/assessment-draft`로 구조화 후보를 평가 요청 초안으로 변환합니다.
+4. `POST /symptom-checker/explain`으로 판단 결과 설명 endpoint를 별도 유지합니다.
+5. `/symptom-checker/assess?include_explanation=true`와 `/symptom-checker/assess/me?include_explanation=true`에서 RAG 설명 통합 응답을 제공합니다.
 
 `/symptom-checker/structure`의 1차 구현은 외부 LLM/BERT를 직접 호출하지 않습니다. LLM, 의료 BERT, alias dictionary가 만든 후보 code를 받아 내부 whitelist로 검증하고, 판단 필드는 무시하는 안전 계층입니다. 실제 질환 후보, red flag, confidence, severity는 이 endpoint에서 생성하지 않습니다.
 
@@ -468,6 +803,10 @@ provider adapter 설정 원칙:
 | `SYMPTOM_STRUCTURE_PROVIDER_NAME` | `none` | 향후 provider adapter 선택용 이름입니다. 현재는 실제 provider 호출에 연결되어 있지 않습니다. |
 | `SYMPTOM_STRUCTURE_MODEL_ID` | 빈 문자열 | 향후 모델 ID 설정값입니다. 코드에 모델 ID를 하드코딩하지 않기 위한 자리입니다. |
 | `SYMPTOM_STRUCTURE_TIMEOUT_MS` | `2000` | 향후 provider 호출 timeout 설정값입니다. 정수가 아니면 기본값으로 fallback합니다. |
+| `MEDICAL_BERT_STRUCTURE_ENABLED` | `false` | 로컬 의료 BERT 구조화 adapter 사용 여부입니다. |
+| `MEDICAL_BERT_MODEL_DIR` | `C:/tmp/health-navigator-models/kmbert-structure` | fine-tuned 의료 BERT 구조화 모델 디렉터리입니다. |
+| `MEDICAL_BERT_MODEL_ID` | 빈 문자열 | 의료 BERT 모델 식별자 또는 기록용 이름입니다. |
+| `MEDICAL_BERT_SCORE_THRESHOLD` | `0.5` | 다중 라벨 분류 score threshold입니다. |
 
 이 설정들은 secret이 아닙니다. API key, token, credential은 별도 승인 전 읽거나 생성하거나 수정하지 않습니다.
 
@@ -528,6 +867,7 @@ provider adapter 도입 시 최소 단위 테스트:
 - RAG context는 1차로 최대 6개 카드, 최대 8개 source ref, 카드별 주요 설명 필드 500자 이내로 제한한다.
 - `build_explanation_provider_payload()`는 assessment 전체 원문이 아니라 profile/source, red flag 요약, candidate 요약, RAG context만 담는 최소 payload를 만든다.
 - `build_explanation_provider_prompt()`는 payload와 안전 계약을 포함한 provider용 prompt를 만든다. prompt는 진단/확정/처방/복용 지시 금지와 판단 필드 변경 금지를 명시한다.
+- 기본 `/explain` 응답은 외부 provider 없이 reviewed 설명 카드만으로 안전한 `generated_summary_ko`를 생성한다.
 - `explain_symptom_assessment_from_provider()`는 provider 출력 텍스트를 `build_safe_explanation()` 안전 필터에 통과시킨다. 금지 표현이 있으면 `generated_summary_ko`를 비우고 fallback metadata를 남긴다.
 - provider가 생성할 수 있는 것은 최대 700자의 사용자용 요약 텍스트뿐이며, `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`은 바꿀 수 없다.
 
@@ -600,7 +940,7 @@ provider adapter 도입 시 최소 단위 테스트:
     "blocked_claims": [],
     "missing_explanation_targets": []
   },
-  "generated_summary_ko": null,
+  "generated_summary_ko": "선택한 증상 조합에서 빠른 상담이 필요할 수 있는 위험 신호 설명을 정리했습니다. 이 내용은 특정 질환을 확정하지 않는 참고 정보입니다.",
   "provider_metadata": {
     "used": false,
     "fallback_reason": null,
@@ -617,7 +957,7 @@ provider adapter 도입 시 최소 단위 테스트:
 - 화면 구성은 다른 파트에서 담당하므로, 현재 백엔드 우선순위는 `/explain`의 설명 카드 seed와 안전 검증을 확장하는 것이다.
 - 클라이언트가 임의로 만든 `red_flags`, `confidence`, `severity`를 신뢰하지 않는 운영 구조는 1차 UI 기능 완성 후 세부 조정 단계에서 다시 다룬다.
 - 운영 고도화 단계에서는 `assessment_id` 기반 조회 또는 signed payload를 검토한다.
-- 현재 구현된 선택 입력은 `generated_text`뿐이며, 금지 표현 검출과 fallback 확인 용도다. 문체, 출처 범위, 판단값을 바꾸는 옵션은 아직 지원하지 않는다.
+- 기본 구현은 reviewed 설명 카드 기반 요약을 생성한다. 선택 입력 `generated_text`는 금지 표현 검출과 fallback 확인 용도다. 문체, 출처 범위, 판단값을 바꾸는 옵션은 아직 지원하지 않는다.
 
 응답 제한:
 
@@ -1259,3 +1599,27 @@ Reference URLs:
 - WHO Guillain-Barre syndrome: https://www.who.int/news-room/fact-sheets/detail/guillain-barr%C3%A9-syndrome
 - NINDS Guillain-Barre syndrome: https://www.ninds.nih.gov/health-information/disorders/guillain-barre-syndrome
 - CDC Guillain-Barre syndrome: https://www.cdc.gov/campylobacter/signs-symptoms/guillain-barre-syndrome.html
+
+## 2026-05-17 Zero-Cost Model Direction
+
+- The project will not use paid OpenAI API calls for the current scope.
+- `/symptom-checker/explain` remains card-based: it uses reviewed internal explanation cards and must not call an external LLM provider by default.
+- OpenAI/GPT models are treated as deferred paid-provider options only. They are not part of the current zero-cost implementation path.
+- KM-BERT is the primary medical BERT candidate for Korean free-text structure assistance under the current non-commercial research/demo scope.
+- The current local prototype is a fine-tuned BERT structure classifier under `.model-cache/kmbert-structure`, trained to emit internal `BODY_REGION__*`, `SYMPTOM__*`, and `CONTEXT__*` labels.
+- KM-BERT is limited to `/symptom-checker/structure` and `/symptom-checker/assessment-draft` candidate extraction before whitelist validation.
+- KM-BERT must not create or mutate `red_flags`, `condition_candidates`, `confidence`, `severity`, `suggested_action`, diagnosis, or treatment text.
+- The local model connection exists as an optional prototype path, but it remains disabled by default until runtime checks and extraction quality are acceptable for user-facing enablement.
+- Model weights, raw medical text, and generated large artifacts must not be committed.
+
+## 2026-05-20 Structure Performance Tuning
+
+- Tuning 기준과 변경 기록은 `docs/SYMPTOM_CHECKER_TUNING_POLICY.md`를 따른다.
+- 이번 단계는 LLM 출력 이전의 구조화 결과값 품질만 다룬다.
+- alias 기반 구조화 성능은 train/validate만 사용해 평가했고, test split은 최종 보고 전까지 튜닝에 사용하지 않는다.
+- 2026-05-20 alias 평가 결과: overall body_region accuracy `0.9338`, symptom micro F1 `0.8519`, context micro F1 `0.7500`.
+- validate 결과: body_region accuracy `1.0000`, symptom micro F1 `0.9677`, context micro F1 `0.8750`.
+- final holdout 확인 결과: test body_region accuracy `0.7143`, symptom micro F1 `0.5455`, context micro F1 `0.7600`.
+- test 결과를 보고 추가 튜닝하지 않았다. 다음 성능 작업은 test 문장 맞춤이 아니라 독립 라벨 확대 또는 KM-BERT 구조화 모델 개선으로 진행한다.
+- red flag rule, condition candidate rule, confidence, severity, suggested_action은 이 튜닝에서 변경하지 않았다.
+

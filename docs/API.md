@@ -1,4 +1,4 @@
-# API
+﻿# API
 
 이 문서는 Health Navigator-Management 백엔드의 주요 API와 응답 구조를 정리합니다.
 
@@ -26,9 +26,12 @@ http://localhost:8000/docs
 | GET | `/symptom-checker/body-regions/{region_id}/symptoms` | 특정 큰 부위의 세부 부위와 증상 선택지 조회 |
 | GET | `/symptom-checker/body-regions/{region_id}/context-guide` | 부위별 context chip, 선택 서술형 입력 예시, 후속 질문 후보 조회 |
 | POST | `/symptom-checker/structure` | LLM/BERT/alias dictionary가 만든 서술형 입력 구조화 후보를 whitelist로 검증 |
+| POST | `/symptom-checker/structure/medical-bert` | 로컬 의료 BERT 기반 서술형 입력 구조화 후보 추출. 모델 미설정/비활성화 시 manual fallback |
+| POST | `/symptom-checker/assessment-draft` | 서술형 입력 구조화 결과를 `/assess` 요청 초안으로 변환 |
+| POST | `/symptom-checker/assessment-draft/medical-bert` | 로컬 의료 BERT 후보를 `/assess` 요청 초안으로 병합 |
 | POST | `/symptom-checker/explain` | 기존 증상 평가 결과에 검수된 설명 카드와 안전 metadata를 추가 |
-| POST | `/symptom-checker/assess` | 비로그인 사용자의 성별, 생년월일, 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회 |
-| POST | `/symptom-checker/assess/me` | 로그인 사용자 정보와 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회 |
+| POST | `/symptom-checker/assess` | 비로그인 사용자의 성별, 생년월일, 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 RAG 설명 카드도 함께 반환 |
+| POST | `/symptom-checker/assess/me` | 로그인 사용자 정보와 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 RAG 설명 카드도 함께 반환 |
 | GET | `/drugs` | 의약품 목록 조회 |
 | GET | `/drugs/autocomplete` | 의약품 검색 자동완성 |
 | GET | `/drugs/search` | 의약품 검색 |
@@ -45,6 +48,8 @@ http://localhost:8000/docs
 
 이 기능은 1차 API 골격과 v2 위험 신호 규칙이 구현된 상태입니다. 응답은 진단이나 처방이 아니라 `가능성 있는 질환 후보`, `참고 정보`, `위험 신호`로 표현합니다.
 
+LLM 답변 생성 전 단계의 1차 시연/검증 기준은 `docs/SYMPTOM_CHECKER_FIRST_PASS_DEMO.md`를 따릅니다.
+
 endpoint는 다음과 같습니다.
 
 | Method | Endpoint | 설명 |
@@ -53,9 +58,12 @@ endpoint는 다음과 같습니다.
 | GET | `/symptom-checker/contexts` | 증상 평가에 사용할 컨텍스트 선택지 조회 |
 | GET | `/symptom-checker/body-regions/{region_id}/symptoms` | 특정 큰 부위의 세부 부위와 증상 선택지 조회 |
 | POST | `/symptom-checker/structure` | LLM/BERT/alias dictionary가 만든 서술형 입력 구조화 후보를 whitelist로 검증 |
+| POST | `/symptom-checker/structure/medical-bert` | 로컬 의료 BERT 기반 서술형 입력 구조화 후보 추출. 모델 미설정/비활성화 시 manual fallback |
+| POST | `/symptom-checker/assessment-draft` | 구조화 후보를 선택형 평가 요청 초안으로 변환 |
+| POST | `/symptom-checker/assessment-draft/medical-bert` | 로컬 의료 BERT 후보를 선택형 평가 요청 초안으로 병합 |
 | POST | `/symptom-checker/explain` | `/assess` 또는 `/assess/me` 결과를 바꾸지 않고 검수된 설명 카드만 추가 |
-| POST | `/symptom-checker/assess` | 비로그인 사용자의 성별, 생년월일, 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회 |
-| POST | `/symptom-checker/assess/me` | 로그인 사용자 정보와 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회 |
+| POST | `/symptom-checker/assess` | 비로그인 사용자의 성별, 생년월일, 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 RAG 설명 카드도 함께 반환 |
+| POST | `/symptom-checker/assess/me` | 로그인 사용자 정보와 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 RAG 설명 카드도 함께 반환 |
 
 `/symptom-checker/structure`는 외부 모델을 직접 호출하지 않습니다. 모델이나 alias dictionary가 만든 `body_region`, `symptom_candidates`, `context_candidates` 후보를 내부 whitelist로 검증하고, `condition_candidates`, `red_flags`, `confidence`, `severity`, `diagnosis`, `treatment` 같은 판단 필드는 무시합니다. 실제 판단은 `/assess`의 rule engine에서만 수행합니다.
 
@@ -98,7 +106,58 @@ endpoint는 다음과 같습니다.
 }
 ```
 
-`/symptom-checker/explain`은 기본 API 경로에서는 외부 LLM/provider를 호출하지 않습니다. `/assess` 또는 `/assess/me`가 만든 평가 결과를 입력으로 받아 검수된 내부 설명 카드만 붙이며, `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`을 생성하거나 수정하지 않습니다. 내부 구현에는 provider adapter가 사용할 RAG context builder, 최소 provider payload/prompt builder, 안전 필터가 준비되어 있으며, provider 출력은 금지 표현 검사 후 최대 700자의 `generated_summary_ko`에만 실릴 수 있습니다.
+`/symptom-checker/assessment-draft`는 `/structure`와 같은 후보 검증을 거친 뒤, 사용자가 `/assess` 또는 `/assess/me`로 넘길 수 있는 선택형 입력 초안을 만듭니다. 이 endpoint도 최종 판단을 수행하지 않으며, `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`을 생성하지 않습니다. `ready_for_assessment`가 `false`이면 `missing_required_fields`를 보고 사용자가 부위 또는 증상을 추가 선택해야 합니다.
+
+예시 요청:
+
+```json
+{
+  "free_text": "가슴이 꽉 누르는 느낌이고 왼쪽 팔까지 저려요. 숨도 좀 차요.",
+  "body_part": "center_chest",
+  "default_severity": 7,
+  "default_duration_hours": 2
+}
+```
+
+예시 응답:
+
+```json
+{
+  "source": "manual",
+  "body_region": "chest",
+  "body_part": "center_chest",
+  "symptoms": [
+    {
+      "code": "numbness",
+      "severity": 7,
+      "duration_hours": 2
+    },
+    {
+      "code": "shortness_of_breath",
+      "severity": 7,
+      "duration_hours": 2
+    }
+  ],
+  "contexts": {
+    "radiating_left_arm_or_jaw_or_back": true,
+    "chest_pressure": true
+  },
+  "additional_context": {
+    "recent_medications": [],
+    "recent_conditions": [],
+    "lab_values": [],
+    "free_text": "가슴이 꽉 누르는 느낌이고 왼쪽 팔까지 저려요. 숨도 좀 차요."
+  },
+  "ready_for_assessment": true,
+  "missing_required_fields": [],
+  "judgment_fields_ignored": true,
+  "final_judgment_performed": false
+}
+```
+
+`/symptom-checker/assess?include_explanation=true`와 `/symptom-checker/assess/me?include_explanation=true`는 평가 결과에 검수된 내부 RAG 설명 카드를 바로 붙여 반환합니다. RAG 설명은 이미 생성된 `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`을 만들거나 바꾸지 않습니다. 응답에는 `explanations`, `explanation_safety`, `generated_summary_ko`, `provider_metadata`가 추가됩니다.
+
+`/symptom-checker/explain`은 별도 설명 조회가 필요할 때 사용하는 endpoint입니다. 기본 API 경로에서는 외부 LLM/provider를 호출하지 않습니다. `/assess` 또는 `/assess/me`가 만든 평가 결과를 입력으로 받아 검수된 내부 설명 카드와 안전한 기본 요약을 붙이며, `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`을 생성하거나 수정하지 않습니다. 내부 구현에는 provider adapter가 사용할 RAG context builder, 최소 provider payload/prompt builder, 안전 필터가 준비되어 있으며, 향후 provider 출력은 금지 표현 검사 후 최대 700자의 `generated_summary_ko`에만 실릴 수 있습니다.
 
 평가 요청 예시는 다음과 같습니다.
 
@@ -182,7 +241,32 @@ endpoint는 다음과 같습니다.
   "profile": {
     "gender": "female",
     "birth_date": "2000-01-01",
-    "source": "request"
+    "source": "request",
+    "age": 26
+  },
+  "input_analysis": {
+    "body_region": "head_face",
+    "body_part": "temple",
+    "selected_symptom_codes": ["pain"],
+    "selected_context_codes": ["alcohol_yesterday", "sleep_deprivation", "stress"],
+    "free_text": "잠을 못 자고 관자놀이가 욱신거려요.",
+    "free_text_symptom_candidates": [],
+    "free_text_context_candidates": [],
+    "merged_symptom_codes": ["pain"],
+    "merged_context_codes": ["alcohol_yesterday", "sleep_deprivation", "stress"],
+    "free_text_used_for_candidate_matching": false
+  },
+  "candidate_generation": {
+    "mode": "reviewed_rule_based_candidate_ranking",
+    "source_layers": [
+      "manual_seed_rules",
+      "approved_ddxplus_frequency_tie_break",
+      "reviewed_explanation_cards_available_via_explain"
+    ],
+    "ddxplus_usage": "approved_frequency_tie_break_only",
+    "rag_usage": "explanation_only_not_judgment",
+    "explain_endpoint": "/symptom-checker/explain",
+    "judgment_mutation_allowed_by_rag": false
   },
   "red_flags": [],
   "candidates": [
@@ -196,6 +280,46 @@ endpoint는 다음과 같습니다.
         "스트레스"
       ],
       "suggested_action": "증상이 지속되거나 악화되면 의료기관 상담을 권장합니다."
+    }
+  ],
+  "possible_candidates": [],
+  "missing_evidence_questions": []
+}
+```
+
+`input_analysis`는 사용자가 선택한 증상/맥락과 서술형 입력에서 추출된 후보를 분리해서 보여줍니다. `merged_symptom_codes`와 `merged_context_codes`가 실제 후보 생성에 들어간 값입니다. 서술형 입력이 후보 생성에 반영되면 `free_text_used_for_candidate_matching`이 `true`가 됩니다.
+
+후보가 확정적으로 매칭되지 않았지만 일부 근거가 맞는 경우에는 `possible_candidates`와 `missing_evidence_questions`가 내려옵니다. 이 값은 상세 확인 단계처럼 추가 확인 질문을 만들기 위한 참고 목록이며, 질병 후보 확정 목록인 `candidates`와 분리해서 표시합니다.
+
+예를 들어 눈 부위에서 사용자가 통증을 선택하고 서술형으로 "눈 위쪽이 가려워요"라고 쓰면, alias 구조화가 `itching`을 추출해 후보 생성에 병합할 수 있습니다.
+
+```json
+{
+  "input_analysis": {
+    "body_region": "eye",
+    "body_part": "eyes",
+    "selected_symptom_codes": ["pain"],
+    "selected_context_codes": [],
+    "free_text": "눈 위쪽이 가려워요.",
+    "free_text_symptom_candidates": ["itching"],
+    "free_text_context_candidates": [],
+    "merged_symptom_codes": ["itching", "pain"],
+    "merged_context_codes": [],
+    "free_text_used_for_candidate_matching": true
+  },
+  "candidates": [
+    {
+      "condition_code": "conjunctivitis",
+      "condition_name": "결막염 가능성"
+    }
+  ],
+  "possible_candidates": [
+    {
+      "condition_code": "dry_eye",
+      "condition_name": "안구건조증 가능성",
+      "matched_evidence": ["pain"],
+      "missing_required_symptoms": ["dryness"],
+      "missing_evidence_questions": ["눈 건조감이(가) 있나요?"]
     }
   ]
 }
@@ -309,7 +433,7 @@ endpoint는 다음과 같습니다.
     "blocked_claims": [],
     "missing_explanation_targets": []
   },
-  "generated_summary_ko": null,
+  "generated_summary_ko": "선택한 증상 조합에서 빠른 상담이 필요할 수 있는 위험 신호 설명을 정리했습니다. 이 내용은 특정 질환을 확정하지 않는 참고 정보입니다.",
   "provider_metadata": {
     "used": false,
     "fallback_reason": null,
@@ -599,3 +723,4 @@ GET /drugs/autocomplete?q=타이레&limit=10
   }
 }
 ```
+

@@ -486,6 +486,14 @@ DDXPlus frequency baseline 평가:
 | --- | ---: | ---: | ---: | ---: | ---: |
 | validate | 32,024 | 24.18% | 100.00% | 1.29 | 91.85% |
 
+Latest local pipeline run:
+
+| stage | status | key result |
+| --- | --- | --- |
+| train | completed | used train rows 249,831, coverage 24.36% |
+| validate | completed | evaluated rows 32,024, coverage 24.18%, top-1 88.32%, top-3 94.00%, top-5 100.00%, mean expected rank 1.29 |
+| test | skipped | `--include-test` was not used; test remains final-report only |
+
 주의:
 
 - 이 평가는 approved draft condition 6개에 한정됩니다.
@@ -504,11 +512,161 @@ DDXPlus frequency baseline 평가:
 - red flag는 DDXPlus가 아니라 검토된 rule engine이 담당합니다.
 - train은 baseline/모델 생성, validate는 오류 분석과 기준 검토, test는 최종 보고에만 사용합니다.
 - validate/test 결과에 맞춰 특정 condition을 입맛대로 빼거나 넣지 않습니다.
+
+### DDXPlus frequency pipeline 실행
+
+DDXPlus 기반 train/validate는 한 명령으로 실행합니다.
+
+```powershell
+cd health-navigator-backend
+python tools/run_ddxplus_frequency_pipeline.py
+```
+
+이 명령은 `release_train_patients`로 frequency baseline을 다시 생성하고, `release_validate_patients`로 평가한 뒤 `app/data/processed/ddxplus_frequency_pipeline_report.json`을 씁니다.
+
+test split은 최종 보고용으로만 명시 실행합니다.
+
+```powershell
+cd health-navigator-backend
+python tools/run_ddxplus_frequency_pipeline.py --include-test
+```
+
+`--include-test` 결과는 성능 튜닝이나 condition별 예외 추가에 사용하지 않고, 최종 보고 지표 확인에만 사용합니다.
 - 증상, 컨텍스트, 후보, red flag 구조를 DDXPlus 점수에 맞춰 바꾸지 않습니다.
 - 파라미터 조정은 사전에 정의한 전역 파라미터에 한해 임상/UX 근거가 있을 때만 허용합니다.
 - train/validate/test 성능을 이유로 특정 질환별 예외, 특수 가중치, 후보 제외를 만들지 않습니다.
 - 낮은 condition 성능은 제외 근거가 아니라 매핑/evidence 검토 필요 신호로만 사용합니다.
 - 매핑 확장과 모델 반영은 `ddxplus_mapping_protocol.json`의 사전 기준을 따릅니다.
+
+## 전체 데이터/모델/RAG 작업 기준
+
+증상 탐색 고도화는 세 종류의 데이터를 분리해 관리합니다.
+
+| 축 | 목적 | 데이터 | 성공 기준 |
+| --- | --- | --- | --- |
+| 한국어 free text 구조화 | 사용자 서술형 컨텍스트에서 내부 symptom/context 후보 추출 | 수동 라벨링한 한국어 문장 seed | whitelist 통과 후보만 생성, 안전 context recall 우선 |
+| DDXPlus candidate ranking | 참고 candidate 순위 보조 baseline 평가 | DDXPlus train/validate/test split | top-3/top-5 후보군 품질, condition별 예외 없음 |
+| 무료 vector DB RAG | 평가 결과 설명 카드/근거 검색 | reviewed explanation cards/source refs | reviewed-only retrieval, 판단값 mutation 0 |
+
+### 한국어 free text 구조화 라벨 데이터
+
+의료 BERT는 DDXPlus가 아니라 한국어 사용자 free text를 내부 code 후보로 바꾸는 입력 구조화에 사용합니다.
+
+라벨 파일 후보:
+
+```text
+app/data/review/korean_free_text_structure_labels.json
+```
+
+라벨 단위:
+
+```json
+{
+  "id": "ko-structure-0001",
+  "text": "가슴이 조이고 숨이 차요",
+  "body_region": "chest",
+  "symptom_labels": ["pain", "shortness_of_breath"],
+  "context_labels": ["chest_pressure"],
+  "split": "train",
+  "review_status": "reviewed"
+}
+```
+
+split 원칙:
+
+- 초기 seed는 작게 시작하되 `train`, `validate`, `test` 값을 명시합니다.
+- 같은 문장 변형이 train/test에 동시에 들어가지 않게 합니다.
+- red flag 관련 safety context 문장은 validate/test에 반드시 포함합니다.
+- 질환명 직접 언급 문장은 별도 유형으로 표시하고, diagnosis 생성 학습에 사용하지 않습니다.
+
+초기 성공 기준:
+
+| 지표 | 기준 |
+| --- | ---: |
+| unsupported code after whitelist | 0 |
+| body_region accuracy | 0.85 이상 |
+| symptom micro F1 | 0.75 이상 |
+| context micro F1 | 0.70 이상 |
+| safety context recall | 0.80 이상 |
+
+단, 라벨 수가 충분하지 않은 초기 단계에서는 위 수치를 최종 성능 보증이 아니라 품질 검토 신호로 사용합니다. BERT 성능을 맞추기 위해 내부 symptom/context 구조를 바꾸지 않습니다.
+
+### 무료 vector DB RAG 데이터
+
+RAG는 외부 유료 vector DB나 유료 embedding API를 사용하지 않습니다. 1차 구현은 SQLite 기반 로컬 vector store를 사용합니다.
+
+인덱싱 대상:
+
+```text
+app/data/explanation_cards/red_flags.json
+app/data/explanation_cards/conditions.json
+app/data/explanation_cards/source_refs.json
+```
+
+embedding 모델 후보:
+
+```text
+sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+```
+
+cache 후보:
+
+```text
+C:/tmp/health-navigator-models/embeddings
+```
+
+RAG 평가 기준:
+
+| 지표 | 기준 |
+| --- | ---: |
+| reviewed-only retrieval | 100% |
+| rejected source retrieval | 0 |
+| judgment mutation | 0 |
+| red flag target recall@3 | 0.95 이상 |
+| condition target recall@5 | 0.85 이상 |
+
+RAG는 설명 검색/첨부에만 사용합니다. `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`은 생성하거나 변경하지 않습니다.
+
+### DDXPlus train/validate/test 성공 기준
+
+DDXPlus는 한국어 BERT 입력 구조화 평가가 아니라 candidate ranking baseline 평가에 사용합니다.
+
+train 성공 기준:
+
+- `release_train_patients`를 읽어 baseline을 생성합니다.
+- approved condition mapping만 사용합니다.
+- rejected/needs_review mapping은 사용하지 않습니다.
+- `used_train_rows > 0`이어야 합니다.
+- `internal_condition_count > 0`이어야 합니다.
+- `usage_policy.candidate_ranking_only == true`여야 합니다.
+- `usage_policy.red_flag_usage == false`여야 합니다.
+
+validate 성공 기준:
+
+| 지표 | 기준 |
+| --- | ---: |
+| coverage_ratio | 0.24 이상 |
+| top_3_accuracy | 0.90 이상 |
+| top_5_accuracy | 0.95 이상 |
+| mean_expected_rank | 2.0 이하 |
+| condition-specific exception | 0 |
+| red_flag_usage | false |
+
+validate 실패 기준:
+
+- `top_3_accuracy < 0.85`
+- `top_5_accuracy < 0.90`
+- coverage가 기존 기준보다 크게 하락
+- 성능을 맞추기 위해 특정 condition 예외가 필요함
+- validate 결과를 보고 mapping을 임의 변경해야 함
+
+test 성공 기준:
+
+- 최종 보고 직전에만 `--include-test`로 실행합니다.
+- `top_3_accuracy >= 0.90`
+- `top_5_accuracy >= 0.95`
+- `mean_expected_rank <= 2.0`
+- test 결과로 mapping, rule, 가중치, condition 포함/제외를 수정하지 않습니다.
 
 ## DDXPlus 모델 학습 의미 정리
 
@@ -600,3 +758,64 @@ DDXPlus frequency baseline 평가:
 
 - BioBERT 논문: https://pmc.ncbi.nlm.nih.gov/articles/PMC7703786/
 - 한국어 의료 BERT 논문: https://pubmed.ncbi.nlm.nih.gov/35974113/
+
+## 2026-05-17 KM-BERT Review Decision
+
+- Current cost policy is zero external API cost.
+- Paid OpenAI/GPT API use is deferred and excluded from the active implementation path.
+- KM-BERT is selected as the first Korean medical BERT candidate for non-commercial research/demo use.
+- KM-BERT is suitable only as a `/symptom-checker/structure` helper that proposes internal body-region, symptom, and context candidates.
+- KM-BERT is not a diagnosis, triage, red-flag, severity, confidence, or treatment model in this project.
+- Commercial or paid-service use must be rechecked with the model authors/license holders before deployment.
+- Real connection remains a later step because it requires model artifact download and runtime performance checks. The pre-connection policy below is fixed before that step.
+
+### KM-BERT pre-connection policy
+
+Source decision:
+
+- Preferred source: official KU-RIAS KM-BERT artifacts.
+- Official artifact candidates: `KM-BERT` first, `KM-BERT-vocab` only if the extended medical vocabulary is explicitly needed and runtime behavior is checked separately.
+- The current KU-RIAS GitHub repository page exposes example scripts and README text, but the actual `KM-BERT.zip`, `KM-BERT.tar`, `KM-BERT-vocab.zip`, and `KM-BERT-vocab.tar` artifacts were not visible in the repository file list during implementation.
+- For the local prototype, use the Hugging Face converted model `madatnlp/km-bert` as a practical download source.
+- Treat `madatnlp/km-bert` as a prototype dependency, not a final commercial deployment dependency. Its converted status and author/license terms must be rechecked before commercial or paid-service use.
+- Do not infer a permissive license. The KU-RIAS repository exposes model artifacts and citation guidance, but this project must recheck license/author terms before commercial or paid-service use.
+
+Dependency decision:
+
+- The local KM-BERT prototype path uses the default backend `requirements.txt`, not a separate optional requirements file. This keeps local and AWS `git pull` plus `pip install -r requirements.txt` behavior aligned.
+- Required dependencies currently used by the prototype are `torch`, `transformers`, and `accelerate`.
+- Do not add new ML dependencies beyond this set without a separate need and approval.
+- Use official install guidance when selecting final versions. PyTorch installation must follow the official selector for the target platform, and Transformers should be installed from a stable release unless a specific compatibility issue requires another version.
+
+Artifact/cache decision:
+
+- Model weights must not be committed to this repository.
+- Candidate local cache: `C:/tmp/health-navigator-models/kmbert`.
+- Candidate AWS EC2 cache: `/opt/health-navigator/models/kmbert`.
+- The final cache path must be passed through configuration/environment, not hardcoded in adapter logic.
+- Raw medical text, downloaded model weights, and generated large artifacts stay outside Git tracking.
+
+Current local prototype artifacts:
+
+- Hugging Face cache: `.model-cache/hf-cache`
+- Fine-tuned structure classifier: `.model-cache/kmbert-structure`
+- Explanation embedding cache: `.model-cache/embeddings`
+- `.model-cache/` is excluded from Git tracking.
+- Base model used for the first local structure classifier: `madatnlp/km-bert`
+- This first classifier is a connectivity/prototype artifact trained on the current seed labels, not a production-quality extraction model.
+
+Runtime decision:
+
+- Keep provider disabled by default until runtime checks pass.
+- Before user-facing enablement, measure cold-start load time, warm inference latency, memory usage, and timeout behavior on the actual target machine.
+- The current default structure-provider timeout is 2000 ms. If KM-BERT exceeds that on CPU, keep it as an offline/manual helper or raise the timeout only after explicit approval.
+- KM-BERT output remains candidate extraction only. It must pass `validate_structured_input_candidates()` and must not create or mutate `red_flags`, `condition_candidates`, `confidence`, `severity`, `suggested_action`, diagnosis, or treatment text.
+
+Recorded sources:
+
+- KU-RIAS official KM-BERT repository: https://github.com/KU-RIAS/KM-BERT-Korean-Medical-BERT
+- KM-BERT paper, Scientific Reports: https://www.nature.com/articles/s41598-022-17806-8
+- PubMed record: https://pubmed.ncbi.nlm.nih.gov/35974113/
+- Hugging Face converted reference, not default source: https://huggingface.co/madatnlp/km-bert
+- PyTorch official install selector: https://pytorch.org/get-started/locally/
+- Transformers official installation/cache documentation: https://huggingface.co/docs/transformers/en/installation
