@@ -12,6 +12,7 @@ from app.models import drug
 from app.models import health_check
 
 from app.core.database import Base, engine
+from app.routers import reward
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -24,6 +25,7 @@ app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(symptom_checker_router)
 app.include_router(gemini_router)
 app.include_router(drugs.router)
+app.include_router(reward.router)
 
 
 DEMO_DOCS_DIR = Path(__file__).resolve().parents[2] / "docs"
