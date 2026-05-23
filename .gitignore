@@ -1,5 +1,11 @@
 *.parquet
 .env
+*.env
+*service-account*.json
+*credentials*.json
+*google*key*.json
+secrets/
+health-navigator-backend/secrets/
 __pycache__/
 *.pyc
 venv/
