@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 
 from app.routers.auth import get_current_user
 from app.schemas.symptom_checker import (
@@ -10,6 +10,8 @@ from app.schemas.symptom_checker import (
     BodyRegionSymptomResponse,
     ContextGuideResponse,
     ContextOptionResponse,
+    GeminiSymptomExplainRequest,
+    GeminiSymptomExplainResponse,
     SymptomExplainRequest,
     SymptomExplainResponse,
     SymptomAssessRequest,
@@ -25,6 +27,27 @@ router = APIRouter(
     prefix="/symptom-checker",
     tags=["symptom-checker"],
 )
+
+gemini_router = APIRouter(
+    prefix="/api/gemini",
+    tags=["gemini"],
+)
+
+
+@gemini_router.post(
+    "/explain-symptoms",
+    response_model=GeminiSymptomExplainResponse,
+    summary="Vertex AI Gemini로 후보 증상 설명문 생성",
+)
+def explain_symptoms_with_vertex_gemini(
+    req: GeminiSymptomExplainRequest = Body(default_factory=GeminiSymptomExplainRequest),
+):
+    if not req.model_dump(exclude_none=True) or not req.candidates:
+        raise HTTPException(status_code=400, detail="Request JSON and candidates are required.")
+    try:
+        return symptom_checker_service.explain_symptom_candidates_with_vertex_gemini(req)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="Vertex AI Gemini call failed.") from exc
 
 
 @router.get(
@@ -59,8 +82,17 @@ def get_context_options():
     response_model=BodyRegionSymptomResponse,
     summary="부위별 세부 부위와 증상 선택지 조회",
 )
-def get_region_symptoms(region_id: str):
-    result = symptom_checker_service.get_region_options(region_id)
+def get_region_symptoms(
+    region_id: str,
+    body_part: str | None = Query(
+        default=None,
+        description="Optional detailed body-part id selected from /body-regions/{region_id}/symptoms.",
+    ),
+):
+    try:
+        result = symptom_checker_service.get_region_options(region_id, body_part_id=body_part)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     if result is None:
         raise HTTPException(status_code=404, detail="해당 부위를 찾을 수 없습니다.")
     return result
@@ -133,17 +165,32 @@ def explain_symptom_assessment(req: SymptomExplainRequest):
 
 
 @router.post(
+    "/explain/gemini",
+    response_model=SymptomExplainResponse,
+    summary="Gemini 기반 증상 평가 설명 생성",
+)
+def explain_symptom_assessment_with_gemini(req: SymptomExplainRequest):
+    return symptom_checker_service.explain_symptom_assessment_from_gemini(req)
+
+
+@router.post(
     "/assess",
     response_model=SymptomAssessWithExplanationResponse,
     summary="증상 기반 질환 후보 조회",
 )
-def assess_symptoms(req: SymptomAssessRequest, include_explanation: bool = Query(False)):
+def assess_symptoms(
+    req: SymptomAssessRequest,
+    include_explanation: bool = Query(False),
+    include_gemini_explanation: bool = Query(False),
+):
     try:
         result = symptom_checker_service.assess_symptoms(req)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     if result is None:
         raise HTTPException(status_code=404, detail="해당 부위를 찾을 수 없습니다.")
+    if include_gemini_explanation:
+        return symptom_checker_service.attach_gemini_explanation_to_assessment(result)
     if include_explanation:
         return symptom_checker_service.attach_explanation_to_assessment(result)
     return result
@@ -157,6 +204,7 @@ def assess_symptoms(req: SymptomAssessRequest, include_explanation: bool = Query
 def assess_my_symptoms(
     req: AuthenticatedSymptomAssessRequest,
     include_explanation: bool = Query(False),
+    include_gemini_explanation: bool = Query(False),
     current_user=Depends(get_current_user),
 ):
     enriched_request = SymptomAssessRequest(
@@ -173,6 +221,8 @@ def assess_my_symptoms(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     if result is None:
         raise HTTPException(status_code=404, detail="해당 부위를 찾을 수 없습니다.")
+    if include_gemini_explanation:
+        return symptom_checker_service.attach_gemini_explanation_to_assessment(result)
     if include_explanation:
         return symptom_checker_service.attach_explanation_to_assessment(result)
     return result

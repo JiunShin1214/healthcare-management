@@ -18,6 +18,8 @@ EvidenceStrength = Literal["weak", "moderate", "strong"]
 SourceStatus = Literal["approved", "restricted", "rejected"]
 ReviewStatus = Literal["reviewed", "needs_review", "rejected"]
 StructuredInputSource = Literal["llm", "medical_bert", "alias_dictionary", "manual"]
+CandidateApplicabilityEffect = Literal["none", "ranking_boost_only", "question_prompt", "explanation_note", "candidate_filter"]
+CandidateBodyPartMatch = Literal["region_level", "body_part_specific", "body_part_mismatch"]
 ProviderFallbackReason = Literal[
     "provider_disabled",
     "provider_not_configured",
@@ -354,6 +356,15 @@ class DatasetSupportResponse(BaseModel):
     top_evidence_ids: List[str] = Field(default_factory=list)
 
 
+class CandidateApplicabilityResponse(BaseModel):
+    body_part_match: CandidateBodyPartMatch = "region_level"
+    age_sex_effect: CandidateApplicabilityEffect = "none"
+    age_sex_matched: bool = False
+    age_sex_used_for_candidate_creation: bool = False
+    age_sex_used_for_red_flag_suppression: bool = False
+    notes: List[str] = Field(default_factory=list)
+
+
 class ConditionCandidateResponse(BaseModel):
     rule_id: str
     condition_code: str
@@ -373,6 +384,7 @@ class ConditionCandidateResponse(BaseModel):
     external_mappings: List[ExternalMappingResponse] = Field(default_factory=list)
     external_symptom_mappings: List[ExternalSymptomMappingResponse] = Field(default_factory=list)
     dataset_support: Optional[DatasetSupportResponse] = None
+    applicability: CandidateApplicabilityResponse = Field(default_factory=CandidateApplicabilityResponse)
 
 
 class PossibleConditionCandidateResponse(BaseModel):
@@ -467,4 +479,48 @@ class SymptomAssessWithExplanationResponse(SymptomAssessResponse):
     explanation_safety: SymptomExplainSafetyResponse = Field(default_factory=SymptomExplainSafetyResponse)
     generated_summary_ko: Optional[str] = None
     provider_metadata: StructuredProviderMetadata = Field(default_factory=StructuredProviderMetadata)
+
+
+class GeminiUserProfileInput(BaseModel):
+    sex: Optional[Gender] = None
+    age: Optional[int] = Field(default=None, ge=0, le=130)
+
+
+class GeminiBodyPartInput(BaseModel):
+    major: Optional[str] = None
+    detail: Optional[str] = None
+
+
+class GeminiCandidateInput(BaseModel):
+    name: str
+    display_name_ko: str
+    confidence: Optional[ConfidenceLevel] = None
+    matched_evidence: List[str] = Field(default_factory=list)
+    red_flags: List[str] = Field(default_factory=list)
+    recommendation: Optional[str] = None
+
+
+class GeminiSymptomExplainRequest(BaseModel):
+    user_profile: Optional[GeminiUserProfileInput] = None
+    body_part: Optional[GeminiBodyPartInput] = None
+    symptoms: List[str] = Field(default_factory=list)
+    free_text: Optional[str] = None
+    candidates: List[GeminiCandidateInput] = Field(default_factory=list)
+
+
+class GeminiCandidateExplanationResponse(BaseModel):
+    name: str
+    display_name_ko: str
+    confidence: Optional[ConfidenceLevel] = None
+    reason: str
+    recommendation: str
+
+
+class GeminiSymptomExplainResponse(BaseModel):
+    explanation: str
+    summary: Optional[str] = None
+    candidate_explanations: List[GeminiCandidateExplanationResponse] = Field(default_factory=list)
+    red_flags: List[str] = Field(default_factory=list)
+    recommendation: Optional[str] = None
+    final_notice: str = "정확한 진단은 의료진 상담이 필요합니다."
 

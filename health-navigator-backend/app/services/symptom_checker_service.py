@@ -2,8 +2,15 @@
 from pathlib import Path
 from typing import Protocol
 from datetime import date
+import logging
 
 from app.core.config import (
+    GEMINI_EXPLANATION_ENABLED,
+    GEMINI_EXPLANATION_MODEL_ID,
+    GEMINI_EXPLANATION_TIMEOUT_MS,
+    GCP_PROJECT_ID,
+    GEMINI_MODEL,
+    GOOGLE_APPLICATION_CREDENTIALS,
     MEDICAL_BERT_MODEL_DIR,
     MEDICAL_BERT_MODEL_ID,
     MEDICAL_BERT_SCORE_THRESHOLD,
@@ -15,8 +22,10 @@ from app.core.config import (
     SYMPTOM_STRUCTURE_PROVIDER_ENABLED,
     SYMPTOM_STRUCTURE_PROVIDER_NAME,
     SYMPTOM_STRUCTURE_TIMEOUT_MS,
+    VERTEX_AI_LOCATION,
 )
 from app.schemas.symptom_checker import (
+    GeminiSymptomExplainRequest,
     StructuredProviderMetadata,
     SymptomAssessRequest,
     SymptomExplainRequest,
@@ -28,6 +37,7 @@ from app.services.explanation_vector_store import search_explanation_documents
 DISCLAIMER = "이 결과는 진단이 아닌 참고용 정보입니다."
 DEFAULT_ACTION = "증상이 지속되거나 악화되면 의료기관 상담을 권장합니다."
 URGENT_ACTION = "응급 신호일 수 있으므로 의료기관 또는 응급실에 빠르게 상담하는 것을 권장합니다."
+logger = logging.getLogger(__name__)
 CONDITION_DATASET_PATH = Path(__file__).resolve().parents[1] / "data" / "symptom_checker_conditions.json"
 DDXPLUS_FREQUENCY_BASELINE_PATH = (
     Path(__file__).resolve().parents[1] / "data" / "processed" / "ddxplus_frequency_baseline.json"
@@ -67,6 +77,55 @@ MAX_EXPLANATION_RAG_CARDS = 6
 MAX_EXPLANATION_RAG_SOURCES = 8
 MAX_EXPLANATION_FIELD_CHARS = 500
 MAX_PROVIDER_GENERATED_SUMMARY_CHARS = 700
+GEMINI_EXPLANATION_RESPONSE_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "generated_summary_ko": {
+            "type": "STRING",
+            "description": "검수된 평가와 RAG 카드만 바탕으로 작성한 한국어 사용자 안내 요약",
+        },
+    },
+    "required": ["generated_summary_ko"],
+    "propertyOrdering": ["generated_summary_ko"],
+}
+GEMINI_SYMPTOM_EXPLANATION_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "summary": {
+            "type": "STRING",
+            "description": "전체 결과를 한눈에 볼 수 있는 1-2문장 한국어 요약",
+        },
+        "candidate_explanations": {
+            "type": "ARRAY",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "name": {"type": "STRING"},
+                    "display_name_ko": {"type": "STRING"},
+                    "confidence": {"type": "STRING"},
+                    "reason": {"type": "STRING"},
+                    "recommendation": {"type": "STRING"},
+                },
+                "required": ["name", "display_name_ko", "reason", "recommendation"],
+                "propertyOrdering": ["name", "display_name_ko", "confidence", "reason", "recommendation"],
+            },
+        },
+        "red_flags": {
+            "type": "ARRAY",
+            "items": {"type": "STRING"},
+        },
+        "recommendation": {
+            "type": "STRING",
+            "description": "후보와 위험 신호를 바탕으로 한 참고용 다음 행동 안내",
+        },
+        "final_notice": {
+            "type": "STRING",
+            "description": "반드시 '정확한 진단은 의료진 상담이 필요합니다.'",
+        },
+    },
+    "required": ["summary", "candidate_explanations", "red_flags", "recommendation", "final_notice"],
+    "propertyOrdering": ["summary", "candidate_explanations", "red_flags", "recommendation", "final_notice"],
+}
 BODY_REGION_ALIAS_HINTS = {
     "chest": ["가슴", "가슴이", "흉부", "흉통", "심장", "두근", "숨참", "숨이 차", "숨쉬기 힘", "숨 쉬기 힘", "호흡곤란"],
     "head_face": ["머리", "머리가", "두통", "얼굴"],
@@ -129,6 +188,7 @@ STRUCTURED_INPUT_ALIAS_HINTS = {
     "cough": ["기침"],
     "sore_throat": ["목이 아", "목이 따갑", "목 따갑", "삼킬 때 아", "인후통"],
     "fatigue": ["피로", "피곤", "무기력", "기운이 없"],
+    "weight_change": ["체중이", "체중 변화", "몸무게", "살이 빠", "살이 찌"],
     "weakness": ["힘 빠", "힘이 빠"],
     "numbness": ["저림", "저려", "저리", "감각이 둔", "감각 둔"],
     "swelling": ["부었", "부어", "부은", "부기", "붓기", "부음", "붓고", "붓는", "붓"],
@@ -241,6 +301,146 @@ class SafeExplanationProvider(Protocol):
 
     def generate(self, assessment: dict, rag_context: dict) -> str:
         """Return user-facing explanation text. Implementations must not change judgment fields."""
+
+
+class VertexAIGeminiExplanationProvider:
+    source = "llm"
+
+    def __init__(self, project_id: str, location: str, model_id: str, timeout_ms: int = 5000):
+        self.project_id = project_id
+        self.location = location
+        self.model_id = model_id
+        self.timeout_ms = timeout_ms
+
+    def generate(self, assessment: dict, rag_context: dict) -> str:
+        if not self.project_id:
+            raise RuntimeError("Vertex AI project id is not configured")
+        if not self.location:
+            raise RuntimeError("Vertex AI location is not configured")
+
+        payload = build_explanation_provider_payload(
+            {"red_flags": assessment.get("red_flags", []), "candidates": assessment.get("candidates", [])},
+            rag_context=rag_context,
+        )
+        payload["assessment_summary"] = assessment
+        prompt = build_explanation_provider_prompt(payload)
+        return self.generate_json_summary(prompt)
+
+    def generate_explanation(self, prompt: str) -> str:
+        return self.generate_json_summary(prompt, output_field="explanation")
+
+    def generate_structured_explanation(self, prompt: str) -> dict:
+        return self.generate_json_summary(prompt, output_field=None, response_schema=GEMINI_SYMPTOM_EXPLANATION_SCHEMA)
+
+    def generate_json_summary(
+        self,
+        prompt: str,
+        output_field: str | None = "generated_summary_ko",
+        response_schema: dict | None = None,
+    ) -> str | dict:
+        _ensure_vertex_ai_credentials()
+        try:
+            from google import genai
+            from google.genai import types
+        except ImportError as exc:
+            raise RuntimeError("google-genai is required for Vertex AI Gemini calls") from exc
+
+        response_schema = response_schema or _gemini_string_response_schema(output_field)
+        client = genai.Client(
+            vertexai=True,
+            project=self.project_id,
+            location=self.location,
+        )
+        response = client.models.generate_content(
+            model=self.model_id,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.2,
+                max_output_tokens=4096,
+                response_mime_type="application/json",
+                response_schema=response_schema,
+            ),
+        )
+        if output_field is None:
+            return _extract_gemini_json_object(response.text)
+        return _extract_gemini_json_field(response.text, output_field)
+
+
+def _ensure_vertex_ai_credentials() -> None:
+    if not GOOGLE_APPLICATION_CREDENTIALS:
+        logger.error("GOOGLE_APPLICATION_CREDENTIALS is not configured for Vertex AI Gemini")
+        raise RuntimeError("GOOGLE_APPLICATION_CREDENTIALS is not configured")
+    if not Path(GOOGLE_APPLICATION_CREDENTIALS).exists():
+        logger.error("GOOGLE_APPLICATION_CREDENTIALS file does not exist: %s", GOOGLE_APPLICATION_CREDENTIALS)
+        raise RuntimeError("GOOGLE_APPLICATION_CREDENTIALS file does not exist")
+
+
+def _gemini_string_response_schema(output_field: str | None) -> dict:
+    if output_field == "generated_summary_ko":
+        return GEMINI_EXPLANATION_RESPONSE_SCHEMA
+    return {
+        "type": "OBJECT",
+        "properties": {
+            output_field or "explanation": {
+                "type": "STRING",
+                "description": "후보 JSON만 바탕으로 작성한 한국어 사용자 안내 설명문",
+            },
+        },
+        "required": [output_field or "explanation"],
+        "propertyOrdering": [output_field or "explanation"],
+    }
+
+
+def _extract_gemini_json_object(text: str) -> dict:
+    if not text or not text.strip():
+        raise RuntimeError("Gemini response did not include text")
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("Gemini response returned invalid JSON") from exc
+    if not isinstance(parsed, dict):
+        raise RuntimeError("Gemini response JSON must be an object")
+    return parsed
+
+
+def _extract_gemini_json_field(text: str, field_name: str) -> str:
+    if not text or not text.strip():
+        raise RuntimeError("Gemini response did not include text")
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("Gemini response returned invalid JSON") from exc
+    if not isinstance(parsed, dict):
+        raise RuntimeError("Gemini response JSON must be an object")
+    value = parsed.get(field_name)
+    if not isinstance(value, str) or not value.strip():
+        raise RuntimeError(f"Gemini response JSON is missing {field_name}")
+    return value.strip()
+
+
+def _extract_gemini_generated_summary(payload: dict) -> str:
+    candidates = payload.get("candidates") or []
+    if not candidates:
+        raise RuntimeError("Gemini response did not include candidates")
+
+    parts = (candidates[0].get("content") or {}).get("parts") or []
+    text = "\n".join(str(part.get("text", "")) for part in parts if part.get("text")).strip()
+    if not text:
+        raise RuntimeError("Gemini response did not include text")
+
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError:
+        if text.lstrip().startswith(("{", "[")):
+            raise RuntimeError("Gemini response returned incomplete JSON")
+        return text
+
+    if not isinstance(parsed, dict):
+        raise RuntimeError("Gemini response JSON must be an object")
+    summary = parsed.get("generated_summary_ko")
+    if not isinstance(summary, str) or not summary.strip():
+        raise RuntimeError("Gemini response JSON is missing generated_summary_ko")
+    return summary.strip()
 
 
 def build_medical_bert_structure_adapter_contract():
@@ -2537,11 +2737,23 @@ REGION_SYMPTOMS = {
     "general": [
         {"code": "fever", "name": "발열", "supports_severity": True, "supports_duration": True},
         {"code": "fatigue", "name": "피로", "supports_severity": True, "supports_duration": True},
+        {"code": "weight_change", "name": "체중 변화", "supports_severity": True, "supports_duration": True},
         {"code": "dizziness", "name": "어지러움", "supports_severity": True, "supports_duration": True},
         {"code": "cough", "name": "기침", "supports_severity": True, "supports_duration": True},
         {"code": "sore_throat", "name": "인후통", "supports_severity": True, "supports_duration": True},
         {"code": "neck_stiffness", "name": "목 경직", "supports_severity": True, "supports_duration": True},
     ],
+}
+
+
+BODY_PART_SYMPTOM_CODES = {
+    "ear_nose_throat": {
+        "ear": ["pain", "ear_fullness", "hearing_change", "swelling"],
+        "nose": ["nasal_congestion", "runny_nose", "pain", "swelling"],
+        "throat": ["sore_throat", "pain", "swelling"],
+        "mouth_tongue": ["pain", "swelling", "sore_throat"],
+        "tonsil_area": ["sore_throat", "swelling", "pain"],
+    },
 }
 
 
@@ -3077,15 +3289,33 @@ def get_context_guide(region_id: str, body_part_id: str | None = None):
     }
 
 
-def get_region_options(region_id: str):
+def get_region_options(region_id: str, body_part_id: str | None = None):
     region = _find_region(region_id)
     if region is None:
         return None
+    symptoms = REGION_SYMPTOMS.get(region_id, [])
+    if body_part_id is not None:
+        body_part_ids = {part["id"] for part in BODY_PARTS.get(region_id, [])}
+        if body_part_id not in body_part_ids:
+            raise ValueError(
+                f"Unsupported body_part '{body_part_id}' for body_region '{region_id}'. "
+                f"Allowed body_parts: {', '.join(sorted(body_part_ids))}"
+            )
+        scoped_codes = BODY_PART_SYMPTOM_CODES.get(region_id, {}).get(body_part_id)
+        if scoped_codes:
+            symptoms_by_code = {symptom["code"]: symptom for symptom in symptoms}
+            scoped_symptoms = [
+                symptoms_by_code[code]
+                for code in scoped_codes
+                if code in symptoms_by_code
+            ]
+            if scoped_symptoms:
+                symptoms = scoped_symptoms
 
     return {
         "region": region,
         "body_parts": BODY_PARTS.get(region_id, []),
-        "symptoms": REGION_SYMPTOMS.get(region_id, []),
+        "symptoms": symptoms,
     }
 
 
@@ -3649,6 +3879,89 @@ def attach_explanation_to_assessment(rule_result: dict):
     }
 
 
+def attach_gemini_explanation_to_assessment(rule_result: dict):
+    explanation = explain_symptom_assessment_from_gemini(
+        SymptomExplainRequest(assessment=rule_result)
+    )
+    return {
+        **_copy_json_compatible(rule_result),
+        "explanations": explanation["explanations"],
+        "explanation_safety": explanation["safety"],
+        "generated_summary_ko": explanation["generated_summary_ko"],
+        "provider_metadata": explanation["provider_metadata"],
+    }
+
+
+def explain_symptom_assessment_from_gemini(request: SymptomExplainRequest):
+    provider = VertexAIGeminiExplanationProvider(
+        project_id=GCP_PROJECT_ID,
+        location=VERTEX_AI_LOCATION,
+        model_id=GEMINI_EXPLANATION_MODEL_ID,
+        timeout_ms=GEMINI_EXPLANATION_TIMEOUT_MS,
+    )
+    return explain_symptom_assessment_from_provider(
+        request,
+        provider=provider,
+        provider_enabled=GEMINI_EXPLANATION_ENABLED,
+        provider_name="vertex_ai_gemini",
+        model_id=GEMINI_EXPLANATION_MODEL_ID,
+        timeout_ms=GEMINI_EXPLANATION_TIMEOUT_MS,
+    )
+
+
+def explain_symptom_candidates_with_vertex_gemini(request: GeminiSymptomExplainRequest):
+    """Use Vertex AI Gemini only to rewrite backend-produced candidates into user-facing Korean text."""
+    provider = VertexAIGeminiExplanationProvider(
+        project_id=GCP_PROJECT_ID,
+        location=VERTEX_AI_LOCATION,
+        model_id=GEMINI_MODEL,
+        timeout_ms=GEMINI_EXPLANATION_TIMEOUT_MS,
+    )
+    prompt = build_vertex_gemini_symptom_explanation_prompt(request.model_dump())
+    result = provider.generate_structured_explanation(prompt)
+    final_notice = "정확한 진단은 의료진 상담이 필요합니다."
+    if result.get("final_notice") != final_notice:
+        result["final_notice"] = final_notice
+    result["explanation"] = _compose_structured_gemini_explanation(result)
+    return result
+
+
+def build_vertex_gemini_symptom_explanation_prompt(payload: dict) -> str:
+    return (
+        "너는 의료 진단을 하는 의사가 아니다.\n"
+        "아래 JSON에 있는 후보 결과만 바탕으로 한국어 설명 데이터를 작성한다.\n"
+        "JSON에 없는 질환, 증상, 근거를 새로 만들지 않는다.\n"
+        "확정 진단처럼 말하지 않는다.\n"
+        "가능성, 의심, 관련될 수 있음 같은 표현을 사용한다.\n"
+        "candidate_explanations는 입력 candidates 순서를 유지하고, 각 후보를 하나의 카드로 요약한다.\n"
+        "candidate_explanations.display_name_ko는 반드시 한국어로 작성한다. 입력 후보명이 영어라면 자연스러운 한국어 질환 후보명으로 번역한다.\n"
+        "각 후보 reason은 matched_evidence만 근거로 1문장으로 쓴다.\n"
+        "각 후보 recommendation은 입력 recommendation을 바탕으로 1문장으로 쓴다.\n"
+        "red_flags가 있으면 빠른 진료 또는 응급실 권고를 명확히 포함한다.\n"
+        "summary는 120자 이내, 각 reason은 80자 이내로 작성한다.\n"
+        "마지막 문장은 반드시 정확한 진단은 의료진 상담이 필요합니다. 로 끝낸다.\n"
+        "응답은 summary, candidate_explanations, red_flags, recommendation, final_notice 필드를 가진 JSON 객체로 출력한다.\n"
+        "입력 JSON:\n"
+        f"{json.dumps(payload, ensure_ascii=False, default=str)}"
+    )
+
+
+def _compose_structured_gemini_explanation(result: dict) -> str:
+    lines = []
+    if result.get("summary"):
+        lines.append(str(result["summary"]))
+    for candidate in result.get("candidate_explanations") or []:
+        if isinstance(candidate, dict):
+            label = candidate.get("display_name_ko") or candidate.get("name")
+            reason = candidate.get("reason")
+            if label and reason:
+                lines.append(f"{label}: {reason}")
+    if result.get("recommendation"):
+        lines.append(str(result["recommendation"]))
+    lines.append("정확한 진단은 의료진 상담이 필요합니다.")
+    return "\n".join(lines)
+
+
 def explain_symptom_assessment_from_provider(
     request: SymptomExplainRequest,
     provider: SafeExplanationProvider | None = None,
@@ -3664,6 +3977,7 @@ def explain_symptom_assessment_from_provider(
     generated_text = None
     provider_used = provider is not None and provider_enabled
     fallback_reason = None
+    provider_error_type = None
 
     if not provider_enabled:
         provider_used = False
@@ -3686,9 +4000,11 @@ def explain_symptom_assessment_from_provider(
         except TimeoutError:
             provider_used = False
             fallback_reason = "provider_timeout"
-        except Exception:
+            provider_error_type = "TimeoutError"
+        except Exception as exc:
             provider_used = False
             fallback_reason = "provider_error"
+            provider_error_type = type(exc).__name__
         else:
             if not isinstance(generated_text, str) or not generated_text.strip():
                 generated_text = None
@@ -3704,6 +4020,8 @@ def explain_symptom_assessment_from_provider(
         model_id=model_id,
         timeout_ms=timeout_ms,
     ).model_dump()
+    if provider_error_type:
+        provider_metadata["error_type"] = provider_error_type
     return build_safe_explanation(
         assessment,
         generated_text=generated_text,
@@ -4216,14 +4534,24 @@ def assess_symptoms(request: SymptomAssessRequest, profile_source: str = "reques
     )
     candidates = _match_condition_candidates(
         body_region=request.body_region,
+        body_part=request.body_part,
         symptom_codes=symptom_codes,
         contexts=candidate_boost_contexts,
+        profile={
+            "age": _age_from_birth_date(request.birth_date),
+            "gender": request.gender,
+        },
     )
     possible_candidates = _find_possible_condition_candidates(
         body_region=request.body_region,
+        body_part=request.body_part,
         symptom_codes=symptom_codes,
         contexts=candidate_boost_contexts,
         excluded_condition_codes={candidate["condition_code"] for candidate in candidates},
+        profile={
+            "age": _age_from_birth_date(request.birth_date),
+            "gender": request.gender,
+        },
     )
     missing_evidence_questions = _dedupe_preserving_order(
         question
@@ -4612,12 +4940,24 @@ def _build_red_flag(code: str, message: str, triggered_by: list[str]):
     }
 
 
-def _match_condition_candidates(body_region: str, symptom_codes: set[str], contexts: set[str]):
+def _match_condition_candidates(
+    body_region: str,
+    symptom_codes: set[str],
+    contexts: set[str],
+    body_part: str | None = None,
+    profile: dict | None = None,
+):
     candidates = []
     ddxplus_baseline = _load_ddxplus_frequency_baseline()
 
     for rule in CONDITION_RULES:
         if rule["region"] != body_region:
+            continue
+
+        body_part_match = _candidate_body_part_match(rule, body_part)
+        if body_part_match == "body_part_mismatch":
+            continue
+        if not _candidate_filter_allows_profile(rule, profile):
             continue
 
         required_symptoms = set(rule["required_symptoms"])
@@ -4626,6 +4966,9 @@ def _match_condition_candidates(body_region: str, symptom_codes: set[str], conte
 
         matched_required = symptom_codes & required_symptoms
         if not matched_required:
+            continue
+        min_required_symptom_matches = int(rule.get("min_required_symptom_matches", 1))
+        if len(matched_required) < min_required_symptom_matches:
             continue
 
         matched_optional = symptom_codes & optional_symptoms
@@ -4643,6 +4986,7 @@ def _match_condition_candidates(body_region: str, symptom_codes: set[str], conte
         dataset_support = _dataset_support_for_condition(rule["condition_code"], ddxplus_baseline)
         dataset_prior = dataset_support["prior_probability_within_approved_rows"] if dataset_support else 0
         ranking_priority = int(rule.get("ranking_priority", 0))
+        applicability = _candidate_applicability(rule, body_part_match, profile)
         candidates.append(
             {
                 "rule_id": rule.get("rule_id", f"rule_{rule['condition_code']}"),
@@ -4663,15 +5007,25 @@ def _match_condition_candidates(body_region: str, symptom_codes: set[str], conte
                 "external_mappings": rule.get("external_mappings", []),
                 "external_symptom_mappings": rule.get("external_symptom_mappings", []),
                 "dataset_support": dataset_support,
+                "applicability": applicability,
                 "_score": score,
+                "_age_sex_boost": _age_sex_ranking_boost(applicability),
                 "_ranking_priority": ranking_priority,
                 "_dataset_prior": dataset_prior,
             }
         )
 
-    candidates.sort(key=lambda item: (-item["_score"], item["_ranking_priority"], -item["_dataset_prior"], item["condition_name"]))
+    candidates.sort(
+        key=lambda item: (
+            -(item["_score"] + item["_age_sex_boost"]),
+            item["_ranking_priority"],
+            -item["_dataset_prior"],
+            item["condition_name"],
+        )
+    )
     for candidate in candidates:
         candidate.pop("_score", None)
+        candidate.pop("_age_sex_boost", None)
         candidate.pop("_ranking_priority", None)
         candidate.pop("_dataset_prior", None)
 
@@ -4680,14 +5034,20 @@ def _match_condition_candidates(body_region: str, symptom_codes: set[str], conte
 
 def _find_possible_condition_candidates(
     body_region: str,
+    body_part: str | None,
     symptom_codes: set[str],
     contexts: set[str],
     excluded_condition_codes: set[str],
+    profile: dict | None = None,
 ):
     possible_candidates = []
 
     for rule in CONDITION_RULES:
         if rule["region"] != body_region or rule["condition_code"] in excluded_condition_codes:
+            continue
+        if _candidate_body_part_match(rule, body_part) == "body_part_mismatch":
+            continue
+        if not _candidate_filter_allows_profile(rule, profile):
             continue
 
         required_symptoms = set(rule["required_symptoms"])
@@ -4723,6 +5083,96 @@ def _find_possible_condition_candidates(
     for candidate in possible_candidates:
         candidate.pop("_score", None)
     return possible_candidates[:5]
+
+
+def _candidate_body_part_match(rule: dict, body_part: str | None) -> str:
+    scoped_body_parts = set(rule.get("body_parts") or [])
+    if rule.get("body_part"):
+        scoped_body_parts.add(rule["body_part"])
+    if not scoped_body_parts:
+        return "region_level"
+    if body_part is None:
+        return "region_level"
+    if body_part in scoped_body_parts:
+        return "body_part_specific"
+    return "body_part_mismatch"
+
+
+def _candidate_applicability(rule: dict, body_part_match: str, profile: dict | None):
+    applicability = rule.get("age_sex_applicability") or {}
+    result = {
+        "body_part_match": body_part_match,
+        "age_sex_effect": "none",
+        "age_sex_matched": False,
+        "age_sex_used_for_candidate_creation": False,
+        "age_sex_used_for_red_flag_suppression": False,
+        "notes": [],
+    }
+    if body_part_match == "body_part_specific":
+        result["notes"].append("세부 부위가 이 후보 rule의 검수된 body_parts 범위와 일치했습니다.")
+    if not applicability:
+        return result
+
+    effect = applicability.get("effect")
+    if effect not in {"ranking_boost_only", "question_prompt", "explanation_note", "candidate_filter"}:
+        result["notes"].append("age_sex_applicability effect가 허용 목록에 없어 판단에 사용하지 않았습니다.")
+        return result
+
+    result["age_sex_effect"] = effect
+    age = (profile or {}).get("age")
+    gender = (profile or {}).get("gender")
+    age_matched = _age_matches_applicability(age, applicability)
+    sex_matched = _sex_matches_applicability(gender, applicability)
+    result["age_sex_matched"] = age_matched and sex_matched
+    if result["age_sex_matched"]:
+        result["notes"].append("나이/성별 정보는 이미 증상으로 성립한 후보의 보조 정보로만 반영되었습니다.")
+    else:
+        result["notes"].append("나이/성별 정보가 rule 적합도와 맞지 않아 후보 생성이나 제외에 사용하지 않았습니다.")
+    return result
+
+
+def _candidate_filter_allows_profile(rule: dict, profile: dict | None) -> bool:
+    applicability = rule.get("age_sex_applicability") or {}
+    if applicability.get("effect") != "candidate_filter":
+        return True
+    if applicability.get("filter_basis") != "sex_specific_anatomy":
+        return True
+    gender = (profile or {}).get("gender")
+    return _sex_matches_applicability(gender, applicability)
+
+
+def _age_matches_applicability(age: int | None, applicability: dict) -> bool:
+    min_age = applicability.get("age_min")
+    max_age = applicability.get("age_max")
+    if min_age is None and max_age is None:
+        return True
+    if age is None:
+        return False
+    if min_age is not None and age < min_age:
+        return False
+    if max_age is not None and age > max_age:
+        return False
+    return True
+
+
+def _sex_matches_applicability(gender: str | None, applicability: dict) -> bool:
+    sex = applicability.get("sex")
+    if sex in (None, "any"):
+        return True
+    if isinstance(sex, list):
+        return gender in sex
+    return gender == sex
+
+
+def _age_sex_ranking_boost(applicability: dict) -> float:
+    if (
+        applicability.get("age_sex_effect") == "ranking_boost_only"
+        and applicability.get("age_sex_matched")
+        and not applicability.get("age_sex_used_for_candidate_creation")
+        and not applicability.get("age_sex_used_for_red_flag_suppression")
+    ):
+        return 0.25
+    return 0.0
 
 
 def _missing_evidence_question(rule, code: str):
