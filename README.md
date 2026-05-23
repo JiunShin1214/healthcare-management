@@ -118,12 +118,31 @@ CLOVA_OCR_INVOKE_URL=your_clova_ocr_invoke_url
 CLOVA_OCR_SECRET_KEY=your_clova_ocr_secret_key
 ```
 
+Vertex AI Gemini 설명 생성 기능을 사용할 경우 아래 값도 추가합니다. 서비스 계정 JSON 파일은 저장소에 커밋하지 않고, 로컬 또는 서버의 절대 경로만 지정합니다.
+
+```env
+GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/service-account.json
+GCP_PROJECT_ID=health-navigator-497202
+VERTEX_AI_LOCATION=us-central1
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_EXPLANATION_ENABLED=true
+GEMINI_EXPLANATION_TIMEOUT_MS=5000
+```
+
+Gemini 연동은 Google AI Studio API Key 방식이 아니라 Vertex AI 서비스 계정 인증만 사용합니다.
+
 현재 DB 연결 정보는 `health-navigator-backend/app/core/database.py`에 MySQL 연결 문자열로 작성되어 있습니다.
 
 ### 3. 서버 실행
 
 ```bash
 uvicorn app.main:app --reload
+```
+
+Vertex AI Gemini 후보 설명 API는 서버 실행 후 아래 endpoint로 호출합니다.
+
+```text
+POST /api/gemini/explain-symptoms
 ```
 
 ### 4. API 문서 확인

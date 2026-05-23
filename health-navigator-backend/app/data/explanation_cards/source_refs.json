@@ -475,5 +475,545 @@
     "usage_policy": "restricted/reference_only",
     "accessed_at": "2026-05-21",
     "claim_summary": "MedlinePlus wheezing page is used as reference metadata for breathing-tube wheezing and related respiratory candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.appendicitis.reference",
+    "source": "MedlinePlus",
+    "title": "Appendicitis",
+    "url": "https://medlineplus.gov/appendicitis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus appendicitis topic link is used as reference metadata for lower-right abdominal pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.period_pain.reference",
+    "source": "MedlinePlus",
+    "title": "Period Pain",
+    "url": "https://medlineplus.gov/periodpain.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus period pain link is used as reference metadata for menstrual cramping and pelvic pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.fatigue.reference",
+    "source": "MedlinePlus",
+    "title": "Fatigue",
+    "url": "https://medlineplus.gov/fatigue.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus fatigue link is used as reference metadata for fatigue related to sleep, stress, and medical review context."
+  },
+  {
+    "source_id": "cdc.acute_bronchitis.reference",
+    "source": "CDC",
+    "title": "Preventing and Managing Chest Cold (Acute Bronchitis)",
+    "url": "https://www.cdc.gov/acute-bronchitis/",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "CDC acute bronchitis page is used as reference metadata for cough and chest cold candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.canker_sores.reference",
+    "source": "MedlinePlus",
+    "title": "Canker Sores",
+    "url": "https://medlineplus.gov/cankersores.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus canker sores link is used as reference metadata for painful mouth sore candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.mouth_sores.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Mouth sores",
+    "url": "https://medlineplus.gov/ency/article/003059.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus mouth sores encyclopedia link is used as reference metadata for mouth and tongue irritation candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.tailbone_disorders.reference",
+    "source": "MedlinePlus",
+    "title": "Tailbone Disorders",
+    "url": "https://medlineplus.gov/tailbonedisorders.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus tailbone disorders link is used as reference metadata for tailbone area pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.tailbone_trauma.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Tailbone trauma",
+    "url": "https://medlineplus.gov/ency/article/000008.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus tailbone trauma link is used as reference metadata for tailbone pain after injury candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.thyroid_diseases.reference",
+    "source": "MedlinePlus",
+    "title": "Thyroid Diseases",
+    "url": "https://medlineplus.gov/thyroiddiseases.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus thyroid diseases link is used as reference metadata for weight, energy, digestion, mood, and thyroid-related review context."
+  },
+  {
+    "source_id": "medlineplus.hyperthyroidism.reference",
+    "source": "MedlinePlus",
+    "title": "Hyperthyroidism",
+    "url": "https://medlineplus.gov/hyperthyroidism.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus hyperthyroidism link is used as reference metadata for weight loss and thyroid overactivity candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.hypothyroidism.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Hypothyroidism",
+    "url": "https://medlineplus.gov/ency/article/000353.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus hypothyroidism link is used as reference metadata for fatigue and weight gain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.sore_throat.reference",
+    "source": "MedlinePlus",
+    "title": "Sore Throat",
+    "url": "https://medlineplus.gov/sorethroat.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus sore throat link is used as reference metadata for pharyngitis and throat pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.tonsillitis.reference",
+    "source": "MedlinePlus",
+    "title": "Tonsillitis",
+    "url": "https://medlineplus.gov/tonsillitis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus tonsillitis link is used as reference metadata for severe sore throat and tonsil-area candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.rib_contusion.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Bruised rib care",
+    "url": "https://medlineplus.gov/ency/patientinstructions/000967.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus bruised rib care link is used as reference metadata for rib pain after a fall or blow."
+  },
+  {
+    "source_id": "medlineplus.cluster_headache.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Cluster headache",
+    "url": "https://medlineplus.gov/ency/article/000786.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Cluster headache reference metadata for one-sided severe head/temple pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.toothache.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Toothache",
+    "url": "https://medlineplus.gov/ency/article/003067.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Toothache reference metadata for jaw/face pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.trigeminal_neuralgia.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Trigeminal neuralgia",
+    "url": "https://medlineplus.gov/ency/article/000742.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Trigeminal neuralgia reference metadata for facial pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.cataract.reference",
+    "source": "MedlinePlus",
+    "title": "Cataract",
+    "url": "https://medlineplus.gov/cataract.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Cataract reference metadata for blurry or changed vision candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.glaucoma.reference",
+    "source": "MedlinePlus",
+    "title": "Glaucoma",
+    "url": "https://medlineplus.gov/glaucoma.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Glaucoma reference metadata for eye pain/redness and vision-change candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.retinal_detachment.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Retinal detachment",
+    "url": "https://medlineplus.gov/ency/article/001027.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Retinal detachment reference metadata for vision-change candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.bursitis.reference",
+    "source": "MedlinePlus",
+    "title": "Bursitis",
+    "url": "https://medlineplus.gov/bursitis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Bursitis reference metadata for shoulder or joint pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.fibromyalgia.reference",
+    "source": "MedlinePlus",
+    "title": "Fibromyalgia",
+    "url": "https://medlineplus.gov/fibromyalgia.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Fibromyalgia reference metadata for widespread pain and fatigue candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.acne.reference",
+    "source": "MedlinePlus",
+    "title": "Acne",
+    "url": "https://medlineplus.gov/acne.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Acne reference metadata for localized skin lesion candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.eczema.reference",
+    "source": "MedlinePlus",
+    "title": "Eczema",
+    "url": "https://medlineplus.gov/eczema.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Eczema reference metadata for itchy rash candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.shingles.reference",
+    "source": "MedlinePlus",
+    "title": "Shingles",
+    "url": "https://medlineplus.gov/shingles.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Shingles reference metadata for painful rash candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.interstitial_cystitis.reference",
+    "source": "MedlinePlus",
+    "title": "Interstitial Cystitis",
+    "url": "https://medlineplus.gov/interstitialcystitis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Interstitial cystitis reference metadata for bladder pain/frequent urination candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.endometriosis.reference",
+    "source": "MedlinePlus",
+    "title": "Endometriosis",
+    "url": "https://medlineplus.gov/endometriosis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Endometriosis reference metadata for pelvic pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.vaginitis.reference",
+    "source": "MedlinePlus",
+    "title": "Vaginitis",
+    "url": "https://medlineplus.gov/vaginitis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Vaginitis reference metadata for genital-area discomfort candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.ibs.reference",
+    "source": "MedlinePlus",
+    "title": "Irritable Bowel Syndrome",
+    "url": "https://medlineplus.gov/irritablebowelsyndrome.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "IBS reference metadata for abdominal pain with diarrhea or constipation candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.gallstones.reference",
+    "source": "MedlinePlus",
+    "title": "Gallstones",
+    "url": "https://medlineplus.gov/gallstones.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Gallstones reference metadata for upper abdominal pain and nausea candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.pancreatitis.reference",
+    "source": "MedlinePlus",
+    "title": "Pancreatitis",
+    "url": "https://medlineplus.gov/pancreatitis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Pancreatitis reference metadata for upper abdominal pain with nausea/vomiting candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.kidney_stones.reference",
+    "source": "MedlinePlus",
+    "title": "Kidney Stones",
+    "url": "https://medlineplus.gov/kidneystones.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Kidney stones reference metadata for abdominal/flank pain and urination symptoms candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.pneumonia.reference",
+    "source": "MedlinePlus",
+    "title": "Pneumonia",
+    "url": "https://medlineplus.gov/pneumonia.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Pneumonia reference metadata for cough, fever, and shortness-of-breath candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.pleurisy.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Pleurisy",
+    "url": "https://medlineplus.gov/ency/article/001371.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Pleurisy reference metadata for chest pain with breathing symptoms candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.dehydration.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Dehydration",
+    "url": "https://medlineplus.gov/ency/article/000982.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Dehydration reference metadata for dizziness and fatigue candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.diabetes.reference",
+    "source": "MedlinePlus",
+    "title": "Diabetes",
+    "url": "https://medlineplus.gov/diabetes.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Diabetes reference metadata for fatigue, weight change, and urination/thirst review context."
+  },
+  {
+    "source_id": "medlineplus.sleep_apnea.reference",
+    "source": "MedlinePlus",
+    "title": "Sleep Apnea",
+    "url": "https://medlineplus.gov/sleepapnea.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Sleep apnea reference metadata for fatigue and sleep-related candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.trigger_finger.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Trigger finger",
+    "url": "https://medlineplus.gov/ency/article/001242.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Trigger finger reference metadata for finger/hand limited-motion candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.ganglion_cyst.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Ganglion cyst",
+    "url": "https://medlineplus.gov/ency/article/001235.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Ganglion cyst reference metadata for wrist/hand swelling candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.gout.reference",
+    "source": "MedlinePlus",
+    "title": "Gout",
+    "url": "https://medlineplus.gov/gout.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Gout reference metadata for toe/foot pain and swelling candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.foot_tendinitis.reference",
+    "source": "MedlinePlus",
+    "title": "Tendinitis",
+    "url": "https://medlineplus.gov/tendinitis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "Tendinitis reference metadata for foot/ankle overuse pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.sacroiliac_joint_pain.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Sacroiliac joint pain - aftercare",
+    "url": "https://medlineplus.gov/ency/patientinstructions/000610.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus sacroiliac joint pain aftercare page is used as metadata for lower-back and tailbone-area pain explanations."
+  },
+  {
+    "source_id": "medlineplus.spinal_stenosis.reference",
+    "source": "MedlinePlus",
+    "title": "Spinal Stenosis",
+    "url": "https://medlineplus.gov/spinalstenosis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus spinal stenosis topic is used as metadata for back pain with radiating pain, numbness, or weakness explanations."
+  },
+  {
+    "source_id": "medlineplus.back_pain.reference",
+    "source": "MedlinePlus",
+    "title": "Back Pain",
+    "url": "https://medlineplus.gov/backpain.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus back pain topic is used as metadata for upper and middle back pain or stiffness explanations."
+  },
+  {
+    "source_id": "medlineplus.ear_disorders.reference",
+    "source": "MedlinePlus",
+    "title": "Ear Disorders",
+    "url": "https://medlineplus.gov/eardisorders.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus ear disorders topic is used as metadata for ear fullness and hearing-change candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.laryngitis.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Laryngitis",
+    "url": "https://medlineplus.gov/ency/article/001385.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus laryngitis page is used as metadata for sore-throat and upper-airway candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.costochondritis.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Costochondritis",
+    "url": "https://medlineplus.gov/ency/article/000164.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus costochondritis page is used as metadata for chest wall and rib-area pain explanations."
+  },
+  {
+    "source_id": "medlineplus.asthma.reference",
+    "source": "MedlinePlus",
+    "title": "Asthma",
+    "url": "https://medlineplus.gov/asthma.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus asthma topic is used as metadata for shortness-of-breath and cough candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.peripheral_nerve_disorders.reference",
+    "source": "MedlinePlus",
+    "title": "Peripheral Nerve Disorders",
+    "url": "https://medlineplus.gov/peripheralnervedisorders.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus peripheral nerve disorders topic is used as metadata for arm/hand numbness and weakness explanations."
+  },
+  {
+    "source_id": "medlineplus.achilles_tendinitis.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Achilles tendinitis",
+    "url": "https://medlineplus.gov/ency/article/001072.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus Achilles tendinitis page is used as metadata for ankle/calf/foot tendon pain explanations."
+  },
+  {
+    "source_id": "medlineplus.blepharitis.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Blepharitis",
+    "url": "https://medlineplus.gov/ency/article/001619.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus blepharitis page is used as metadata for eyelid itching, redness, and discharge explanations."
+  },
+  {
+    "source_id": "medlineplus.corneal_injury.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Corneal injury",
+    "url": "https://medlineplus.gov/ency/article/001017.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus corneal injury page is used as metadata for eye pain with redness or vision-change explanations."
+  },
+  {
+    "source_id": "medlineplus.tmj_disorders.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "TMJ disorders",
+    "url": "https://medlineplus.gov/ency/article/001227.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus TMJ disorders page is used as metadata for jaw and facial pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.salivary_gland_disorders.reference",
+    "source": "MedlinePlus",
+    "title": "Salivary Gland Disorders",
+    "url": "https://medlineplus.gov/salivaryglanddisorders.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus salivary gland disorders topic is used as metadata for face/jaw swelling candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.frozen_shoulder.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Frozen shoulder",
+    "url": "https://medlineplus.gov/ency/article/000455.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus frozen shoulder page is used as metadata for shoulder pain and limited-motion explanations."
+  },
+  {
+    "source_id": "medlineplus.shoulder_disorders.reference",
+    "source": "MedlinePlus",
+    "title": "Shoulder Injuries and Disorders",
+    "url": "https://medlineplus.gov/shoulderinjuriesanddisorders.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus shoulder injuries and disorders topic is used as metadata for shoulder pain and motion-limitation explanations."
+  },
+  {
+    "source_id": "medlineplus.prostatitis.reference",
+    "source": "MedlinePlus Medical Encyclopedia",
+    "title": "Prostatitis - bacterial",
+    "url": "https://medlineplus.gov/ency/article/000519.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus prostatitis page is used as metadata for male urinary and pelvic-pain candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.overactive_bladder.reference",
+    "source": "MedlinePlus",
+    "title": "Overactive Bladder",
+    "url": "https://medlineplus.gov/overactivebladder.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus overactive bladder topic is used as metadata for frequent-urination candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.psoriasis.reference",
+    "source": "MedlinePlus",
+    "title": "Psoriasis",
+    "url": "https://medlineplus.gov/psoriasis.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus psoriasis topic is used as metadata for rash and itching candidate explanations."
+  },
+  {
+    "source_id": "medlineplus.impetigo.reference",
+    "source": "MedlinePlus",
+    "title": "Impetigo",
+    "url": "https://medlineplus.gov/impetigo.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-22",
+    "claim_summary": "MedlinePlus impetigo topic is used as metadata for localized rash and sore-like skin candidate explanations."
   }
 ]

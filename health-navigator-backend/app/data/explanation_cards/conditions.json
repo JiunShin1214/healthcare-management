@@ -20,10 +20,9 @@
       "medlineplus.migraine.reference"
     ],
     "source_claim": "MedlinePlus migraine topic link is used as reference metadata for user-facing candidate information.",
-    "mapping_limit": "두통 양상, 지속 시간, 신경학적 진찰, 약물 반응, 영상검사를 반영하지 않으므로 편두통이나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "편두통입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -52,12 +51,10 @@
       "medlineplus.common_cold.reference"
     ],
     "source_claim": "MedlinePlus common cold topic link is used as reference metadata for user-facing candidate information.",
-    "mapping_limit": "체온, 산소포화도, 진찰 소견, 검사 결과, 감염 노출력을 반영하지 않으므로 감기나 다른 감염을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "감기입니다",
       "확정 진단",
-      "항생제를 복용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -85,11 +82,9 @@
       "medlineplus.stomach_disorders.reference"
     ],
     "source_claim": "MedlinePlus stomach disorders topic link is used as reference metadata for user-facing candidate information.",
-    "mapping_limit": "복부 진찰, 내시경, 혈액검사, 약물 복용력, 출혈 여부를 반영하지 않으므로 위염, 궤양, 다른 복부 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "위염입니다",
-      "위궤양입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -117,13 +112,10 @@
       "medlineplus.common_cold.reference"
     ],
     "source_claim": "MedlinePlus common cold link is used as reference metadata for upper-respiratory candidate explanations.",
-    "mapping_limit": "체온, 산소포화도, 진찰 소견, 검사 결과, 세균/바이러스 감별을 반영하지 않으므로 상기도 감염이나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "상기도 감염입니다",
-      "감기입니다",
       "확정 진단",
-      "항생제를 복용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -149,12 +141,10 @@
       "medlineplus.allergic_rhinitis.reference"
     ],
     "source_claim": "MedlinePlus allergic rhinitis link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "알레르기 검사, 계절성, 노출력, 진찰 소견, 감염 감별을 반영하지 않으므로 알레르기 비염이나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "알레르기 비염입니다",
       "확정 진단",
-      "항히스타민제를 복용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -180,12 +170,10 @@
       "medlineplus.ear_infections.reference"
     ],
     "source_claim": "MedlinePlus ear infections link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "이경 검사, 고막 소견, 청력검사, 발열 여부, 감염 원인을 반영하지 않으므로 중이염이나 다른 귀 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "중이염입니다",
       "확정 진단",
-      "항생제를 복용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -213,10 +201,9 @@
       "medlineplus.arrhythmia.reference"
     ],
     "source_claim": "MedlinePlus arrhythmia link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "심전도, 맥박, 혈압, 전해질, 약물 복용력, 갑상선 기능을 반영하지 않으므로 부정맥이나 다른 심장 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "부정맥입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -245,12 +232,10 @@
       "medlineplus.anemia.reference"
     ],
     "source_claim": "MedlinePlus anemia link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "혈색소, 철분, 비타민 수치, 출혈 여부, 만성질환 평가를 반영하지 않으므로 빈혈이나 다른 원인을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "빈혈입니다",
       "확정 진단",
-      "철분제를 복용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -277,10 +262,9 @@
       "medlineplus.headache.reference"
     ],
     "source_claim": "MedlinePlus headache link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "두통 양상, 신경학적 진찰, 혈압, 영상검사, 약물 사용력을 반영하지 않으므로 긴장성 두통이나 다른 원인을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "긴장성 두통입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -307,12 +291,10 @@
       "medlineplus.eye_infections.reference"
     ],
     "source_claim": "MedlinePlus eye infections link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "시력검사, 안압, 각막/결막 검사, 감염 원인 검사를 반영하지 않으므로 결막염이나 다른 안과 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "결막염입니다",
       "확정 진단",
-      "안약을 사용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -339,12 +321,10 @@
       "medlineplus.dry_eye.reference"
     ],
     "source_claim": "NIH MedlinePlus Magazine dry eye link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "눈물막 검사, 각막 상태, 약물/렌즈 사용, 자가면역 질환 여부를 반영하지 않으므로 안구건조증이나 다른 안과 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "안구건조증입니다",
       "확정 진단",
-      "안약을 사용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -371,12 +351,10 @@
       "medlineplus.gastroenteritis.reference"
     ],
     "source_claim": "MedlinePlus gastroenteritis link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "탈수 정도, 체온, 혈액검사, 대변검사, 식중독/감염 원인 감별을 반영하지 않으므로 위장염이나 다른 복부 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "위장염입니다",
       "확정 진단",
-      "지사제를 복용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -403,12 +381,10 @@
       "medlineplus.skin_conditions.reference"
     ],
     "source_claim": "MedlinePlus skin conditions link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "피부 진찰, 노출 물질 확인, 감염 여부, 알레르기 검사를 반영하지 않으므로 접촉피부염이나 다른 피부 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "접촉피부염입니다",
       "확정 진단",
-      "연고를 바르세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -436,12 +412,10 @@
       "medlineplus.viral_infections.reference"
     ],
     "source_claim": "MedlinePlus viral infections link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "체온 추이, 진찰 소견, 혈액검사, 바이러스 검사, 감염 노출력을 반영하지 않으므로 바이러스 감염이나 다른 감염을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "바이러스 감염입니다",
       "확정 진단",
-      "항바이러스제를 복용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -469,11 +443,9 @@
       "medlineplus.neck_disorders.reference"
     ],
     "source_claim": "MedlinePlus neck injuries and disorders link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "신경학적 진찰, 영상검사, 외상 정도, 감염 여부를 반영하지 않으므로 근막통증, 염좌, 디스크 질환 등을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "근막통증입니다",
-      "목 디스크입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -501,10 +473,9 @@
       "medlineplus.chest_injuries.reference"
     ],
     "source_claim": "MedlinePlus chest injuries and disorders link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "심전도, 활력징후, 영상검사, 외상 정도, 심장/폐 원인 감별을 반영하지 않으므로 흉벽 통증이나 다른 흉부 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "흉벽 통증입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -533,12 +504,10 @@
       "medlineplus.urinary_tract_infections.reference"
     ],
     "source_claim": "MedlinePlus urinary tract infections link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "소변검사, 배양검사, 발열, 옆구리 통증, 임신 여부, 신장 감염 가능성을 반영하지 않으므로 요로감염이나 다른 비뇨기 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "요로감염입니다",
       "확정 진단",
-      "항생제를 복용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -566,12 +535,10 @@
       "medlineplus.pelvic_pain.reference"
     ],
     "source_claim": "MedlinePlus pelvic inflammatory disease and pelvic pain links are used as reference metadata for candidate explanations.",
-    "mapping_limit": "성매개감염 검사, 임신 여부, 골반 진찰, 초음파, 혈액검사를 반영하지 않으므로 골반염이나 다른 골반 통증 원인을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "골반염입니다",
       "확정 진단",
-      "항생제를 복용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -600,11 +567,9 @@
       "medlineplus.sprains_strains.reference"
     ],
     "source_claim": "MedlinePlus back injuries and sprains/strains links are used as reference metadata for candidate explanations.",
-    "mapping_limit": "신경학적 진찰, 영상검사, 외상 정도, 디스크/골절/감염 감별을 반영하지 않으므로 요추 염좌나 다른 허리 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "요추 염좌입니다",
-      "허리 디스크입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -635,11 +600,9 @@
       "medlineplus.sprains_strains.reference"
     ],
     "source_claim": "MedlinePlus tendinitis and sprains/strains links are used as reference metadata for candidate explanations.",
-    "mapping_limit": "진찰, 영상검사, 신경/혈류 상태, 힘줄 손상 정도를 반영하지 않으므로 힘줄염, 염좌, 골절, 신경 손상을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "테니스엘보입니다",
-      "힘줄염입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -669,11 +632,9 @@
       "medlineplus.sprains_strains.reference"
     ],
     "source_claim": "MedlinePlus sprains and strains link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "진찰, X-ray, 인대/힘줄 손상, 골절 여부, 신경/혈류 상태를 반영하지 않으므로 염좌, 근육 긴장, 골절 등을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "발목 염좌입니다",
-      "근육 긴장입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -694,19 +655,17 @@
       "발진"
     ],
     "mapped_rule_condition": "skin hives symptom with optional itching/swelling/rash",
-    "summary_ko": "두드러기, 가려움, 붓기 같은 피부 증상 조합이 선택되어 두드러기 관련 참고 후보를 보여줍니다.",
-    "rationale_ko": "이 카드는 내부 seed rule이 선택한 증상 조합을 설명합니다. 피부 반응의 원인을 확정하지 않고, 참고 후보로만 표시합니다.",
+    "summary_ko": "두드러기 모양 발진, 가려움, 붓기 같은 피부 증상 조합이 선택되어 알레르기성 피부 반응 관련 참고 후보를 보여줍니다.",
+    "rationale_ko": "이 카드는 내부 seed rule이 선택한 피부 증상 조합을 설명합니다. 사용자가 고른 증상명을 그대로 진단으로 반복하지 않고, 피부 반응의 원인을 확정하지 않는 참고 정보로만 표시합니다.",
     "red_flag_notes_ko": "입술·혀·목 붓기, 호흡곤란, 거친 숨소리, 어지러움이나 실신 느낌이 있으면 별도 위험 신호 안내가 우선됩니다.",
     "official_source_refs": [
       "medlineplus.hives.reference"
     ],
     "source_claim": "MedlinePlus hives link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "알레르기 원인, 감염 여부, 약물/음식 노출, 전신 반응 여부를 반영하지 않으므로 두드러기나 다른 피부 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "두드러기입니다",
       "확정 진단",
-      "항히스타민제를 복용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -735,12 +694,10 @@
       "medlineplus.rotator_cuff.reference"
     ],
     "source_claim": "MedlinePlus rotator cuff injuries link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "진찰, 근력 검사, 초음파/MRI, 외상 정도를 반영하지 않으므로 회전근개 질환이나 다른 어깨 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "회전근개 질환입니다",
       "확정 진단",
-      "수술이 필요합니다",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -769,13 +726,10 @@
       "medlineplus.sciatica.reference"
     ],
     "source_claim": "MedlinePlus herniated disk and sciatica links are used as reference metadata for candidate explanations.",
-    "mapping_limit": "신경학적 진찰, 영상검사, 감각/근력 평가, 대소변 증상을 반영하지 않으므로 추간판 탈출증, 좌골신경통, 다른 허리 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "허리 디스크입니다",
-      "좌골신경통입니다",
       "확정 진단",
-      "수술이 필요합니다",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -789,27 +743,25 @@
     "condition_code": "carpal_tunnel_syndrome",
     "triggered_by": [],
     "matched_reasons": [
-      "손목/손 통증",
       "저림",
+      "손목/손 통증",
       "움직임 제한",
       "붓기",
       "최근 격한 운동",
       "외상 후 발생"
     ],
-    "mapped_rule_condition": "arm_hand pain symptom with optional numbness/limited_motion/swelling or recent_exercise/after_injury context",
-    "summary_ko": "손목이나 손의 통증, 저림, 움직임 제한이 선택되어 손목터널증후군 관련 참고 후보를 보여줍니다.",
-    "rationale_ko": "이 카드는 내부 seed rule이 선택한 증상 조합을 설명합니다. 신경검사 없이 손목터널증후군을 확정하지 않고, 참고 후보로만 표시합니다.",
+    "mapped_rule_condition": "arm_hand body_parts=wrist,hand required=numbness optional=pain,limited_motion,swelling context=recent_exercise,after_injury",
+    "summary_ko": "손목이나 손의 저림에 통증, 움직임 제한이 함께 있을 때 손목터널증후군 관련 참고 후보를 보여줍니다.",
+    "rationale_ko": "이 카드는 내부 seed rule이 선택한 저림 중심 증상 조합을 설명합니다. 손가락 단독 통증이나 단순 손 통증만으로 손목터널증후군을 확정하지 않고, 참고 후보로만 표시합니다.",
     "red_flag_notes_ko": "외상 후 변형, 사용할 수 없음, 말단 변색, 빠르게 진행되는 힘 빠짐이 있으면 별도 위험 신호 안내가 우선됩니다.",
     "official_source_refs": [
       "medlineplus.carpal_tunnel.reference"
     ],
     "source_claim": "MedlinePlus carpal tunnel syndrome link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "신경전도검사, 진찰, 손 사용 패턴, 목/팔 신경 원인 감별을 반영하지 않으므로 손목터널증후군이나 다른 신경/근골격 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "손목터널증후군입니다",
       "확정 진단",
-      "수술이 필요합니다",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -837,13 +789,10 @@
       "medlineplus.hand_injuries.reference"
     ],
     "source_claim": "MedlinePlus hand injuries and disorders link is used as reference metadata for candidate explanations.",
-    "mapping_limit": "X-ray, 관절 정렬, 신경/혈류 상태, 외상 정도를 반영하지 않으므로 염좌, 골절, 힘줄/인대 손상을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "골절입니다",
-      "염좌입니다",
       "확정 진단",
-      "부목을 하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -873,11 +822,9 @@
       "medlineplus.knee_injuries.reference"
     ],
     "source_claim": "MedlinePlus osteoarthritis and knee injuries links are used as reference metadata for candidate explanations.",
-    "mapping_limit": "X-ray, 관절 진찰, 외상 정도, 인대/연골 손상 여부를 반영하지 않으므로 골관절염, 염좌, 골절, 다른 무릎 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "무릎 골관절염입니다",
-      "무릎 손상입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -908,11 +855,9 @@
       "medlineplus.foot_injuries.reference"
     ],
     "source_claim": "MedlinePlus plantar fasciitis and foot injuries links are used as reference metadata for candidate explanations.",
-    "mapping_limit": "진찰, X-ray, 보행 평가, 외상 정도, 신경/혈류 상태를 반영하지 않으므로 족저근막염, 염좌, 골절, 다른 발 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "족저근막염입니다",
-      "발 염좌입니다",
       "확정 진단",
       "약을 복용하세요",
       "괜찮습니다"
@@ -939,13 +884,10 @@
       "medlineplus.wheezing.reference"
     ],
     "source_claim": "CDC asthma and MedlinePlus wheezing links are used as reference metadata for respiratory candidate explanations.",
-    "mapping_limit": "산소포화도, 청진, 폐기능검사, 기존 천식 진단 여부, 약물 반응, 감염 여부를 반영하지 않으므로 천식 악화나 기관지 경련을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
-      "천식입니다",
-      "기관지 경련입니다",
       "확정 진단",
-      "흡입기를 사용하세요",
       "약을 복용하세요",
       "괜찮습니다"
     ],
@@ -972,7 +914,7 @@
       "medlineplus.stomach_disorders.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1002,7 +944,7 @@
       "medlineplus.eye_infections.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1032,7 +974,7 @@
       "medlineplus.hand_injuries.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1062,7 +1004,7 @@
       "medlineplus.pelvic_pain.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1089,10 +1031,10 @@
     "rationale_ko": "이 카드는 내부 seed rule이 선택한 증상 조합을 설명합니다. 사용자가 고른 정보만으로 질환을 진단하지 않고 참고 후보로만 다룹니다.",
     "red_flag_notes_ko": "위험 신호 조합이 함께 선택되면 후보 설명보다 별도 안전 안내가 우선됩니다.",
     "official_source_refs": [
-      "medlineplus.chest_injuries.reference"
+      "cdc.acute_bronchitis.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1122,7 +1064,7 @@
       "medlineplus.skin_conditions.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1152,7 +1094,7 @@
       "medlineplus.neck_disorders.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1182,7 +1124,7 @@
       "medlineplus.stomach_disorders.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1209,10 +1151,10 @@
     "rationale_ko": "이 카드는 내부 seed rule이 선택한 증상 조합을 설명합니다. 사용자가 고른 정보만으로 질환을 진단하지 않고 참고 후보로만 다룹니다.",
     "red_flag_notes_ko": "위험 신호 조합이 함께 선택되면 후보 설명보다 별도 안전 안내가 우선됩니다.",
     "official_source_refs": [
-      "medlineplus.pelvic_pain.reference"
+      "medlineplus.period_pain.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1243,7 +1185,7 @@
       "medlineplus.eye_infections.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1273,7 +1215,7 @@
       "medlineplus.eye_infections.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1304,7 +1246,7 @@
       "medlineplus.viral_infections.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1332,7 +1274,7 @@
       "medlineplus.skin_conditions.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1360,10 +1302,10 @@
     "rationale_ko": "이 카드는 내부 seed rule이 선택한 증상 조합을 설명합니다. 사용자가 고른 정보만으로 질환을 진단하지 않고 참고 후보로만 다룹니다.",
     "red_flag_notes_ko": "위험 신호 조합이 함께 선택되면 후보 설명보다 별도 안전 안내가 우선됩니다.",
     "official_source_refs": [
-      "medlineplus.pelvic_pain.reference"
+      "medlineplus.sprains_strains.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1394,7 +1336,7 @@
       "medlineplus.stomach_disorders.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1423,7 +1365,7 @@
       "medlineplus.skin_conditions.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1453,7 +1395,7 @@
       "medlineplus.knee_injuries.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1484,7 +1426,7 @@
       "medlineplus.knee_injuries.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1515,7 +1457,7 @@
       "medlineplus.back_injuries.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1546,7 +1488,7 @@
       "medlineplus.headache.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1577,7 +1519,7 @@
       "medlineplus.neck_disorders.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1607,7 +1549,7 @@
       "medlineplus.ear_infections.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1637,7 +1579,7 @@
       "medlineplus.back_injuries.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1666,7 +1608,7 @@
       "medlineplus.chest_injuries.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1696,7 +1638,7 @@
       "medlineplus.neck_disorders.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1725,7 +1667,7 @@
       "medlineplus.headache.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1755,7 +1697,7 @@
       "medlineplus.ear_infections.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1782,10 +1724,10 @@
     "rationale_ko": "이 카드는 내부 seed rule이 선택한 증상 조합을 설명합니다. 사용자가 고른 정보만으로 질환을 진단하지 않고 참고 후보로만 다룹니다.",
     "red_flag_notes_ko": "위험 신호 조합이 함께 선택되면 후보 설명보다 별도 안전 안내가 우선됩니다.",
     "official_source_refs": [
-      "medlineplus.viral_infections.reference"
+      "medlineplus.fatigue.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1814,7 +1756,7 @@
       "medlineplus.headache.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1845,7 +1787,7 @@
       "medlineplus.back_injuries.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1875,7 +1817,7 @@
       "medlineplus.hand_injuries.reference"
     ],
     "source_claim": "Reference topic link is used as metadata for user-facing candidate information.",
-    "mapping_limit": "문진, 진찰, 검사 결과, 경과를 반영하지 않으므로 이 후보나 다른 질환을 확정하지 않는다.",
+    "mapping_limit": "문진, 진찰, 검사 결과를 반영하지 않으므로 이 후보만으로 질환을 확정하지 않습니다.",
     "source_usage_policy": "restricted/reference_only",
     "must_not_claim": [
       "확정 진단",
@@ -1884,5 +1826,1812 @@
     ],
     "review_status": "reviewed",
     "last_reviewed_at": "2026-05-21"
+  },
+  {
+    "card_id": "condition.appendicitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "appendicitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Nausea",
+      "Vomiting",
+      "Diarrhea",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "abdomen right/lower body_part with pain symptom and optional nausea/vomiting/diarrhea or worsening context",
+    "summary_ko": "Possible appendicitis-related symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.appendicitis.reference"
+    ],
+    "source_claim": "MedlinePlus appendicitis topic link is used as reference metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.canker_sores_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "canker_sores_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Swelling",
+      "Sore throat",
+      "Stress"
+    ],
+    "mapped_rule_condition": "ear_nose_throat body_parts=mouth_tongue required=pain optional=swelling,sore_throat context=stress",
+    "summary_ko": "Possible canker sores can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.canker_sores.reference",
+      "medlineplus.mouth_sores.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.mouth_sore_irritation.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "mouth_sore_irritation",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Swelling",
+      "Pain",
+      "Sore throat",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "ear_nose_throat body_parts=mouth_tongue required=swelling optional=pain,sore_throat context=worsening",
+    "summary_ko": "Possible mouth sore irritation can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.mouth_sores.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.tonsillitis_or_pharyngitis.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "tonsillitis_or_pharyngitis",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Sore throat",
+      "Pain",
+      "Swelling",
+      "Runny nose",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "ear_nose_throat body_parts=throat,tonsil_area required=sore_throat optional=pain,swelling,runny_nose context=worsening",
+    "summary_ko": "Possible tonsillitis or pharyngitis can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.sore_throat.reference",
+      "medlineplus.tonsillitis.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.tailbone_trauma_or_coccydynia.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "tailbone_trauma_or_coccydynia",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Numbness",
+      "Stiffness",
+      "After injury",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "back_waist body_parts=tailbone_area required=pain optional=numbness,stiffness context=after_injury,worsening",
+    "summary_ko": "Possible tailbone trauma or coccydynia can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.tailbone_disorders.reference",
+      "medlineplus.tailbone_trauma.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.tailbone_ligament_strain.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "tailbone_ligament_strain",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Stiffness",
+      "Pain",
+      "Recent strenuous activity",
+      "After injury"
+    ],
+    "mapped_rule_condition": "back_waist body_parts=tailbone_area required=stiffness optional=pain context=recent_exercise,after_injury",
+    "summary_ko": "Possible tailbone ligament strain can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.sprains_strains.reference",
+      "medlineplus.tailbone_disorders.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.thyroid_function_change_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "thyroid_function_change_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Weight change",
+      "Fatigue",
+      "Dizziness",
+      "Stress"
+    ],
+    "mapped_rule_condition": "general body_parts=weight_change,fatigue_sleep required=weight_change optional=fatigue,dizziness context=stress",
+    "summary_ko": "Possible thyroid function change symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.thyroid_diseases.reference",
+      "medlineplus.hyperthyroidism.reference",
+      "medlineplus.hypothyroidism.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.unintentional_weight_change_review.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "unintentional_weight_change_review",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Weight change",
+      "Fatigue",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "general body_parts=weight_change required=weight_change optional=fatigue context=worsening",
+    "summary_ko": "Possible unintentional weight change review can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.thyroid_diseases.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.rib_contusion_or_injury.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "rib_contusion_or_injury",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Swelling",
+      "After injury",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "chest body_parts=rib_area,left_chest,right_chest required=pain optional=swelling context=after_injury,worsening",
+    "summary_ko": "Possible rib contusion or injury can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.chest_injuries.reference",
+      "medlineplus.rib_contusion.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.arm_muscle_strain.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "arm_muscle_strain",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Swelling",
+      "Weakness",
+      "Limited motion",
+      "Recent strenuous activity",
+      "After injury"
+    ],
+    "mapped_rule_condition": "arm_hand body_parts=arm required=pain optional=swelling,weakness,limited_motion context=recent_exercise,after_injury",
+    "summary_ko": "Possible arm muscle strain can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.sprains_strains.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.thigh_muscle_strain.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "thigh_muscle_strain",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Swelling",
+      "Weakness",
+      "Walking difficulty",
+      "Recent strenuous activity",
+      "After injury"
+    ],
+    "mapped_rule_condition": "leg_foot body_parts=thigh,leg required=pain optional=swelling,weakness,walking_difficulty context=recent_exercise,after_injury",
+    "summary_ko": "Possible thigh muscle strain can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.sprains_strains.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.ankle_overuse_tendinitis.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "ankle_overuse_tendinitis",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Swelling",
+      "Pain",
+      "Walking difficulty",
+      "Recent strenuous activity"
+    ],
+    "mapped_rule_condition": "leg_foot body_parts=ankle required=swelling optional=pain,walking_difficulty context=recent_exercise",
+    "summary_ko": "Possible ankle overuse tendinitis can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.tendinitis.reference",
+      "medlineplus.sprains_strains.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.cluster_headache_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "cluster_headache_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Swelling",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "head_face body_parts=temple,forehead required=pain optional=swelling context=worsening",
+    "summary_ko": "Possible cluster headache can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.cluster_headache.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.toothache_or_dental_abscess_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "toothache_or_dental_abscess_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Swelling",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "head_face body_parts=jaw,face required=pain optional=swelling context=worsening",
+    "summary_ko": "Possible toothache or dental abscess can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.toothache.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.trigeminal_neuralgia_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "trigeminal_neuralgia_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "head_face body_parts=face,jaw required=pain optional= context=worsening",
+    "summary_ko": "Possible trigeminal neuralgia can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.trigeminal_neuralgia.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.cataract_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "cataract_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Vision change",
+      "Dryness"
+    ],
+    "mapped_rule_condition": "eye body_parts=left_eye,right_eye,both_eyes,eye_area required=vision_change optional=dryness context=",
+    "summary_ko": "Possible cataract symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.cataract.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.glaucoma_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "glaucoma_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Vision change",
+      "Pain",
+      "Redness",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "eye body_parts=left_eye,right_eye,both_eyes,eye_area required=vision_change optional=pain,redness context=worsening",
+    "summary_ko": "Possible glaucoma symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.glaucoma.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.retinal_detachment_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "retinal_detachment_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Vision change",
+      "Sudden onset"
+    ],
+    "mapped_rule_condition": "eye body_parts=left_eye,right_eye,both_eyes,eye_area required=vision_change optional= context=sudden_onset",
+    "summary_ko": "Possible retinal detachment symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.retinal_detachment.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.shoulder_bursitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "shoulder_bursitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Limited motion",
+      "Swelling",
+      "Recent strenuous activity"
+    ],
+    "mapped_rule_condition": "neck_shoulder body_parts=left_shoulder,right_shoulder,both_shoulders required=pain optional=limited_motion,swelling context=recent_exercise",
+    "summary_ko": "Possible shoulder bursitis can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.bursitis.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.cervical_osteoarthritis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "cervical_osteoarthritis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Stiffness",
+      "Pain",
+      "Limited motion"
+    ],
+    "mapped_rule_condition": "neck_shoulder body_parts=front_neck,back_neck required=stiffness optional=pain,limited_motion context=",
+    "summary_ko": "Possible cervical osteoarthritis can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.osteoarthritis.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.fibromyalgia_neck_shoulder_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "fibromyalgia_neck_shoulder_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Stiffness",
+      "Stress",
+      "Sleep deprivation"
+    ],
+    "mapped_rule_condition": "neck_shoulder body_parts=front_neck,back_neck,left_shoulder,right_shoulder,both_shoulders required=pain optional=stiffness context=stress,sleep_deprivation",
+    "summary_ko": "Possible fibromyalgia-related neck or shoulder symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.fibromyalgia.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.acne_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "acne_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Swelling",
+      "Rash",
+      "Stress"
+    ],
+    "mapped_rule_condition": "skin body_parts=localized_skin,rash_area required=swelling optional=rash context=stress",
+    "summary_ko": "Possible acne can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.acne.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.eczema_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "eczema_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Itching",
+      "Rash",
+      "Swelling"
+    ],
+    "mapped_rule_condition": "skin body_parts=localized_skin,rash_area required=itching optional=rash,swelling context=",
+    "summary_ko": "Possible eczema can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.eczema.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.shingles_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "shingles_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Rash",
+      "Itching",
+      "Swelling",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "skin body_parts=localized_skin,rash_area required=rash optional=itching,swelling context=worsening",
+    "summary_ko": "Possible shingles can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.shingles.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.interstitial_cystitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "interstitial_cystitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Frequent urination",
+      "Pelvic pain",
+      "Painful urination",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "pelvis_urinary body_parts=urination,lower_center_abdomen,pelvis required=frequent_urination optional=pelvic_pain,painful_urination context=worsening",
+    "summary_ko": "Possible interstitial cystitis can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.interstitial_cystitis.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.endometriosis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "endometriosis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pelvic pain",
+      "Lower abdominal discomfort",
+      "Pain",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "pelvis_urinary body_parts=pelvis,lower_center_abdomen required=pelvic_pain optional=lower_abdominal_discomfort,pain context=worsening",
+    "summary_ko": "Possible endometriosis-related pelvic pain can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.endometriosis.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.vaginitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "vaginitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Swelling",
+      "Pelvic pain",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "pelvis_urinary body_parts=genital_area required=pain optional=swelling,pelvic_pain context=worsening",
+    "summary_ko": "Possible vaginitis can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.vaginitis.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.irritable_bowel_syndrome_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "irritable_bowel_syndrome_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Diarrhea",
+      "Nausea",
+      "Swelling",
+      "Stress"
+    ],
+    "mapped_rule_condition": "abdomen body_parts=whole_abdomen,lower_abdomen required=pain optional=diarrhea,nausea,swelling context=stress",
+    "summary_ko": "Possible irritable bowel syndrome symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.ibs.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.gallstones_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "gallstones_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Vomiting",
+      "Nausea",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "abdomen body_parts=upper_abdomen,right_abdomen required=pain,vomiting optional=nausea context=worsening",
+    "summary_ko": "Possible gallstone-related symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.gallstones.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.pancreatitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "pancreatitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Vomiting",
+      "Nausea",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "abdomen body_parts=upper_abdomen,whole_abdomen required=pain,vomiting optional=nausea context=worsening",
+    "summary_ko": "Possible pancreatitis-related symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.pancreatitis.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.kidney_stones_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "kidney_stones_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Nausea",
+      "Vomiting",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "abdomen body_parts=left_abdomen,right_abdomen,lower_abdomen required=pain optional=nausea,vomiting context=worsening",
+    "summary_ko": "Possible kidney stone-related symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.kidney_stones.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.pneumonia_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "pneumonia_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Cough",
+      "Shortness of breath",
+      "Pain",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "chest body_parts=center_chest,left_chest,right_chest required=cough optional=shortness_of_breath,pain context=worsening",
+    "summary_ko": "Possible pneumonia-related symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.pneumonia.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.pleurisy_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "pleurisy_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Shortness of breath",
+      "Cough",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "chest body_parts=left_chest,right_chest,center_chest required=pain optional=shortness_of_breath,cough context=worsening",
+    "summary_ko": "Possible pleurisy-related symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.pleurisy.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.dehydration_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "dehydration_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Dizziness",
+      "Fatigue",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "general body_parts=dizziness_general,fatigue_sleep,whole_body required=dizziness optional=fatigue context=worsening",
+    "summary_ko": "Possible dehydration can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.dehydration.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.diabetes_related_symptom_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "diabetes_related_symptom_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Weight change",
+      "Fatigue",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "general body_parts=weight_change,fatigue_sleep,whole_body required=weight_change optional=fatigue context=worsening",
+    "summary_ko": "Possible diabetes-related symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.diabetes.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.sleep_apnea_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "sleep_apnea_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Fatigue",
+      "Dizziness",
+      "Sleep deprivation"
+    ],
+    "mapped_rule_condition": "general body_parts=fatigue_sleep required=fatigue optional=dizziness context=sleep_deprivation",
+    "summary_ko": "Possible sleep apnea-related fatigue can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.sleep_apnea.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.trigger_finger_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "trigger_finger_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Limited motion",
+      "Pain",
+      "Swelling"
+    ],
+    "mapped_rule_condition": "arm_hand body_parts=finger,hand required=limited_motion optional=pain,swelling context=",
+    "summary_ko": "Possible trigger finger can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.trigger_finger.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.ganglion_cyst_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "ganglion_cyst_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Swelling",
+      "Pain",
+      "Limited motion"
+    ],
+    "mapped_rule_condition": "arm_hand body_parts=wrist,hand required=swelling optional=pain,limited_motion context=",
+    "summary_ko": "Possible ganglion cyst can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.ganglion_cyst.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.gout_lower_limb_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "gout_lower_limb_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Swelling",
+      "Pain",
+      "Walking difficulty",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "leg_foot body_parts=toe,foot,ankle required=swelling optional=pain,walking_difficulty context=worsening",
+    "summary_ko": "Possible gout-related lower limb symptoms can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.gout.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.foot_tendinitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "foot_tendinitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Pain",
+      "Swelling",
+      "Walking difficulty",
+      "Recent strenuous activity"
+    ],
+    "mapped_rule_condition": "leg_foot body_parts=foot,ankle required=pain optional=swelling,walking_difficulty context=recent_exercise",
+    "summary_ko": "Possible foot or ankle tendinitis can be shown as reference-only information when the selected body part and symptoms match the reviewed rule.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.foot_tendinitis.reference"
+    ],
+    "source_claim": "Reviewed public health reference link is used as metadata for user-facing candidate information.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.sacroiliac_joint_pain_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "sacroiliac_joint_pain_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Lower back or posterior pelvic pain",
+      "Stiffness",
+      "Pain spreading toward the buttock or leg",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "back_waist body_parts=lower_back,tailbone_area required=pain optional=stiffness,radiating_pain context=worsening",
+    "summary_ko": "Lower back or tailbone-area pain with stiffness or radiating discomfort can surface sacroiliac joint pain as reference-only information.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.sacroiliac_joint_pain.reference"
+    ],
+    "source_claim": "MedlinePlus sacroiliac joint pain aftercare page is used as metadata for lower-back and tailbone-area pain explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.lumbar_spinal_stenosis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "lumbar_spinal_stenosis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Back pain",
+      "Pain spreading down the leg",
+      "Weakness",
+      "Numbness",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "back_waist body_parts=lower_back,middle_back required=pain optional=radiating_pain,weakness,numbness context=worsening",
+    "summary_ko": "Back pain with radiating pain, numbness, or weakness can surface spinal stenosis as reference-only information.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.spinal_stenosis.reference"
+    ],
+    "source_claim": "MedlinePlus spinal stenosis topic is used as metadata for back pain with radiating pain, numbness, or weakness explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.upper_back_postural_strain_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "upper_back_postural_strain_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Upper back stiffness",
+      "Back pain",
+      "Recent exertion",
+      "Stress or tension"
+    ],
+    "mapped_rule_condition": "back_waist body_parts=upper_back,middle_back required=stiffness optional=pain context=recent_exercise,stress",
+    "summary_ko": "Upper or middle back stiffness with pain after exertion or tension can surface muscle strain as reference-only information.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.back_pain.reference"
+    ],
+    "source_claim": "MedlinePlus back pain topic is used as metadata for upper and middle back pain or stiffness explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.eustachian_tube_dysfunction_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "eustachian_tube_dysfunction_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Ear fullness",
+      "Hearing change",
+      "Ear pain",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "ear_nose_throat body_parts=ear required=ear_fullness optional=hearing_change,pain context=worsening",
+    "summary_ko": "Ear fullness with hearing change or ear pain can surface ear pressure or eustachian tube-related information as a reference candidate.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.ear_disorders.reference"
+    ],
+    "source_claim": "MedlinePlus ear disorders topic is used as metadata for ear fullness and hearing-change candidate explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.laryngitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "laryngitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Sore throat",
+      "Throat pain",
+      "Runny nose",
+      "Nasal congestion",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "ear_nose_throat body_parts=throat,tonsil_area required=sore_throat optional=pain,runny_nose,nasal_congestion context=worsening",
+    "summary_ko": "Sore throat with upper-airway symptoms can surface laryngitis-related information as a reference candidate.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.laryngitis.reference"
+    ],
+    "source_claim": "MedlinePlus laryngitis page is used as metadata for sore-throat and upper-airway candidate explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.costochondritis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "costochondritis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Chest or rib pain",
+      "Cough",
+      "Shortness of breath",
+      "Recent exertion",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "chest body_parts=rib_area,center_chest required=pain optional=cough,shortness_of_breath context=recent_exercise,worsening",
+    "summary_ko": "Rib-area or front chest pain with cough or exertion context can surface costochondritis as reference-only information.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.costochondritis.reference"
+    ],
+    "source_claim": "MedlinePlus costochondritis page is used as metadata for chest wall and rib-area pain explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.asthma_like_airway_symptom_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "asthma_like_airway_symptom_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Shortness of breath",
+      "Cough",
+      "Chest discomfort",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "chest body_parts=center_chest,left_chest,right_chest required=shortness_of_breath optional=cough,pain context=worsening",
+    "summary_ko": "Shortness of breath with cough or chest discomfort can surface asthma-like airway symptom information as a reference candidate.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.asthma.reference"
+    ],
+    "source_claim": "MedlinePlus asthma topic is used as metadata for shortness-of-breath and cough candidate explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.de_quervain_tenosynovitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "de_quervain_tenosynovitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Wrist or thumb-side pain",
+      "Swelling",
+      "Limited motion",
+      "Repeated use or exertion"
+    ],
+    "mapped_rule_condition": "arm_hand body_parts=wrist,hand required=pain optional=swelling,limited_motion context=recent_exercise",
+    "summary_ko": "Wrist or thumb-side hand pain with swelling or limited motion after repeated use can surface tendon overuse information.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.tendinitis.reference"
+    ],
+    "source_claim": "MedlinePlus tendinitis topic is used as metadata for wrist/hand tendon overuse candidate explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.cubital_tunnel_irritation_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "cubital_tunnel_irritation_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Arm or hand numbness",
+      "Elbow or arm pain",
+      "Weakness",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "arm_hand body_parts=elbow,arm,hand,finger required=numbness optional=pain,weakness context=worsening",
+    "summary_ko": "Arm or hand numbness with elbow/arm pain or weakness can surface peripheral nerve irritation information.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.peripheral_nerve_disorders.reference"
+    ],
+    "source_claim": "MedlinePlus peripheral nerve disorders topic is used as metadata for arm/hand numbness and weakness explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.achilles_tendinitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "achilles_tendinitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Back-of-ankle or heel pain",
+      "Swelling",
+      "Walking difficulty",
+      "Exercise or repeated use"
+    ],
+    "mapped_rule_condition": "leg_foot body_parts=ankle,calf,foot required=pain optional=swelling,walking_difficulty context=recent_exercise",
+    "summary_ko": "Pain behind the ankle or near the heel with swelling or walking difficulty after activity can surface Achilles tendinitis information.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.achilles_tendinitis.reference"
+    ],
+    "source_claim": "MedlinePlus Achilles tendinitis page is used as metadata for ankle/calf/foot tendon pain explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.blepharitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "blepharitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Eyelid itching",
+      "Redness",
+      "Discharge",
+      "Swelling",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "eye body_parts=eye_area,left_eye,right_eye required=itching optional=redness,discharge,swelling context=worsening",
+    "summary_ko": "Eyelid-area itching with redness, discharge, or swelling can surface blepharitis information as a reference candidate.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.blepharitis.reference"
+    ],
+    "source_claim": "MedlinePlus blepharitis page is used as metadata for eyelid itching, redness, and discharge explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.corneal_irritation_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "corneal_irritation_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Eye pain",
+      "Redness",
+      "Vision change",
+      "Discharge",
+      "After injury",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "eye body_parts=left_eye,right_eye,eye_area required=pain optional=redness,vision_change,discharge context=after_injury,worsening",
+    "summary_ko": "Eye pain with redness, vision change, discharge, or injury context can surface corneal irritation or injury information.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.corneal_injury.reference"
+    ],
+    "source_claim": "MedlinePlus corneal injury page is used as metadata for eye pain with redness or vision-change explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.tmj_muscle_pain_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "tmj_muscle_pain_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Jaw or facial pain",
+      "Swelling",
+      "Stress or tension",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "head_face body_parts=jaw,face required=pain optional=swelling context=stress,worsening",
+    "summary_ko": "Jaw or facial pain with swelling, stress, or worsening pattern can surface TMJ or chewing muscle information.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.tmj_disorders.reference"
+    ],
+    "source_claim": "MedlinePlus TMJ disorders page is used as metadata for jaw and facial pain candidate explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.salivary_gland_swelling_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "salivary_gland_swelling_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Face or jaw-area swelling",
+      "Pain",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "head_face body_parts=face,jaw required=swelling optional=pain context=worsening",
+    "summary_ko": "Face or jaw-area swelling with pain can surface salivary gland disorder information as a reference candidate.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.salivary_gland_disorders.reference"
+    ],
+    "source_claim": "MedlinePlus salivary gland disorders topic is used as metadata for face/jaw swelling candidate explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.frozen_shoulder_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "frozen_shoulder_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Shoulder limited motion",
+      "Shoulder pain",
+      "Stiffness",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "neck_shoulder body_parts=left_shoulder,right_shoulder,both_shoulders required=limited_motion optional=pain,stiffness context=worsening",
+    "summary_ko": "Shoulder limited motion with pain or stiffness can surface frozen shoulder information as a reference candidate.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.frozen_shoulder.reference"
+    ],
+    "source_claim": "MedlinePlus frozen shoulder page is used as metadata for shoulder pain and limited-motion explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.trapezius_muscle_strain_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "trapezius_muscle_strain_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Neck or shoulder pain",
+      "Stiffness",
+      "Limited motion",
+      "Recent exertion",
+      "Stress or tension"
+    ],
+    "mapped_rule_condition": "neck_shoulder body_parts=back_neck,left_shoulder,right_shoulder,both_shoulders required=pain optional=stiffness,limited_motion context=recent_exercise,stress",
+    "summary_ko": "Neck or shoulder pain with stiffness after exertion or stress can surface muscle strain information.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.shoulder_disorders.reference"
+    ],
+    "source_claim": "MedlinePlus shoulder injuries and disorders topic is used as metadata for shoulder pain and motion-limitation explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.prostatitis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "prostatitis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Painful urination",
+      "Frequent urination",
+      "Pelvic pain",
+      "Pain",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "pelvis_urinary body_parts=urination,pelvis,genital_area required=painful_urination optional=frequent_urination,pelvic_pain,pain context=worsening",
+    "summary_ko": "Painful urination with frequent urination or pelvic pain can surface prostatitis-related information for applicable profiles.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.prostatitis.reference"
+    ],
+    "source_claim": "MedlinePlus prostatitis page is used as metadata for male urinary and pelvic-pain candidate explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.overactive_bladder_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "overactive_bladder_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Frequent urination",
+      "Lower abdominal discomfort",
+      "Painful urination",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "pelvis_urinary body_parts=urination,lower_center_abdomen required=frequent_urination optional=lower_abdominal_discomfort,painful_urination context=worsening",
+    "summary_ko": "Frequent urination with lower abdominal discomfort can surface overactive bladder information as a reference candidate.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.overactive_bladder.reference"
+    ],
+    "source_claim": "MedlinePlus overactive bladder topic is used as metadata for frequent-urination candidate explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.psoriasis_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "psoriasis_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Rash or skin patches",
+      "Itching",
+      "Swelling",
+      "Stress",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "skin body_parts=localized_skin,whole_body_skin,rash_area required=rash optional=itching,swelling context=stress,worsening",
+    "summary_ko": "Rash or thick skin patches with itching or worsening pattern can surface psoriasis information as a reference candidate.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.psoriasis.reference"
+    ],
+    "source_claim": "MedlinePlus psoriasis topic is used as metadata for rash and itching candidate explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
+  },
+  {
+    "card_id": "condition.impetigo_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "impetigo_candidate",
+    "triggered_by": [],
+    "matched_reasons": [
+      "Red rash or sore-like skin change",
+      "Itching",
+      "Swelling",
+      "Worsening pattern"
+    ],
+    "mapped_rule_condition": "skin body_parts=localized_skin,rash_area required=rash optional=itching,swelling context=worsening",
+    "summary_ko": "Localized red rash or sore-like skin change with itching or swelling can surface impetigo information as a reference candidate.",
+    "rationale_ko": "Reviewed reference card for the selected body part and symptom combination. It must not be used as a confirmed diagnosis without clinical evaluation.",
+    "red_flag_notes_ko": "Sudden worsening, severe pain, breathing difficulty, neurologic changes, high fever, or other red flags should take priority over this reference candidate.",
+    "official_source_refs": [
+      "medlineplus.impetigo.reference"
+    ],
+    "source_claim": "MedlinePlus impetigo topic is used as metadata for localized rash and sore-like skin candidate explanations.",
+    "mapping_limit": "Clinical interview, physical exam, and test results are not reflected, so this candidate must not be used as a 확정 diagnosis.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": [
+      "확정 diagnosis",
+      "Take this medicine",
+      "It is fine"
+    ],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-22"
   }
 ]

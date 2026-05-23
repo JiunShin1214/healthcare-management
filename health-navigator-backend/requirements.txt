@@ -11,6 +11,7 @@ sqlalchemy
 pymysql
 cryptography
 pytest
+google-genai
 torch
 transformers
 sentence-transformers

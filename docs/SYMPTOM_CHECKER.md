@@ -24,7 +24,7 @@
 
 확인된 기준선:
 
-- active condition seed rule: 28개
+- active condition seed rule: 60개
 - DDXPlus approved condition mapping: 6개
 - DDXPlus frequency baseline: candidate ranking tie-break 보조 전용
 - RAG: 이미 생성된 후보/red flag 설명 전용
@@ -60,13 +60,15 @@ app/data/processed/symptom_checker_candidate_coverage_report.json
 
 ```json
 {
-  "active_condition_rule_count": 28,
+  "active_condition_rule_count": 60,
   "region_count": 12,
-  "symptom_option_count": 70,
-  "single_symptom_candidate_option_count": 26,
-  "uncovered_symptom_option_count": 14,
-  "single_symptom_candidate_option_ratio": 0.3714,
-  "uncovered_symptom_option_ratio": 0.2
+  "symptom_option_count": 71,
+  "single_symptom_candidate_option_count": 40,
+  "uncovered_symptom_option_count": 0,
+  "safety_review_symptom_option_count": 7,
+  "single_symptom_candidate_option_ratio": 0.5634,
+  "uncovered_symptom_option_ratio": 0.0,
+  "safety_review_symptom_option_ratio": 0.0986
 }
 ```
 
@@ -75,6 +77,7 @@ app/data/processed/symptom_checker_candidate_coverage_report.json
 - 부위별 active candidate 수
 - 증상별 단일 선택 후보 연결 여부
 - 일부 근거만 맞는 `possible_candidates` 후보 연결 여부
+- 독립 후보로 바로 연결하지 않고 안전 확인 또는 후속 질문으로 분리한 `safety_review_symptom_codes`
 - DDXPlus condition/evidence needs-review 우선순위
 - RAG/LLM이 판단값을 만들지 않는 safety policy
 
@@ -855,7 +858,7 @@ provider adapter 도입 시 최소 단위 테스트:
 ### `/symptom-checker/explain`
 
 현재 상태: 최소 구현 완료. 기본 API 경로는 외부 LLM/provider 호출 없이 내부 검수 설명 카드 helper를 사용합니다. 내부 코드에는 provider adapter가 사용할 RAG context builder와 안전 필터가 준비되어 있습니다.
-현재 설명 카드 seed는 active red flag 18개 전체와 condition seed 후보 28개 전체를 포함합니다. condition 카드는 기존 seed rule의 참고 후보 설명만 담당하며, confidence나 red flag 판단을 바꾸지 않습니다.
+현재 설명 카드 seed는 active red flag 18개 전체와 condition seed 후보 60개 전체를 포함합니다. condition 카드는 기존 seed rule의 참고 후보 설명만 담당하며, confidence나 red flag 판단을 바꾸지 않습니다.
 
 목적:
 

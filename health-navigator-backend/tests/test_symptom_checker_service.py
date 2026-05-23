@@ -62,6 +62,21 @@ def make_assessment_request(**overrides):
     return SymptomAssessRequest(**data)
 
 
+def _candidate_rule(condition_code, **overrides):
+    rule = {
+        "rule_id": f"rule_{condition_code}",
+        "condition_code": condition_code,
+        "condition_name": condition_code,
+        "region": "arm_hand",
+        "required_symptoms": ["pain"],
+        "optional_symptoms": [],
+        "boosting_contexts": [],
+        "reasons": {"pain": "통증"},
+    }
+    rule.update(overrides)
+    return rule
+
+
 def test_get_body_regions_uses_confirmed_first_pass_categories():
     region_ids = [region["id"] for region in get_body_regions()]
 
@@ -80,6 +95,468 @@ def test_get_body_regions_uses_confirmed_first_pass_categories():
         "general",
     ]
     assert "abdomen" in region_ids
+
+
+def test_body_part_specific_rules_do_not_leak_to_other_selected_parts(monkeypatch):
+    monkeypatch.setattr(
+        symptom_checker_service,
+        "CONDITION_RULES",
+        [
+            _candidate_rule("region_level_candidate"),
+            _candidate_rule("wrist_candidate", body_parts=["wrist"]),
+            _candidate_rule("elbow_candidate", body_parts=["elbow"]),
+        ],
+    )
+
+    candidates = symptom_checker_service._match_condition_candidates(
+        body_region="arm_hand",
+        body_part="wrist",
+        symptom_codes={"pain"},
+        contexts=set(),
+        profile={"age": 45, "gender": "male"},
+    )
+
+    condition_codes = [candidate["condition_code"] for candidate in candidates]
+    assert "wrist_candidate" in condition_codes
+    assert "region_level_candidate" in condition_codes
+    assert "elbow_candidate" not in condition_codes
+
+    wrist_candidate = next(candidate for candidate in candidates if candidate["condition_code"] == "wrist_candidate")
+    assert wrist_candidate["applicability"]["body_part_match"] == "body_part_specific"
+
+
+def test_body_part_specific_rules_remain_available_when_no_detailed_part_selected(monkeypatch):
+    monkeypatch.setattr(
+        symptom_checker_service,
+        "CONDITION_RULES",
+        [
+            _candidate_rule("region_level_candidate"),
+            _candidate_rule("wrist_candidate", body_parts=["wrist"]),
+        ],
+    )
+
+    candidates = symptom_checker_service._match_condition_candidates(
+        body_region="arm_hand",
+        body_part=None,
+        symptom_codes={"pain"},
+        contexts=set(),
+        profile={"age": 45, "gender": "male"},
+    )
+
+    assert {candidate["condition_code"] for candidate in candidates} == {
+        "region_level_candidate",
+        "wrist_candidate",
+    }
+    scoped_candidate = next(candidate for candidate in candidates if candidate["condition_code"] == "wrist_candidate")
+    assert scoped_candidate["applicability"]["body_part_match"] == "region_level"
+
+
+def test_age_sex_applicability_only_boosts_existing_symptom_matched_candidates(monkeypatch):
+    monkeypatch.setattr(
+        symptom_checker_service,
+        "CONDITION_RULES",
+        [
+            _candidate_rule("aaa_general_candidate"),
+            _candidate_rule(
+                "zzz_age_sex_candidate",
+                age_sex_applicability={
+                    "age_min": 40,
+                    "age_max": 60,
+                    "sex": "male",
+                    "effect": "ranking_boost_only",
+                },
+            ),
+            _candidate_rule(
+                "unmatched_symptom_candidate",
+                required_symptoms=["weakness"],
+                reasons={"weakness": "힘 빠짐"},
+                age_sex_applicability={
+                    "age_min": 40,
+                    "age_max": 60,
+                    "sex": "male",
+                    "effect": "ranking_boost_only",
+                },
+            ),
+        ],
+    )
+
+    candidates = symptom_checker_service._match_condition_candidates(
+        body_region="arm_hand",
+        body_part="wrist",
+        symptom_codes={"pain"},
+        contexts=set(),
+        profile={"age": 45, "gender": "male"},
+    )
+
+    assert [candidate["condition_code"] for candidate in candidates] == [
+        "zzz_age_sex_candidate",
+        "aaa_general_candidate",
+    ]
+    boosted = candidates[0]["applicability"]
+    assert boosted["age_sex_effect"] == "ranking_boost_only"
+    assert boosted["age_sex_matched"] is True
+    assert boosted["age_sex_used_for_candidate_creation"] is False
+    assert boosted["age_sex_used_for_red_flag_suppression"] is False
+
+
+def test_sex_only_applicability_can_boost_without_age_bounds(monkeypatch):
+    monkeypatch.setattr(
+        symptom_checker_service,
+        "CONDITION_RULES",
+        [
+            _candidate_rule("aaa_general_candidate"),
+            _candidate_rule(
+                "zzz_sex_specific_candidate",
+                age_sex_applicability={
+                    "sex": "female",
+                    "effect": "ranking_boost_only",
+                },
+            ),
+        ],
+    )
+
+    candidates = symptom_checker_service._match_condition_candidates(
+        body_region="arm_hand",
+        body_part="wrist",
+        symptom_codes={"pain"},
+        contexts=set(),
+        profile={"age": 30, "gender": "female"},
+    )
+
+    assert [candidate["condition_code"] for candidate in candidates] == [
+        "zzz_sex_specific_candidate",
+        "aaa_general_candidate",
+    ]
+    assert candidates[0]["applicability"]["age_sex_matched"] is True
+
+
+def test_sex_specific_anatomy_filter_excludes_only_reviewed_candidate_filter_rules(monkeypatch):
+    monkeypatch.setattr(
+        symptom_checker_service,
+        "CONDITION_RULES",
+        [
+            _candidate_rule("general_candidate"),
+            _candidate_rule(
+                "female_anatomy_candidate",
+                age_sex_applicability={
+                    "sex": "female",
+                    "effect": "candidate_filter",
+                    "filter_basis": "sex_specific_anatomy",
+                },
+            ),
+        ],
+    )
+
+    male_candidates = symptom_checker_service._match_condition_candidates(
+        body_region="arm_hand",
+        body_part="wrist",
+        symptom_codes={"pain"},
+        contexts=set(),
+        profile={"age": 30, "gender": "male"},
+    )
+    female_candidates = symptom_checker_service._match_condition_candidates(
+        body_region="arm_hand",
+        body_part="wrist",
+        symptom_codes={"pain"},
+        contexts=set(),
+        profile={"age": 30, "gender": "female"},
+    )
+
+    assert [candidate["condition_code"] for candidate in male_candidates] == ["general_candidate"]
+    assert {candidate["condition_code"] for candidate in female_candidates} == {
+        "general_candidate",
+        "female_anatomy_candidate",
+    }
+
+
+def test_first_batch_condition_rules_have_reviewed_body_part_scope_and_applicability():
+    rules_by_code = {rule["condition_code"]: rule for rule in CONDITION_RULES}
+
+    assert rules_by_code["carpal_tunnel_syndrome"]["body_parts"] == ["wrist", "hand"]
+    assert rules_by_code["carpal_tunnel_syndrome"]["required_symptoms"] == ["numbness"]
+    assert rules_by_code["carpal_tunnel_syndrome"]["age_sex_applicability"] == {
+        "age_min": 40,
+        "age_max": 60,
+        "sex": "any",
+        "effect": "ranking_boost_only",
+        "source": "MedlinePlus Genetics Carpal Tunnel Syndrome",
+        "evidence_note": (
+            "MedlinePlus Genetics states carpal tunnel syndrome most often occurs in people in their forties to sixties."
+        ),
+    }
+    assert rules_by_code["migraine"]["body_parts"] == ["forehead", "temple"]
+    assert rules_by_code["migraine"]["age_sex_applicability"]["age_min"] == 10
+    assert rules_by_code["migraine"]["age_sex_applicability"]["age_max"] == 45
+    assert rules_by_code["migraine"]["age_sex_applicability"]["sex"] == "female"
+    assert rules_by_code["otitis_media"]["body_parts"] == ["ear"]
+    assert rules_by_code["otitis_media"]["age_sex_applicability"]["age_max"] == 12
+    assert rules_by_code["pelvic_inflammatory_disease"]["body_parts"] == [
+        "pelvis",
+        "genital_area",
+        "lower_center_abdomen",
+    ]
+    assert rules_by_code["pelvic_inflammatory_disease"]["age_sex_applicability"]["sex"] == "female"
+    assert rules_by_code["pelvic_inflammatory_disease"]["age_sex_applicability"]["effect"] == "candidate_filter"
+    assert rules_by_code["pelvic_inflammatory_disease"]["age_sex_applicability"]["filter_basis"] == (
+        "sex_specific_anatomy"
+    )
+
+
+def test_body_part_quality_wrist_candidates_do_not_leak_to_elbow():
+    wrist_response = assess_symptoms(
+        make_assessment_request(
+            body_region="arm_hand",
+            body_part="wrist",
+            symptoms=[{"code": "pain", "severity": 5}, {"code": "numbness", "severity": 4}],
+            contexts={"recent_exercise": True},
+            gender="male",
+            birth_date=date(1976, 1, 1),
+        )
+    )
+    elbow_response = assess_symptoms(
+        make_assessment_request(
+            body_region="arm_hand",
+            body_part="elbow",
+            symptoms=[{"code": "pain", "severity": 5}, {"code": "numbness", "severity": 4}],
+            contexts={"recent_exercise": True},
+            gender="male",
+            birth_date=date(1976, 1, 1),
+        )
+    )
+
+    wrist_codes = [candidate["condition_code"] for candidate in wrist_response["candidates"]]
+    elbow_codes = [candidate["condition_code"] for candidate in elbow_response["candidates"]]
+
+    assert wrist_codes[0] == "carpal_tunnel_syndrome"
+    assert "wrist_hand_overuse_pain" in wrist_codes
+    assert "carpal_tunnel_syndrome" not in elbow_codes
+    assert elbow_codes[0] == "tennis_elbow_or_tendinitis"
+
+
+def test_arm_hand_finger_pain_does_not_over_surface_wrist_or_nerve_candidates():
+    response = assess_symptoms(
+        make_assessment_request(
+            body_region="arm_hand",
+            body_part="finger",
+            symptoms=[{"code": "pain", "severity": 4}],
+        )
+    )
+    codes = [candidate["condition_code"] for candidate in response["candidates"]]
+
+    assert "carpal_tunnel_syndrome" not in codes
+    assert "arm_peripheral_nerve_irritation" not in codes
+
+
+def test_arm_hand_wrist_numbness_keeps_neurologic_candidates_available():
+    response = assess_symptoms(
+        make_assessment_request(
+            body_region="arm_hand",
+            body_part="wrist",
+            symptoms=[{"code": "numbness", "severity": 4}],
+        )
+    )
+    codes = [candidate["condition_code"] for candidate in response["candidates"]]
+
+    assert "carpal_tunnel_syndrome" in codes
+    assert "arm_peripheral_nerve_irritation" in codes
+
+
+def test_body_part_quality_sex_specific_anatomy_filter_for_pid():
+    female_response = assess_symptoms(
+        make_assessment_request(
+            body_region="pelvis_urinary",
+            body_part="pelvis",
+            symptoms=[{"code": "pelvic_pain", "severity": 5}],
+            contexts={"worsening": True},
+            gender="female",
+            birth_date=date(1998, 1, 1),
+        )
+    )
+    male_response = assess_symptoms(
+        make_assessment_request(
+            body_region="pelvis_urinary",
+            body_part="pelvis",
+            symptoms=[{"code": "pelvic_pain", "severity": 5}],
+            contexts={"worsening": True},
+            gender="male",
+            birth_date=date(1998, 1, 1),
+        )
+    )
+
+    assert [candidate["condition_code"] for candidate in female_response["candidates"]][0] == (
+        "pelvic_inflammatory_disease"
+    )
+    assert "pelvic_inflammatory_disease" not in [
+        candidate["condition_code"]
+        for candidate in male_response["candidates"] + male_response["possible_candidates"]
+    ]
+    assert male_response["red_flags"] == []
+
+
+def test_body_part_quality_appendicitis_candidate_requires_matching_abdominal_part():
+    right_abdomen_response = assess_symptoms(
+        make_assessment_request(
+            body_region="abdomen",
+            body_part="right_abdomen",
+            symptoms=[{"code": "pain", "severity": 6}, {"code": "nausea", "severity": 4}],
+            contexts={"worsening": True},
+            gender="male",
+            birth_date=date(2005, 1, 1),
+        )
+    )
+    upper_abdomen_response = assess_symptoms(
+        make_assessment_request(
+            body_region="abdomen",
+            body_part="upper_abdomen",
+            symptoms=[{"code": "pain", "severity": 6}, {"code": "nausea", "severity": 4}],
+            contexts={"worsening": True},
+            gender="male",
+            birth_date=date(2005, 1, 1),
+        )
+    )
+
+    assert right_abdomen_response["candidates"][0]["condition_code"] == "appendicitis_candidate"
+    assert right_abdomen_response["candidates"][0]["applicability"]["age_sex_effect"] == "ranking_boost_only"
+    assert right_abdomen_response["candidates"][0]["applicability"]["age_sex_matched"] is True
+    assert "appendicitis_candidate" not in [
+        candidate["condition_code"]
+        for candidate in upper_abdomen_response["candidates"] + upper_abdomen_response["possible_candidates"]
+    ]
+    assert upper_abdomen_response["candidates"][0]["condition_code"] == "gastritis_or_peptic_ulcer"
+
+
+def test_body_part_quality_eye_and_skin_scoped_candidates():
+    eye_response = assess_symptoms(
+        make_assessment_request(
+            body_region="eye",
+            body_part="left_eye",
+            symptoms=[
+                {"code": "redness", "severity": 4},
+                {"code": "itching", "severity": 4},
+                {"code": "discharge", "severity": 3},
+            ],
+        )
+    )
+    skin_response = assess_symptoms(
+        make_assessment_request(
+            body_region="skin",
+            body_part="whole_body_skin",
+            symptoms=[{"code": "hives", "severity": 5}],
+        )
+    )
+
+    assert eye_response["candidates"][0]["condition_code"] == "conjunctivitis"
+    assert "eyelid_inflammation_or_stye" in [
+        candidate["condition_code"] for candidate in eye_response["possible_candidates"]
+    ]
+    assert skin_response["candidates"][0]["condition_code"] == "hives"
+    assert skin_response["candidates"][0]["condition_name"] == "두드러기 관련 피부 반응 가능성"
+    assert "알레르기성 피부 반응" in skin_response["candidates"][0]["summary"]
+    assert "contact_dermatitis" not in [
+        candidate["condition_code"]
+        for candidate in skin_response["candidates"] + skin_response["possible_candidates"]
+    ]
+
+
+def test_mapping_review_fixes_keep_sex_and_body_part_scope_from_leaking():
+    male_pelvis_response = assess_symptoms(
+        make_assessment_request(
+            body_region="pelvis_urinary",
+            body_part="pelvis",
+            symptoms=[{"code": "pelvic_pain", "severity": 5}],
+            gender="male",
+            birth_date=date(1998, 1, 1),
+        )
+    )
+    toe_response = assess_symptoms(
+        make_assessment_request(
+            body_region="leg_foot",
+            body_part="toe",
+            symptoms=[{"code": "walking_difficulty", "severity": 5}],
+        )
+    )
+
+    assert "dysmenorrhea_like_pelvic_pain" not in [
+        candidate["condition_code"] for candidate in male_pelvis_response["candidates"]
+    ]
+    assert "plantar_fasciitis_or_foot_sprain" not in [
+        candidate["condition_code"] for candidate in toe_response["candidates"]
+    ]
+
+
+def test_new_low_coverage_body_part_candidates_are_scoped_and_evidence_backed():
+    cases = [
+        ("ear_nose_throat", "mouth_tongue", [{"code": "pain", "severity": 4}], "canker_sores_candidate"),
+        ("back_waist", "tailbone_area", [{"code": "pain", "severity": 4}], "tailbone_trauma_or_coccydynia"),
+        ("general", "weight_change", [{"code": "weight_change", "severity": 4}], "thyroid_function_change_candidate"),
+        ("ear_nose_throat", "tonsil_area", [{"code": "sore_throat", "severity": 4}], "tonsillitis_or_pharyngitis"),
+        ("chest", "rib_area", [{"code": "pain", "severity": 4}], "rib_contusion_or_injury"),
+        ("arm_hand", "arm", [{"code": "pain", "severity": 4}], "arm_muscle_strain"),
+        ("leg_foot", "thigh", [{"code": "pain", "severity": 4}], "thigh_muscle_strain"),
+        ("leg_foot", "ankle", [{"code": "swelling", "severity": 4}], "ankle_overuse_tendinitis"),
+    ]
+
+    for body_region, body_part, symptoms, expected_code in cases:
+        response = assess_symptoms(
+            make_assessment_request(
+                body_region=body_region,
+                body_part=body_part,
+                symptoms=symptoms,
+                contexts={"after_injury": True, "recent_exercise": True},
+            )
+        )
+        codes = [candidate["condition_code"] for candidate in response["candidates"]]
+        assert expected_code in codes
+        candidate = next(candidate for candidate in response["candidates"] if candidate["condition_code"] == expected_code)
+        assert candidate["applicability"]["body_part_match"] == "body_part_specific"
+        assert candidate["reference_links"]
+
+
+def test_one_hundred_candidate_expansion_samples_do_not_require_rag_for_candidate_creation():
+    cases = [
+        ("head_face", "jaw", [{"code": "pain", "severity": 4}], "toothache_or_dental_abscess_candidate"),
+        ("eye", "left_eye", [{"code": "vision_change", "severity": 5}], "cataract_candidate"),
+        ("neck_shoulder", "left_shoulder", [{"code": "pain", "severity": 4}], "shoulder_bursitis_candidate"),
+        ("skin", "rash_area", [{"code": "itching", "severity": 4}], "eczema_candidate"),
+        ("abdomen", "upper_abdomen", [{"code": "pain", "severity": 4}, {"code": "vomiting", "severity": 4}], "pancreatitis_candidate"),
+        ("chest", "center_chest", [{"code": "cough", "severity": 4}], "pneumonia_candidate"),
+        ("general", "dizziness_general", [{"code": "dizziness", "severity": 4}], "dehydration_candidate"),
+        ("arm_hand", "finger", [{"code": "limited_motion", "severity": 4}], "trigger_finger_candidate"),
+        ("leg_foot", "toe", [{"code": "swelling", "severity": 4}], "gout_lower_limb_candidate"),
+    ]
+
+    for body_region, body_part, symptoms, expected_code in cases:
+        response = assess_symptoms(
+            make_assessment_request(
+                body_region=body_region,
+                body_part=body_part,
+                symptoms=symptoms,
+                contexts={"worsening": True},
+            )
+        )
+        codes = [candidate["condition_code"] for candidate in response["candidates"]]
+        assert expected_code in codes
+        assert response["candidate_generation"]["rag_usage"] == "explanation_only_not_judgment"
+
+
+def test_one_hundred_candidate_expansion_sex_specific_candidates_are_filtered():
+    male_response = assess_symptoms(
+        make_assessment_request(
+            body_region="pelvis_urinary",
+            body_part="pelvis",
+            symptoms=[{"code": "pelvic_pain", "severity": 5}],
+            contexts={"worsening": True},
+            gender="male",
+            birth_date=date(1990, 1, 1),
+        )
+    )
+    male_codes = [
+        candidate["condition_code"]
+        for candidate in male_response["candidates"] + male_response["possible_candidates"]
+    ]
+
+    assert "endometriosis_candidate" not in male_codes
+    assert "vaginitis_candidate" not in male_codes
 
 
 def test_get_anatomy_areas_returns_human_ui_grouping_without_replacing_clinical_regions():
@@ -250,7 +727,11 @@ def test_anatomy_body_part_ids_do_not_change_assessment_candidates():
     response_with_anatomy_part = assess_symptoms(request_with_anatomy_part)
 
     assert sternum["body_part_id"] == "center_chest"
-    assert response_with_anatomy_part["candidates"] == response_without_part["candidates"]
+    assert [c["condition_code"] for c in response_with_anatomy_part["candidates"]] == [
+        c["condition_code"] for c in response_without_part["candidates"]
+    ]
+    assert response_without_part["candidates"][0]["applicability"]["body_part_match"] == "region_level"
+    assert response_with_anatomy_part["candidates"][0]["applicability"]["body_part_match"] == "body_part_specific"
     assert response_with_anatomy_part["red_flags"] == response_without_part["red_flags"]
 
 
@@ -342,6 +823,23 @@ def test_get_region_options_includes_new_specialized_categories():
     assert any(part["id"] == "urination" for part in pelvis_options["body_parts"])
     assert any(symptom["code"] == "painful_urination" for symptom in pelvis_options["symptoms"])
     assert any(symptom["code"] == "lower_abdominal_discomfort" for symptom in pelvis_options["symptoms"])
+
+
+def test_get_region_options_scopes_ent_symptoms_to_selected_body_part():
+    ear_options = get_region_options("ear_nose_throat", body_part_id="ear")
+    nose_options = get_region_options("ear_nose_throat", body_part_id="nose")
+    mouth_options = get_region_options("ear_nose_throat", body_part_id="mouth_tongue")
+
+    ear_codes = [symptom["code"] for symptom in ear_options["symptoms"]]
+    nose_codes = [symptom["code"] for symptom in nose_options["symptoms"]]
+    mouth_codes = [symptom["code"] for symptom in mouth_options["symptoms"]]
+
+    assert ear_codes[:3] == ["pain", "ear_fullness", "hearing_change"]
+    assert "nasal_congestion" not in ear_codes
+    assert nose_codes[:2] == ["nasal_congestion", "runny_nose"]
+    assert "ear_fullness" not in nose_codes
+    assert mouth_codes[:2] == ["pain", "swelling"]
+    assert "nasal_congestion" not in mouth_codes
 
 
 def test_get_context_options_returns_mvp_context_codes():
@@ -1663,6 +2161,35 @@ def test_explain_from_provider_blocks_forbidden_generated_claims():
     assert result["provider_metadata"]["used"] is True
 
 
+def test_explain_from_provider_reports_safe_error_type_without_secret_details():
+    assessment = assess_symptoms(
+        make_assessment_request(
+            body_region="skin",
+            body_part="whole_body_skin",
+            symptoms=[{"code": "hives", "severity": 5}],
+        )
+    )
+
+    class ErrorProvider:
+        source = "llm"
+
+        def generate(self, assessment, rag_context):
+            raise RuntimeError("api key should never be exposed")
+
+    result = explain_symptom_assessment_from_provider(
+        SymptomExplainRequest(assessment=assessment),
+        provider=ErrorProvider(),
+        provider_enabled=True,
+        provider_name="gemini",
+        model_id="gemini-test",
+    )
+
+    assert result["provider_metadata"]["used"] is False
+    assert result["provider_metadata"]["fallback_reason"] == "provider_error"
+    assert result["provider_metadata"]["error_type"] == "RuntimeError"
+    assert "api key" not in str(result["provider_metadata"])
+
+
 def test_explain_from_provider_truncates_generated_summary():
     assessment = assess_symptoms(
         make_assessment_request(
@@ -1724,6 +2251,40 @@ def test_explain_from_provider_disabled_does_not_call_provider():
         "model_id": "",
         "timeout_ms": 2000,
     }
+
+
+def test_vertex_gemini_symptom_prompt_restricts_model_to_candidates():
+    payload = {
+        "symptoms": ["우하복부 통증", "발열"],
+        "candidates": [
+            {
+                "name": "appendicitis",
+                "display_name_ko": "충수염 가능성",
+                "red_flags": ["지속적인 우하복부 통증"],
+            }
+        ],
+    }
+
+    prompt = symptom_checker_service.build_vertex_gemini_symptom_explanation_prompt(payload)
+
+    assert "JSON에 없는 질환, 증상, 근거를 새로 만들지 않는다" in prompt
+    assert "정확한 진단은 의료진 상담이 필요합니다" in prompt
+    assert "appendicitis" in prompt
+    assert "candidate_explanations" in prompt
+    assert "display_name_ko는 반드시 한국어" in prompt
+
+
+def test_vertex_gemini_json_field_extraction_requires_json_object():
+    assert (
+        symptom_checker_service._extract_gemini_json_field(
+            json.dumps({"explanation": "충수염 가능성과 관련될 수 있습니다."}, ensure_ascii=False),
+            "explanation",
+        )
+        == "충수염 가능성과 관련될 수 있습니다."
+    )
+
+    with pytest.raises(RuntimeError, match="invalid JSON"):
+        symptom_checker_service._extract_gemini_json_field("{\"explanation\": \"", "explanation")
 
 
 def test_explanation_cards_load_reviewed_red_flag_seed_cards():
@@ -2691,6 +3252,42 @@ def test_condition_dataset_reference_links_are_semantically_reviewed():
         "common_cold": {"commoncold", "common cold"},
         "anemia": {"anemia"},
         "viral_infection": {"viralinfections", "viral infections"},
+        "dysmenorrhea_like_pelvic_pain": {"period pain"},
+        "groin_muscle_strain": {"sprainsandstrains", "sprains and strains"},
+        "bronchitis_like_illness": {"bronchitis", "chest cold"},
+        "sleep_stress_related_fatigue": {"fatigue"},
+        "canker_sores_candidate": {"canker", "mouth sores"},
+        "tailbone_trauma_or_coccydynia": {"tailbone"},
+        "thyroid_function_change_candidate": {"thyroid", "hyperthyroidism", "hypothyroidism"},
+        "rib_contusion_or_injury": {"rib", "chest injuries"},
+        "cluster_headache_candidate": {"cluster"},
+        "toothache_or_dental_abscess_candidate": {"toothache"},
+        "trigeminal_neuralgia_candidate": {"trigeminal"},
+        "cataract_candidate": {"cataract"},
+        "glaucoma_candidate": {"glaucoma"},
+        "retinal_detachment_candidate": {"retinal"},
+        "shoulder_bursitis_candidate": {"bursitis"},
+        "cervical_osteoarthritis_candidate": {"osteoarthritis"},
+        "fibromyalgia_neck_shoulder_candidate": {"fibromyalgia"},
+        "acne_candidate": {"acne"},
+        "eczema_candidate": {"eczema"},
+        "shingles_candidate": {"shingles"},
+        "interstitial_cystitis_candidate": {"interstitial"},
+        "endometriosis_candidate": {"endometriosis"},
+        "vaginitis_candidate": {"vaginitis"},
+        "irritable_bowel_syndrome_candidate": {"irritable"},
+        "gallstones_candidate": {"gallstones"},
+        "pancreatitis_candidate": {"pancreatitis"},
+        "kidney_stones_candidate": {"kidney"},
+        "pneumonia_candidate": {"pneumonia"},
+        "pleurisy_candidate": {"pleurisy"},
+        "dehydration_candidate": {"dehydration"},
+        "diabetes_related_symptom_candidate": {"diabetes"},
+        "sleep_apnea_candidate": {"sleep apnea"},
+        "trigger_finger_candidate": {"trigger finger"},
+        "ganglion_cyst_candidate": {"ganglion"},
+        "gout_lower_limb_candidate": {"gout"},
+        "foot_tendinitis_candidate": {"tendinitis"},
     }
 
     rules_by_code = {rule["condition_code"]: rule for rule in CONDITION_RULES}
@@ -3042,7 +3639,7 @@ def test_assess_symptoms_returns_expanded_seed_candidates():
         (
             "arm_hand",
             [{"code": "pain", "severity": 5}, {"code": "limited_motion", "severity": 4}],
-            "carpal_tunnel_syndrome",
+            "arm_muscle_strain",
         ),
         ("arm_hand", [{"code": "swelling", "severity": 5}], "hand_sprain_or_fracture"),
         (
