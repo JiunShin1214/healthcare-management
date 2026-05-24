@@ -13,3 +13,4 @@ class User(Base):
     birth_date = Column(Date, nullable=False)
     gender = Column(String(20), nullable=False)
     created_at = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"))
+    points = Column(Integer, nullable=False, default=0)
