@@ -210,6 +210,7 @@ docs/*.html
 docs/*DEMO*.md
 docs/*PLAN*.md
 docs/*POLICY*.md
+docs/*_UI_SPEC.md
 
 # Local/raw dataset drops. Keep reviewed runtime seed data in app/data tracked.
 health-navigator-backend/app/data/raw/release_*

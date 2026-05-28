@@ -230,7 +230,7 @@ def test_sex_only_applicability_can_boost_without_age_bounds(monkeypatch):
     assert candidates[0]["applicability"]["age_sex_matched"] is True
 
 
-def test_sex_specific_anatomy_filter_excludes_only_reviewed_candidate_filter_rules(monkeypatch):
+def test_registered_gender_does_not_hide_anatomy_specific_candidates(monkeypatch):
     monkeypatch.setattr(
         symptom_checker_service,
         "CONDITION_RULES",
@@ -262,7 +262,10 @@ def test_sex_specific_anatomy_filter_excludes_only_reviewed_candidate_filter_rul
         profile={"age": 30, "gender": "female"},
     )
 
-    assert [candidate["condition_code"] for candidate in male_candidates] == ["general_candidate"]
+    assert {candidate["condition_code"] for candidate in male_candidates} == {
+        "general_candidate",
+        "female_anatomy_candidate",
+    }
     assert {candidate["condition_code"] for candidate in female_candidates} == {
         "general_candidate",
         "female_anatomy_candidate",
@@ -361,7 +364,7 @@ def test_arm_hand_wrist_numbness_keeps_neurologic_candidates_available():
     assert "arm_peripheral_nerve_irritation" in codes
 
 
-def test_body_part_quality_sex_specific_anatomy_filter_for_pid():
+def test_body_part_quality_does_not_use_registered_gender_to_hide_pid_candidate():
     female_response = assess_symptoms(
         make_assessment_request(
             body_region="pelvis_urinary",
@@ -386,10 +389,12 @@ def test_body_part_quality_sex_specific_anatomy_filter_for_pid():
     assert [candidate["condition_code"] for candidate in female_response["candidates"]][0] == (
         "pelvic_inflammatory_disease"
     )
-    assert "pelvic_inflammatory_disease" not in [
+    assert "pelvic_inflammatory_disease" in [
         candidate["condition_code"]
         for candidate in male_response["candidates"] + male_response["possible_candidates"]
     ]
+    male_pid = next(candidate for candidate in male_response["candidates"] if candidate["condition_code"] == "pelvic_inflammatory_disease")
+    assert male_pid["applicability"]["age_sex_matched"] is False
     assert male_response["red_flags"] == []
 
 
@@ -458,7 +463,7 @@ def test_body_part_quality_eye_and_skin_scoped_candidates():
     ]
 
 
-def test_mapping_review_fixes_keep_sex_and_body_part_scope_from_leaking():
+def test_mapping_review_fixes_keep_body_part_scope_without_gender_hard_exclusion():
     male_pelvis_response = assess_symptoms(
         make_assessment_request(
             body_region="pelvis_urinary",
@@ -476,7 +481,7 @@ def test_mapping_review_fixes_keep_sex_and_body_part_scope_from_leaking():
         )
     )
 
-    assert "dysmenorrhea_like_pelvic_pain" not in [
+    assert "dysmenorrhea_like_pelvic_pain" in [
         candidate["condition_code"] for candidate in male_pelvis_response["candidates"]
     ]
     assert "plantar_fasciitis_or_foot_sprain" not in [
@@ -539,7 +544,7 @@ def test_one_hundred_candidate_expansion_samples_do_not_require_rag_for_candidat
         assert response["candidate_generation"]["rag_usage"] == "explanation_only_not_judgment"
 
 
-def test_one_hundred_candidate_expansion_sex_specific_candidates_are_filtered():
+def test_anatomy_related_candidates_are_not_hidden_by_registered_gender_only():
     male_response = assess_symptoms(
         make_assessment_request(
             body_region="pelvis_urinary",
@@ -555,8 +560,7 @@ def test_one_hundred_candidate_expansion_sex_specific_candidates_are_filtered():
         for candidate in male_response["candidates"] + male_response["possible_candidates"]
     ]
 
-    assert "endometriosis_candidate" not in male_codes
-    assert "vaginitis_candidate" not in male_codes
+    assert "endometriosis_candidate" in male_codes
 
 
 def test_get_anatomy_areas_returns_human_ui_grouping_without_replacing_clinical_regions():
@@ -650,13 +654,13 @@ def test_get_anatomy_areas_selectable_parts_map_to_existing_assessment_inputs():
     )
     assert any(
         selectable_part["body_region_id"] == "chest"
-        and selectable_part["body_part_id"] == "center_chest"
+        and selectable_part["body_part_id"] == "sternum"
         and selectable_part["name"] == "흉골"
         for selectable_part in selectable_parts
     )
     assert any(
         selectable_part["body_region_id"] == "neck_shoulder"
-        and selectable_part["body_part_id"] == "both_shoulders"
+        and selectable_part["body_part_id"] == "shoulder"
         and selectable_part["name"] == "어깨"
         for selectable_part in selectable_parts
     )
@@ -709,6 +713,26 @@ def test_anatomy_area_parts_reconnect_to_symptom_context_and_assessment_flow():
             assert result["profile"]["source"] == "request"
 
 
+def test_revised_anatomy_labels_and_conditional_question_guides_are_exposed():
+    regions = {region["id"]: region["name"] for region in get_body_regions()}
+    areas = {area["id"]: area for area in get_anatomy_areas()}
+
+    assert regions["back_waist"] == "등/허리/옆구리"
+    assert areas["back"]["name"] == "등/허리/옆구리"
+    assert any(part["name"] == "꼬리뼈" and part["body_part_id"] == "tailbone" for part in areas["buttocks"]["selectable_parts"])
+    assert not any(part["name"] == "꼬리뼈" for part in areas["back"]["selectable_parts"])
+
+    breast_questions = get_context_guide("chest", body_part_id="breast")["follow_up_questions"]
+    forehead_questions = get_context_guide("head_face", body_part_id="forehead")["follow_up_questions"]
+    calf_questions = get_context_guide("leg_foot", body_part_id="calf")["follow_up_questions"]
+
+    assert any(question["id"] == "new_breast_lump" for question in breast_questions)
+    vision_question = next(question for question in forehead_questions if question["id"] == "giant_cell_arteritis_vision_change")
+    assert vision_question["min_age"] == 50
+    assert vision_question["show_if_contexts"] == ["new_forehead_or_temporal_headache"]
+    assert any(question["id"] == "calf_pregnant_or_recent_postpartum" for question in calf_questions)
+
+
 def test_anatomy_body_part_ids_do_not_change_assessment_candidates():
     chest_area = next(area for area in get_anatomy_areas() if area["id"] == "chest")
     sternum = next(part for part in chest_area["selectable_parts"] if part["name"] == "흉골")
@@ -726,7 +750,7 @@ def test_anatomy_body_part_ids_do_not_change_assessment_candidates():
     response_without_part = assess_symptoms(request_without_part)
     response_with_anatomy_part = assess_symptoms(request_with_anatomy_part)
 
-    assert sternum["body_part_id"] == "center_chest"
+    assert sternum["body_part_id"] == "sternum"
     assert [c["condition_code"] for c in response_with_anatomy_part["candidates"]] == [
         c["condition_code"] for c in response_without_part["candidates"]
     ]
@@ -3320,6 +3344,11 @@ def test_red_flag_rules_have_explicit_review_metadata():
         "sudden_one_sided_numbness_or_weakness",
         "sudden_vision_loss",
         "thunderclap_headache",
+        "giant_cell_arteritis_vision_risk",
+        "possible_ectopic_pregnancy",
+        "possible_testicular_torsion",
+        "possible_deep_vein_thrombosis",
+        "possible_kidney_infection_in_pregnancy",
     }
     required_fields = {
         "rule_type",
@@ -3338,7 +3367,7 @@ def test_red_flag_rules_have_explicit_review_metadata():
         assert metadata["evidence_level"] == "guideline_supported"
         assert metadata["source_status"] == "approved"
         assert metadata["review_status"] == "reviewed"
-        assert metadata["last_reviewed_at"] in {"2026-05-11", "2026-05-15"}
+        assert metadata["last_reviewed_at"] in {"2026-05-11", "2026-05-15", "2026-05-25"}
 
     assert RED_FLAG_METADATA["airway_swelling_with_breathing_symptom"]["last_reviewed_at"] == "2026-05-15"
 
@@ -3854,6 +3883,103 @@ def test_chest_safety_contexts_are_included_when_core_chest_red_flag_triggers():
         "cold_sweat",
         "persistent_pain",
     ]
+
+
+def test_breast_and_forehead_specs_surface_public_condition_names():
+    breast_response = assess_symptoms(
+        make_assessment_request(
+            body_region="chest",
+            body_part="breast",
+            symptoms=[{"code": "breast_lump", "severity": 4}],
+            contexts={"new_breast_lump": True, "skin_dimpling_or_orange_peel_change": True},
+        )
+    )
+    forehead_response = assess_symptoms(
+        make_assessment_request(
+            body_region="head_face",
+            body_part="forehead",
+            birth_date=date(1960, 1, 1),
+            symptoms=[{"code": "pain", "severity": 5}],
+            contexts={
+                "new_forehead_or_temporal_headache": True,
+                "jaw_pain_with_chewing": True,
+            },
+        )
+    )
+
+    assert any(candidate["condition_name"] == "유방암 확인 필요" for candidate in breast_response["candidates"])
+    assert any(
+        candidate["condition_name"] == "거대세포동맥염(측두동맥염) 확인 필요"
+        for candidate in forehead_response["candidates"]
+    )
+
+
+def test_conditional_spec_safety_signals_are_rule_generated():
+    cases = [
+        (
+            make_assessment_request(
+                body_region="head_face",
+                body_part="forehead",
+                birth_date=date(1960, 1, 1),
+                symptoms=[{"code": "pain", "severity": 5}],
+                contexts={
+                    "new_forehead_or_temporal_headache": True,
+                    "vision_change_with_new_temporal_headache": True,
+                },
+            ),
+            "giant_cell_arteritis_vision_risk",
+        ),
+        (
+            make_assessment_request(
+                body_region="pelvis_urinary",
+                body_part="suprapubic",
+                symptoms=[{"code": "pelvic_pain", "severity": 6}],
+                contexts={
+                    "possible_pregnancy_or_missed_period": True,
+                    "unilateral_pelvic_pain": True,
+                    "abnormal_vaginal_bleeding": True,
+                },
+            ),
+            "possible_ectopic_pregnancy",
+        ),
+        (
+            make_assessment_request(
+                body_region="pelvis_urinary",
+                body_part="genitals",
+                symptoms=[{"code": "testicular_pain", "severity": 8}],
+                contexts={"sudden_severe_unilateral_testicular_pain": True},
+            ),
+            "possible_testicular_torsion",
+        ),
+        (
+            make_assessment_request(
+                body_region="leg_foot",
+                body_part="calf",
+                symptoms=[{"code": "pain", "severity": 5}],
+                contexts={
+                    "one_sided_leg_swelling_warmth_or_pain": True,
+                    "pregnant_or_recent_postpartum": True,
+                },
+            ),
+            "possible_deep_vein_thrombosis",
+        ),
+        (
+            make_assessment_request(
+                body_region="back_waist",
+                body_part="flank",
+                symptoms=[{"code": "pain", "severity": 5}],
+                contexts={
+                    "flank_pain_with_fever_or_chills": True,
+                    "pregnant_or_recent_postpartum": True,
+                },
+            ),
+            "possible_kidney_infection_in_pregnancy",
+        ),
+    ]
+
+    for request, expected_code in cases:
+        response = assess_symptoms(request)
+        assert any(red_flag["code"] == expected_code for red_flag in response["red_flags"])
 
 
 def test_assess_symptoms_detects_v2_red_flags():

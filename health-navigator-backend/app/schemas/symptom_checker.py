@@ -107,6 +107,10 @@ class FollowUpQuestionResponse(BaseModel):
     input_type: Literal["single_select", "multi_select", "number", "text"]
     purpose: ContextUsage
     options: List[FollowUpQuestionOptionResponse] = Field(default_factory=list)
+    show_if_contexts: List[str] = Field(default_factory=list)
+    min_age: Optional[int] = None
+    suggested_for_gender: Optional[Gender] = None
+    applicability_note: Optional[str] = None
 
 
 class ContextGuideResponse(BaseModel):

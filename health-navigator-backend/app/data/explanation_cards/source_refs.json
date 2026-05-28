@@ -1015,5 +1015,122 @@
     "usage_policy": "restricted/reference_only",
     "accessed_at": "2026-05-22",
     "claim_summary": "MedlinePlus impetigo topic is used as metadata for localized rash and sore-like skin candidate explanations."
+  },
+  {
+    "source_id": "niams.giant_cell_arteritis.safety",
+    "source": "NIAMS",
+    "title": "Polymyalgia Rheumatica and Giant Cell Arteritis",
+    "url": "https://www.niams.nih.gov/health-topics/polymyalgia-rheumatica-giant-cell-arteritis/basics/diagnosis-treatment-and-steps-to-take",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "NIAMS describes headache, scalp tenderness, jaw pain and urgent visual symptoms in giant cell arteritis."
+  },
+  {
+    "source_id": "acog.ectopic_pregnancy.safety",
+    "source": "ACOG",
+    "title": "Ectopic Pregnancy",
+    "url": "https://www.acog.org/womens-health/faqs/ectopic-pregnancy",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "ACOG identifies pelvic pain, abnormal bleeding, weakness, dizziness or fainting as ectopic pregnancy warning symptoms."
+  },
+  {
+    "source_id": "medlineplus.testicular_torsion.safety",
+    "source": "MedlinePlus",
+    "title": "Testicular torsion",
+    "url": "https://medlineplus.gov/ency/article/000517.htm",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "MedlinePlus describes sudden severe one-sided testicular pain and nausea or vomiting as emergency torsion symptoms."
+  },
+  {
+    "source_id": "cdc.pregnancy_blood_clots.safety",
+    "source": "CDC",
+    "title": "Understanding Your Risk for Blood Clots with Pregnancy",
+    "url": "https://www.cdc.gov/blood-clots/risk-factors/pregnancy.html",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "CDC lists affected-limb swelling and pain or tenderness as DVT symptoms and notes risk during pregnancy and after delivery."
+  },
+  {
+    "source_id": "medlineplus.urinary_tract_infections.safety",
+    "source": "MedlinePlus",
+    "title": "Urinary Tract Infections",
+    "url": "https://medlineplus.gov/urinarytractinfections.html",
+    "usage_policy": "approved",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "MedlinePlus urinary tract infection information supports prompt review of fever and flank-pain infection symptoms."
+  },
+  {
+    "source_id": "medlineplus.breast_pain.reference",
+    "source": "MedlinePlus",
+    "title": "Breast pain",
+    "url": "https://medlineplus.gov/ency/article/003152.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "MedlinePlus notes that menstruation-related hormonal changes can cause breast pain."
+  },
+  {
+    "source_id": "nhs.mastitis.reference",
+    "source": "NHS",
+    "title": "Mastitis",
+    "url": "https://www.nhs.uk/conditions/mastitis/",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "NHS mastitis information is used for breast redness, warmth, pain and feeding-related candidate explanation."
+  },
+  {
+    "source_id": "cdc.breast_cancer.symptoms.reference",
+    "source": "CDC",
+    "title": "Symptoms of Breast Cancer",
+    "url": "https://www.cdc.gov/breast-cancer/symptoms/index.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "CDC lists a new lump, skin dimpling and bloody nipple discharge among breast cancer warning signs while noting other causes are possible."
+  },
+  {
+    "source_id": "medlineplus.gynecomastia.reference",
+    "source": "MedlinePlus",
+    "title": "Breast enlargement in males",
+    "url": "https://medlineplus.gov/ency/article/003165.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "MedlinePlus describes gynecomastia as male breast tissue enlargement that may begin as a tender lump below the nipple."
+  },
+  {
+    "source_id": "medlineplus.dental_abscess.reference",
+    "source": "MedlinePlus",
+    "title": "Tooth abscess",
+    "url": "https://medlineplus.gov/ency/article/001060.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "MedlinePlus tooth abscess information is used for painful gum or tooth-area swelling candidate explanation."
+  },
+  {
+    "source_id": "medlineplus.epididymitis.reference",
+    "source": "MedlinePlus",
+    "title": "Epididymitis",
+    "url": "https://medlineplus.gov/ency/article/001279.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "MedlinePlus epididymitis information is used for non-emergency testicular pain and swelling candidate explanation."
+  },
+  {
+    "source_id": "medlineplus.seborrheic_dermatitis.reference",
+    "source": "MedlinePlus",
+    "title": "Seborrheic dermatitis",
+    "url": "https://medlineplus.gov/ency/article/000963.htm",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "MedlinePlus seborrheic dermatitis information is used for scalp flaking and itching candidate explanation."
+  },
+  {
+    "source_id": "medlineplus.alopecia_areata.reference",
+    "source": "MedlinePlus",
+    "title": "Alopecia areata",
+    "url": "https://medlineplus.gov/alopeciaareata.html",
+    "usage_policy": "restricted/reference_only",
+    "accessed_at": "2026-05-25",
+    "claim_summary": "MedlinePlus alopecia areata information is used for patchy hair-loss candidate explanation."
   }
 ]
