@@ -203,6 +203,12 @@ cython_debug/
 
 # Local model/cache artifacts
 .model-cache/
+rag-test handoff/
+chroma_db/
+**/chroma_db/
+__MACOSX/
+.DS_Store
+**/.DS_Store
 
 # Generated documents and local planning/demo artifacts
 extracted_docs/

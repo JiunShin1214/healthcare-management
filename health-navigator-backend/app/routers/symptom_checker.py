@@ -182,6 +182,7 @@ def assess_symptoms(
     req: SymptomAssessRequest,
     include_explanation: bool = Query(False),
     include_gemini_explanation: bool = Query(False),
+    include_rag_candidates: bool = Query(True),
 ):
     try:
         result = symptom_checker_service.assess_symptoms(req)
@@ -189,10 +190,12 @@ def assess_symptoms(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     if result is None:
         raise HTTPException(status_code=404, detail="해당 부위를 찾을 수 없습니다.")
+    if include_rag_candidates:
+        result = symptom_checker_service.attach_medical_rag_related_conditions_to_assessment(result)
     if include_gemini_explanation:
-        return symptom_checker_service.attach_gemini_explanation_to_assessment(result)
-    if include_explanation:
-        return symptom_checker_service.attach_explanation_to_assessment(result)
+        result = symptom_checker_service.attach_gemini_explanation_to_assessment(result)
+    elif include_explanation:
+        result = symptom_checker_service.attach_explanation_to_assessment(result)
     return result
 
 
@@ -205,6 +208,7 @@ def assess_my_symptoms(
     req: AuthenticatedSymptomAssessRequest,
     include_explanation: bool = Query(False),
     include_gemini_explanation: bool = Query(False),
+    include_rag_candidates: bool = Query(True),
     current_user=Depends(get_current_user),
 ):
     enriched_request = SymptomAssessRequest(
@@ -221,8 +225,10 @@ def assess_my_symptoms(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     if result is None:
         raise HTTPException(status_code=404, detail="해당 부위를 찾을 수 없습니다.")
+    if include_rag_candidates:
+        result = symptom_checker_service.attach_medical_rag_related_conditions_to_assessment(result)
     if include_gemini_explanation:
-        return symptom_checker_service.attach_gemini_explanation_to_assessment(result)
-    if include_explanation:
-        return symptom_checker_service.attach_explanation_to_assessment(result)
+        result = symptom_checker_service.attach_gemini_explanation_to_assessment(result)
+    elif include_explanation:
+        result = symptom_checker_service.attach_explanation_to_assessment(result)
     return result

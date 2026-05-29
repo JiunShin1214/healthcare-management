@@ -3842,5 +3842,43 @@
     "must_not_claim": ["부고환염입니다", "고환염입니다", "확정 진단", "약을 복용하세요"],
     "review_status": "reviewed",
     "last_reviewed_at": "2026-05-25"
+  },
+  {
+    "card_id": "condition.angina_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "angina_candidate",
+    "triggered_by": [],
+    "matched_reasons": ["exertional chest pressure", "radiating pain", "shortness of breath"],
+    "mapped_rule_condition": "chest upper_chest or sternum pain/pressure with exertional or ACS supporting context",
+    "summary_ko": "활동할 때 심해지고 쉬면 줄어드는 가슴 압박감 양상이 있어 협심증 가능성을 참고 후보로 표시합니다.",
+    "rationale_ko": "CDC, American Heart Association, NHS의 흉통 위험 신호 참고 정보를 바탕으로 표시하며 진단을 확정하지 않습니다.",
+    "red_flag_notes_ko": "가슴 통증, 호흡곤란, 식은땀, 왼팔/턱/등으로 퍼지는 통증이 함께 있으면 응급 확인이 우선입니다.",
+    "official_source_refs": ["cdc.heart_attack.symptoms", "aha.heart_attack.warning_signs", "nhs.heart_attack.symptoms"],
+    "source_claim": "Public heart attack and chest pain warning sign references support urgent review of exertional or pressure-like chest symptoms.",
+    "mapping_limit": "문진 답변만 반영하므로 협심증을 확정하지 않으며 심전도, 혈액검사, 영상검사 결과를 대신하지 않습니다.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": ["협심증입니다", "심근경색입니다", "확정 진단", "약을 복용하세요"],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-28"
+  },
+  {
+    "card_id": "condition.sternal_contusion_or_fracture_candidate.v1",
+    "card_type": "condition_explanation",
+    "red_flag_code": null,
+    "condition_code": "sternal_contusion_or_fracture_candidate",
+    "triggered_by": [],
+    "matched_reasons": ["direct sternal impact", "sternum pain", "movement or pressure worsens pain"],
+    "mapped_rule_condition": "chest sternum pain after direct impact or movement/tenderness evidence",
+    "summary_ko": "흉골을 직접 부딪힌 뒤 중앙 가슴 통증이 있어 가슴뼈 타박상 또는 골절 가능성을 참고 후보로 표시합니다.",
+    "rationale_ko": "MedlinePlus 흉부 손상 참고 정보를 바탕으로 표시하며 골절 여부를 확정하지 않습니다.",
+    "red_flag_notes_ko": "호흡곤란, 심한 통증, 악화되는 흉통, 큰 외상 뒤 증상이 있으면 빠른 진료 확인이 필요합니다.",
+    "official_source_refs": ["medlineplus.chest_injuries.reference"],
+    "source_claim": "MedlinePlus chest injuries information supports review of chest pain after direct trauma.",
+    "mapping_limit": "문진 답변만 반영하므로 흉골 손상 여부를 확정하지 않으며 엑스레이나 진찰 결과를 대신하지 않습니다.",
+    "source_usage_policy": "restricted/reference_only",
+    "must_not_claim": ["골절입니다", "타박상입니다", "확정 진단", "약을 복용하세요"],
+    "review_status": "reviewed",
+    "last_reviewed_at": "2026-05-28"
   }
 ]

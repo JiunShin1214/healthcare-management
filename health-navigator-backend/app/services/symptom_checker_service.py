@@ -15,6 +15,7 @@ from app.core.config import (
     MEDICAL_BERT_MODEL_ID,
     MEDICAL_BERT_SCORE_THRESHOLD,
     MEDICAL_BERT_STRUCTURE_ENABLED,
+    MEDICAL_RAG_ENABLED,
     RAG_EMBEDDING_CACHE_DIR,
     RAG_EMBEDDING_MODEL_NAME,
     RAG_VECTOR_SEARCH_ENABLED,
@@ -77,6 +78,101 @@ MAX_EXPLANATION_RAG_CARDS = 6
 MAX_EXPLANATION_RAG_SOURCES = 8
 MAX_EXPLANATION_FIELD_CHARS = 500
 MAX_PROVIDER_GENERATED_SUMMARY_CHARS = 700
+MAX_MEDICAL_RAG_RELATED_CONDITIONS = 5
+MAX_DISPLAY_CANDIDATES = 5
+MAX_CONTEXT_GUIDE_FOLLOW_UP_QUESTIONS = 6
+COMMON_QUICK_CONTEXT_CODES = {
+    "sleep_deprivation",
+    "alcohol_yesterday",
+    "overeating",
+    "recent_exercise",
+    "stress",
+}
+UI_SPEC_BODY_PART_SECTIONS = {
+    ("abdomen", "upper_abdomen"): ("SYMPTOM_CHECKER_ABDOMEN_UI_SPEC.md", "윗배"),
+    ("abdomen", "epigastrium"): ("SYMPTOM_CHECKER_ABDOMEN_UI_SPEC.md", "명치"),
+    ("abdomen", "lower_abdomen"): ("SYMPTOM_CHECKER_ABDOMEN_UI_SPEC.md", "아랫배"),
+    ("abdomen", "right_abdomen"): ("SYMPTOM_CHECKER_ABDOMEN_UI_SPEC.md", "아랫배"),
+    ("abdomen", "left_abdomen"): ("SYMPTOM_CHECKER_ABDOMEN_UI_SPEC.md", "아랫배"),
+    ("abdomen", "whole_abdomen"): ("SYMPTOM_CHECKER_ABDOMEN_UI_SPEC.md", "윗배"),
+    ("arm_hand", "arm"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "위팔"),
+    ("arm_hand", "shoulder"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "어깨"),
+    ("arm_hand", "left_shoulder"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "어깨"),
+    ("arm_hand", "right_shoulder"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "어깨"),
+    ("arm_hand", "both_shoulders"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "어깨"),
+    ("arm_hand", "axilla"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "겨드랑이"),
+    ("arm_hand", "upper_arm"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "위팔"),
+    ("arm_hand", "elbow"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "팔꿈치"),
+    ("arm_hand", "forearm"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "아래팔"),
+    ("arm_hand", "wrist"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "손목"),
+    ("arm_hand", "hand"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "손"),
+    ("arm_hand", "finger"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "손가락"),
+    ("back_waist", "upper_back"): ("SYMPTOM_CHECKER_BACK_FLANK_UI_SPEC.md", "등 위쪽"),
+    ("back_waist", "middle_back"): ("SYMPTOM_CHECKER_BACK_FLANK_UI_SPEC.md", "옆구리"),
+    ("back_waist", "flank"): ("SYMPTOM_CHECKER_BACK_FLANK_UI_SPEC.md", "옆구리"),
+    ("back_waist", "lower_back"): ("SYMPTOM_CHECKER_BACK_FLANK_UI_SPEC.md", "허리"),
+    ("back_waist", "tailbone_area"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "꼬리뼈"),
+    ("chest", "upper_chest"): ("SYMPTOM_CHECKER_CHEST_UI_SPEC.md", "윗가슴"),
+    ("chest", "center_chest"): ("SYMPTOM_CHECKER_CHEST_UI_SPEC.md", "윗가슴"),
+    ("chest", "sternum"): ("SYMPTOM_CHECKER_CHEST_UI_SPEC.md", "흉골"),
+    ("chest", "left_chest"): ("SYMPTOM_CHECKER_CHEST_UI_SPEC.md", "윗가슴"),
+    ("chest", "right_chest"): ("SYMPTOM_CHECKER_CHEST_UI_SPEC.md", "윗가슴"),
+    ("chest", "rib_area"): ("SYMPTOM_CHECKER_CHEST_UI_SPEC.md", "흉골"),
+    ("chest", "breast"): ("SYMPTOM_CHECKER_CHEST_UI_SPEC.md", "유방"),
+    ("head_face", "scalp"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "두피"),
+    ("head_face", "back_head"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "두피"),
+    ("head_face", "forehead"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "이마"),
+    ("head_face", "temple"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "이마"),
+    ("head_face", "face"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "얼굴"),
+    ("head_face", "jaw"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "턱"),
+    ("eye", "left_eye"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "눈"),
+    ("eye", "right_eye"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "눈"),
+    ("eye", "both_eyes"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "눈"),
+    ("eye", "eye_area"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "눈"),
+    ("ear_nose_throat", "nose"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "코"),
+    ("ear_nose_throat", "ear"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "귀"),
+    ("ear_nose_throat", "mouth"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "입"),
+    ("ear_nose_throat", "mouth_tongue"): ("SYMPTOM_CHECKER_HEAD_UI_SPEC.md", "입"),
+    ("ear_nose_throat", "throat"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "목"),
+    ("ear_nose_throat", "tonsil_area"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "목"),
+    ("leg_foot", "leg"): ("SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md", "허벅지"),
+    ("leg_foot", "ankle"): ("SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md", "발목"),
+    ("leg_foot", "foot"): ("SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md", "발"),
+    ("leg_foot", "toe"): ("SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md", "발가락"),
+    ("leg_foot", "knee"): ("SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md", "무릎"),
+    ("leg_foot", "popliteal_fossa"): ("SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md", "오금"),
+    ("leg_foot", "calf"): ("SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md", "종아리"),
+    ("leg_foot", "shin"): ("SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md", "정강이"),
+    ("leg_foot", "thigh"): ("SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md", "허벅지"),
+    ("leg_foot", "posterior_thigh"): ("SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md", "허벅지 뒤쪽"),
+    ("neck_shoulder", "neck"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "목"),
+    ("neck_shoulder", "front_neck"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "목"),
+    ("neck_shoulder", "back_neck"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "목"),
+    ("neck_shoulder", "left_shoulder"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "어깨"),
+    ("neck_shoulder", "right_shoulder"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "어깨"),
+    ("neck_shoulder", "both_shoulders"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "어깨"),
+    ("neck_shoulder", "shoulder"): ("SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md", "어깨"),
+    ("pelvis_urinary", "pelvis"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "엉덩이/골반 후면"),
+    ("pelvis_urinary", "hip"): ("SYMPTOM_CHECKER_PELVIS_UI_SPEC.md", "고관절"),
+    ("pelvis_urinary", "groin"): ("SYMPTOM_CHECKER_PELVIS_UI_SPEC.md", "사타구니"),
+    ("pelvis_urinary", "suprapubic"): ("SYMPTOM_CHECKER_PELVIS_UI_SPEC.md", "치골 위"),
+    ("pelvis_urinary", "lower_center_abdomen"): ("SYMPTOM_CHECKER_PELVIS_UI_SPEC.md", "치골 위"),
+    ("pelvis_urinary", "urination"): ("SYMPTOM_CHECKER_PELVIS_UI_SPEC.md", "치골 위"),
+    ("pelvis_urinary", "genitals"): ("SYMPTOM_CHECKER_PELVIS_UI_SPEC.md", "생식기"),
+    ("pelvis_urinary", "genital_area"): ("SYMPTOM_CHECKER_PELVIS_UI_SPEC.md", "생식기"),
+    ("pelvis_urinary", "tailbone"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "꼬리뼈"),
+    ("pelvis_urinary", "rectum_anus"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "직장/항문"),
+    ("skin", "localized_skin"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "피부"),
+    ("skin", "whole_body_skin"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "피부"),
+    ("skin", "rash_area"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "피부"),
+    ("general", "whole_body"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "전신/일반"),
+    ("general", "fever_chill"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "전신/일반"),
+    ("general", "fatigue_sleep"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "전신/일반"),
+    ("general", "weight_change"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "전신/일반"),
+    ("general", "dizziness_general"): ("SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md", "전신/일반"),
+}
+MEDICAL_RAG_DISPLAY_DISTANCE_THRESHOLD = 0.85
+MEDICAL_RAG_RELATED_CONDITION_DISCLAIMER = "검색된 의료 문서 기반 참고 후보이며 확정 진단이 아닙니다."
 GEMINI_EXPLANATION_RESPONSE_SCHEMA = {
     "type": "OBJECT",
     "properties": {
@@ -118,13 +214,18 @@ GEMINI_SYMPTOM_EXPLANATION_SCHEMA = {
             "type": "STRING",
             "description": "후보와 위험 신호를 바탕으로 한 참고용 다음 행동 안내",
         },
+        "next_steps": {
+            "type": "ARRAY",
+            "items": {"type": "STRING"},
+            "description": "사용자가 다음에 확인하거나 행동할 수 있는 짧은 안내 2-4개",
+        },
         "final_notice": {
             "type": "STRING",
             "description": "반드시 '정확한 진단은 의료진 상담이 필요합니다.'",
         },
     },
-    "required": ["summary", "candidate_explanations", "red_flags", "recommendation", "final_notice"],
-    "propertyOrdering": ["summary", "candidate_explanations", "red_flags", "recommendation", "final_notice"],
+    "required": ["summary", "candidate_explanations", "red_flags", "recommendation", "next_steps", "final_notice"],
+    "propertyOrdering": ["summary", "candidate_explanations", "red_flags", "recommendation", "next_steps", "final_notice"],
 }
 BODY_REGION_ALIAS_HINTS = {
     "chest": ["가슴", "가슴이", "흉부", "흉통", "심장", "두근", "숨참", "숨이 차", "숨쉬기 힘", "숨 쉬기 힘", "호흡곤란"],
@@ -1452,6 +1553,70 @@ CONTEXT_OPTIONS = [
         "rule_strength": "review",
     },
     {
+        "code": "chest_wall_tenderness_or_movement_worsens",
+        "name": "누르거나 움직이면 심해지는 가슴 통증",
+        "category": "pattern",
+        "description": "가슴 부위를 누르거나 몸통/팔을 움직일 때 통증이 심해지는지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
+        "code": "post_meal_or_lying_down_burning_with_reflux",
+        "name": "식후/누울 때 쓰림과 신물",
+        "category": "pattern",
+        "description": "식사 후나 누웠을 때 가슴 또는 흉골 뒤쪽 쓰림과 신물이 올라오는지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
+        "code": "cough_with_sputum_or_fever",
+        "name": "기침/가래 또는 발열",
+        "category": "pattern",
+        "description": "감기 뒤 기침과 가래가 이어지거나 발열이 함께 있는지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
+        "code": "wheezing_after_trigger",
+        "name": "운동/찬 공기/알레르기 뒤 쌕쌕거림",
+        "category": "pattern",
+        "description": "운동, 찬 공기, 먼지, 알레르기 노출 뒤 숨참이나 쌕쌕거림이 심해지는지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
+        "code": "palpitation_with_dizziness_or_fainting",
+        "name": "두근거림과 어지러움/실신감",
+        "category": "safety_review_detail",
+        "description": "두근거림과 함께 어지럽거나 쓰러질 것 같은 느낌이 있는지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
+        "code": "direct_sternal_impact",
+        "name": "흉골 직접 충격",
+        "category": "injury",
+        "description": "차량 충격, 넘어짐, 강한 압박 등으로 흉골 중앙을 직접 다쳤는지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
+        "code": "sudden_unilateral_chest_pain_with_dyspnea",
+        "name": "갑작스러운 한쪽 흉통과 호흡곤란",
+        "category": "safety_review_detail",
+        "description": "한쪽 가슴이 갑자기 날카롭게 아프고 동시에 숨쉬기 힘들어졌는지",
+        "usage": ["candidate_boost", "red_flag", "explanation_context"],
+        "rule_strength": "strong",
+    },
+    {
+        "code": "cardiovascular_risk_age_band",
+        "name": "심혈관 위험 연령대",
+        "category": "profile",
+        "description": "심장성 통증 evidence가 있을 때만 후보 정렬 보조로 쓰는 나이/등록 성별 기반 맥락",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "weak",
+    },
+    {
         "code": "bilateral_limb_weakness",
         "name": "양쪽 팔다리 힘 빠짐",
         "category": "safety_review_detail",
@@ -1772,6 +1937,46 @@ CONTEXT_OPTIONS = [
         "rule_strength": "medium",
     },
     {
+        "code": "new_bra_or_skin_product_exposure",
+        "name": "새 속옷/피부 제품 노출",
+        "category": "pattern",
+        "description": "새 속옷, 패치, 세정제, 보습제 또는 화장품 사용 뒤 유방 피부 증상이 시작됐는지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
+        "code": "persistent_or_enlarging_breast_lump",
+        "name": "지속되거나 커지는 유방 멍울",
+        "category": "safety_review_detail",
+        "description": "새로 생긴 멍울이 계속 남아 있거나 커지는 것 같은지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
+        "code": "purulent_nipple_or_skin_discharge",
+        "name": "고름성 유두/피부 분비물",
+        "category": "safety_review_detail",
+        "description": "유두 또는 피부에서 고름처럼 보이는 분비물이 나오는지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
+        "code": "nipple_inversion_or_shape_change",
+        "name": "새 유두 함몰/모양 변화",
+        "category": "safety_review_detail",
+        "description": "유두가 새로 안으로 들어가거나 방향/모양이 달라졌는지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
+        "code": "persistent_one_sided_breast_change",
+        "name": "지속되는 한쪽 유방 변화",
+        "category": "safety_review_detail",
+        "description": "통증, 멍울, 피부 또는 유두 변화가 한쪽 유방에만 계속 나타나는지",
+        "usage": ["candidate_boost", "explanation_context"],
+        "rule_strength": "medium",
+    },
+    {
         "code": "breast_redness_warmth_with_fever",
         "name": "붉고 뜨거운 유방 부위와 발열",
         "category": "safety_review_detail",
@@ -1925,7 +2130,143 @@ CONTEXT_OPTIONS = [
     },
 ]
 
-CONTEXT_OPTIONS_BY_CODE = {context["code"]: context for context in CONTEXT_OPTIONS}
+
+def _build_ui_spec_context_options(existing_contexts: list[dict]):
+    existing_codes = {context["code"] for context in existing_contexts}
+    excluded_codes = _ui_spec_non_context_codes()
+    options = []
+    for code in _extract_ui_spec_context_codes():
+        if code in existing_codes or code in excluded_codes:
+            continue
+        options.append(
+            {
+                "code": code,
+                "name": _context_name_from_code(code),
+                "category": _infer_ui_spec_context_category(code),
+                "description": _context_description_from_code(code),
+                "usage": _infer_ui_spec_context_usage(code),
+                "rule_strength": _infer_ui_spec_context_rule_strength(code),
+            }
+        )
+        existing_codes.add(code)
+    return options
+
+
+def _extract_ui_spec_context_codes():
+    docs_dir = Path(__file__).resolve().parents[3] / "docs"
+    if not docs_dir.exists():
+        return []
+    target_heading = "구현 시 context code 후보"
+    codes = []
+    for path in sorted(docs_dir.glob("SYMPTOM_CHECKER_*_UI_SPEC.md")):
+        in_context_code_section = False
+        for line in path.read_text(encoding="utf-8-sig").splitlines():
+            if line.startswith("### "):
+                in_context_code_section = line[4:].strip() == target_heading
+                continue
+            if not (in_context_code_section and line.startswith("- ")):
+                continue
+            for code in _extract_backtick_values(line):
+                if _looks_like_context_code(code):
+                    codes.append(code)
+    seen = set()
+    deduped_codes = []
+    for code in codes:
+        if code in seen:
+            continue
+        seen.add(code)
+        deduped_codes.append(code)
+    return deduped_codes
+
+
+def _extract_backtick_values(value: str):
+    parts = value.split("`")
+    return [parts[index].strip() for index in range(1, len(parts), 2) if parts[index].strip()]
+
+
+def _looks_like_context_code(code: str):
+    return bool(code) and code[0].islower() and all(char.islower() or char.isdigit() or char == "_" for char in code)
+
+
+def _ui_spec_non_context_codes():
+    common_symptoms = globals().get("COMMON_SYMPTOMS", {})
+    if isinstance(common_symptoms, dict):
+        common_symptom_groups = common_symptoms.values()
+    else:
+        common_symptom_groups = [common_symptoms]
+    symptom_codes = {
+        symptom["code"]
+        for symptoms in globals().get("REGION_SYMPTOMS", {}).values()
+        for symptom in symptoms
+    }
+    body_region_codes = {region["id"] for region in globals().get("BODY_REGIONS", [])}
+    body_part_codes = {
+        part["id"]
+        for body_parts in globals().get("BODY_PARTS", {}).values()
+        for part in body_parts
+    }
+    common_symptom_codes = {
+        symptom["code"]
+        for symptoms in common_symptom_groups
+        for symptom in symptoms
+    }
+    return symptom_codes | common_symptom_codes | body_region_codes | body_part_codes
+
+
+def _context_name_from_code(code: str):
+    return code.replace("_", " ")
+
+
+def _context_description_from_code(code: str):
+    return f"UI spec에서 정의한 추가 확인 항목입니다: {code.replace('_', ' ')}"
+
+
+def _infer_ui_spec_context_category(code: str):
+    safety_tokens = [
+        "fever",
+        "blood",
+        "bloody",
+        "black_stool",
+        "vomiting",
+        "deformity",
+        "cannot",
+        "unable",
+        "weakness",
+        "numbness",
+        "retention",
+        "incontinence",
+        "syncope",
+        "shortness",
+        "chest_pain",
+        "severe",
+        "sudden",
+        "hot_red",
+        "spreading",
+        "confusion",
+        "lethargy",
+        "collapse",
+        "hemoptysis",
+    ]
+    injury_tokens = ["injury", "impact", "fall", "twist", "crush", "puncture", "wound", "bite", "blow", "trauma"]
+    lifestyle_tokens = ["sleep", "stress", "meal", "alcohol", "overwork", "screen", "contact_lens", "shoes"]
+    if any(token in code for token in safety_tokens):
+        return "safety_review_detail"
+    if any(token in code for token in injury_tokens):
+        return "injury"
+    if any(token in code for token in lifestyle_tokens):
+        return "lifestyle"
+    return "pattern"
+
+
+def _infer_ui_spec_context_usage(code: str):
+    category = _infer_ui_spec_context_category(code)
+    if category == "safety_review_detail":
+        return ["candidate_boost", "red_flag", "explanation_context"]
+    return ["candidate_boost", "explanation_context"]
+
+
+def _infer_ui_spec_context_rule_strength(code: str):
+    return "medium"
 
 
 REGION_CONTEXT_CHIPS = {
@@ -2478,6 +2819,29 @@ BODY_PART_CONTEXT_CHIP_CODES = {
     },
     "chest": {
         "upper_chest": [
+            "after_injury",
+            "recent_exercise",
+            "chest_wall_tenderness_or_movement_worsens",
+            "post_meal_or_lying_down_burning_with_reflux",
+            "cough_with_sputum_or_fever",
+            "wheezing_after_trigger",
+            "palpitation_with_dizziness_or_fainting",
+            "chest_pressure",
+            "radiating_left_arm_or_jaw_or_back",
+            "cold_sweat",
+            "persistent_pain",
+            "rest_chest_pain",
+            "exertional_chest_pain_relieved_by_rest",
+            "pleuritic_chest_pain",
+            "hemoptysis",
+            "sudden_unilateral_chest_pain_with_dyspnea",
+        ],
+        "sternum": [
+            "after_injury",
+            "direct_sternal_impact",
+            "chest_wall_tenderness_or_movement_worsens",
+            "post_meal_or_lying_down_burning_with_reflux",
+            "cough_with_sputum_or_fever",
             "chest_pressure",
             "radiating_left_arm_or_jaw_or_back",
             "cold_sweat",
@@ -2487,19 +2851,16 @@ BODY_PART_CONTEXT_CHIP_CODES = {
             "pleuritic_chest_pain",
             "hemoptysis",
         ],
-        "sternum": [
-            "chest_pressure",
-            "radiating_left_arm_or_jaw_or_back",
-            "cold_sweat",
-            "persistent_pain",
-            "rest_chest_pain",
-            "exertional_chest_pain_relieved_by_rest",
-        ],
         "breast": [
+            "new_bra_or_skin_product_exposure",
             "new_breast_lump",
+            "persistent_or_enlarging_breast_lump",
             "breast_redness_warmth_with_fever",
+            "purulent_nipple_or_skin_discharge",
             "bloody_nipple_discharge",
+            "nipple_inversion_or_shape_change",
             "skin_dimpling_or_orange_peel_change",
+            "persistent_one_sided_breast_change",
             "menstrual_cycle_related_breast_pain",
             "breastfeeding_or_recent_postpartum",
             "postmenopausal",
@@ -2863,12 +3224,12 @@ REGION_FOLLOW_UP_QUESTIONS = {
     ],
     "chest": [
         {
-            "id": "chest_pain_breathing",
-            "question": "가슴 통증과 함께 숨이 차거나 호흡이 어렵나요?",
+            "id": "chest_sudden_onset",
+            "question": "가슴 통증이나 불편감이 갑자기 시작됐나요?",
             "input_type": "single_select",
             "purpose": "red_flag",
             "options": [
-                {"code": "yes", "label": "예"},
+                {"code": "yes", "label": "예", "maps_to_context": "sudden_onset"},
                 {"code": "no", "label": "아니오"},
             ],
         },
@@ -2904,6 +3265,16 @@ REGION_FOLLOW_UP_QUESTIONS = {
             ],
         },
         {
+            "id": "chest_pain_breathing",
+            "question": "가슴 통증과 함께 숨이 차거나 호흡이 어렵나요?",
+            "input_type": "single_select",
+            "purpose": "red_flag",
+            "options": [
+                {"code": "yes", "label": "예"},
+                {"code": "no", "label": "아니오"},
+            ],
+        },
+        {
             "id": "chest_persistent_pain",
             "question": "가슴 통증이나 불편감이 몇 분 이상 지속되거나 반복되나요?",
             "input_type": "single_select",
@@ -2911,6 +3282,44 @@ REGION_FOLLOW_UP_QUESTIONS = {
             "options": [
                 {"code": "yes", "label": "예", "maps_to_context": "persistent_pain"},
                 {"code": "no", "label": "아니오"},
+            ],
+        },
+        {
+            "id": "chest_pleuritic_or_hemoptysis",
+            "question": "숨을 깊게 쉬거나 기침할 때 더 아프거나 피 섞인 가래가 나오나요?",
+            "input_type": "multi_select",
+            "purpose": "red_flag",
+            "options": [
+                {"code": "pleuritic", "label": "숨쉴 때 더 아픔", "maps_to_context": "pleuritic_chest_pain"},
+                {"code": "hemoptysis", "label": "피 섞인 가래", "maps_to_context": "hemoptysis"},
+            ],
+        },
+        {
+            "id": "chest_wall_or_reflux_pattern",
+            "question": "가슴 증상 양상에 해당하는 항목이 있나요?",
+            "input_type": "multi_select",
+            "purpose": "candidate_boost",
+            "options": [
+                {
+                    "code": "movement",
+                    "label": "누르거나 움직이면 더 아픔",
+                    "maps_to_context": "chest_wall_tenderness_or_movement_worsens",
+                },
+                {
+                    "code": "reflux",
+                    "label": "식후/누울 때 쓰림과 신물",
+                    "maps_to_context": "post_meal_or_lying_down_burning_with_reflux",
+                },
+                {
+                    "code": "cough",
+                    "label": "기침/가래 또는 발열",
+                    "maps_to_context": "cough_with_sputum_or_fever",
+                },
+                {
+                    "code": "wheezing",
+                    "label": "유발 상황 뒤 쌕쌕거림",
+                    "maps_to_context": "wheezing_after_trigger",
+                },
             ],
         },
         {
@@ -2922,6 +3331,16 @@ REGION_FOLLOW_UP_QUESTIONS = {
                 {"code": "recent_exercise", "label": "운동/활동 후", "maps_to_context": "recent_exercise"},
                 {"code": "stress", "label": "스트레스 상황", "maps_to_context": "stress"},
                 {"code": "after_injury", "label": "부딪힘/외상 후", "maps_to_context": "after_injury"},
+            ],
+        },
+        {
+            "id": "chest_sudden_unilateral_dyspnea",
+            "question": "한쪽 가슴이 갑자기 날카롭게 아프고 동시에 숨쉬기 힘들어졌나요?",
+            "input_type": "single_select",
+            "purpose": "red_flag",
+            "options": [
+                {"code": "yes", "label": "예", "maps_to_context": "sudden_unilateral_chest_pain_with_dyspnea"},
+                {"code": "no", "label": "아니오"},
             ],
         },
     ],
@@ -3145,34 +3564,211 @@ BODY_PART_FOLLOW_UP_QUESTIONS = {
         ],
     },
     "chest": {
-        "breast": [
+        "upper_chest": [
             {
-                "id": "new_breast_lump",
-                "question": "새로 만져지는 멍울이 계속 남아 있거나 커지는 것 같나요?",
+                "id": "upper_chest_sudden_or_persistent",
+                "question": "윗가슴 통증이나 답답함이 갑자기 시작됐거나 몇 분 이상 지속되나요?",
+                "input_type": "multi_select",
+                "purpose": "red_flag",
+                "options": [
+                    {"code": "sudden", "label": "갑자기 시작", "maps_to_context": "sudden_onset"},
+                    {"code": "persistent", "label": "몇 분 이상 지속/반복", "maps_to_context": "persistent_pain"},
+                ],
+            },
+            {
+                "id": "upper_chest_pressure_radiation_sweat",
+                "question": "윗가슴이 눌리거나 조이고, 왼팔/턱/등으로 퍼지거나 식은땀이 동반되나요?",
+                "input_type": "multi_select",
+                "purpose": "red_flag",
+                "options": [
+                    {"code": "pressure", "label": "눌리거나 조임", "maps_to_context": "chest_pressure"},
+                    {"code": "radiation", "label": "왼팔/턱/등으로 퍼짐", "maps_to_context": "radiating_left_arm_or_jaw_or_back"},
+                    {"code": "cold_sweat", "label": "식은땀/창백함", "maps_to_context": "cold_sweat"},
+                ],
+            },
+            {
+                "id": "upper_chest_exertional_pattern",
+                "question": "윗가슴이 활동할 때 아프거나 조이고 쉬면 줄어드나요?",
                 "input_type": "single_select",
                 "purpose": "candidate_boost",
                 "options": [
-                    {"code": "yes", "label": "예", "maps_to_context": "new_breast_lump"},
+                    {"code": "yes", "label": "예", "maps_to_context": "exertional_chest_pain_relieved_by_rest"},
                     {"code": "no", "label": "아니오"},
                 ],
             },
             {
+                "id": "upper_chest_wall_or_breathing_pattern",
+                "question": "누르거나 움직이면 더 아프거나, 깊게 숨쉬기/기침할 때 통증이 심해지나요?",
+                "input_type": "multi_select",
+                "purpose": "red_flag",
+                "options": [
+                    {
+                        "code": "movement",
+                        "label": "누르거나 움직이면 더 아픔",
+                        "maps_to_context": "chest_wall_tenderness_or_movement_worsens",
+                    },
+                    {"code": "pleuritic", "label": "숨쉬기/기침 때 더 아픔", "maps_to_context": "pleuritic_chest_pain"},
+                ],
+            },
+            {
+                "id": "upper_chest_reflux_or_airway_trigger",
+                "question": "윗가슴 증상이 식후/누울 때, 감기 뒤, 또는 찬 공기/먼지/운동 뒤 심해지나요?",
+                "input_type": "multi_select",
+                "purpose": "candidate_boost",
+                "options": [
+                    {
+                        "code": "reflux",
+                        "label": "식후/누울 때 쓰림과 신물",
+                        "maps_to_context": "post_meal_or_lying_down_burning_with_reflux",
+                    },
+                    {"code": "infection", "label": "감기 뒤 기침/가래/열", "maps_to_context": "cough_with_sputum_or_fever"},
+                    {"code": "wheezing", "label": "운동/찬 공기/알레르기 뒤 숨참", "maps_to_context": "wheezing_after_trigger"},
+                ],
+            },
+            {
+                "id": "upper_chest_palpitation_dizziness",
+                "question": "두근거림과 함께 어지럽거나 쓰러질 것 같은 느낌이 있나요?",
+                "input_type": "single_select",
+                "purpose": "candidate_boost",
+                "options": [
+                    {"code": "yes", "label": "예", "maps_to_context": "palpitation_with_dizziness_or_fainting"},
+                    {"code": "no", "label": "아니오"},
+                ],
+            },
+            {
+                "id": "upper_chest_pe_or_pneumothorax_safety",
+                "question": "한쪽 윗가슴이 갑자기 날카롭게 아프며 숨쉬기 힘들거나 피 섞인 가래가 나오나요?",
+                "input_type": "multi_select",
+                "purpose": "red_flag",
+                "options": [
+                    {
+                        "code": "sudden_unilateral",
+                        "label": "갑작스러운 한쪽 흉통과 숨참",
+                        "maps_to_context": "sudden_unilateral_chest_pain_with_dyspnea",
+                    },
+                    {"code": "hemoptysis", "label": "피 섞인 가래", "maps_to_context": "hemoptysis"},
+                ],
+            },
+        ],
+        "sternum": [
+            {
+                "id": "sternum_direct_impact",
+                "question": "차량 충격, 넘어짐 또는 가슴을 강하게 부딪힌 뒤 시작됐나요?",
+                "input_type": "single_select",
+                "purpose": "candidate_boost",
+                "options": [
+                    {"code": "yes", "label": "예", "maps_to_context": "direct_sternal_impact"},
+                    {"code": "no", "label": "아니오"},
+                ],
+            },
+            {
+                "id": "sternum_tenderness_or_movement",
+                "question": "흉골 부위를 누르거나 상체를 움직이면 더 아픈가요?",
+                "input_type": "single_select",
+                "purpose": "candidate_boost",
+                "options": [
+                    {"code": "yes", "label": "예", "maps_to_context": "chest_wall_tenderness_or_movement_worsens"},
+                    {"code": "no", "label": "아니오"},
+                ],
+            },
+            {
+                "id": "sternum_acs_safety",
+                "question": "흉골 중앙이 조이듯 아프고 왼팔/턱/등으로 퍼지거나 식은땀이 동반되나요?",
+                "input_type": "multi_select",
+                "purpose": "red_flag",
+                "options": [
+                    {"code": "pressure", "label": "눌리거나 조임", "maps_to_context": "chest_pressure"},
+                    {"code": "radiation", "label": "왼팔/턱/등으로 퍼짐", "maps_to_context": "radiating_left_arm_or_jaw_or_back"},
+                    {"code": "cold_sweat", "label": "식은땀/창백함", "maps_to_context": "cold_sweat"},
+                    {"code": "persistent", "label": "몇 분 이상 지속/반복", "maps_to_context": "persistent_pain"},
+                ],
+            },
+            {
+                "id": "sternum_exertional_or_rest_pressure",
+                "question": "걷거나 계단을 오를 때 심해지고 쉬면 줄어들거나, 쉬고 있어도 새 통증이 지속되나요?",
+                "input_type": "multi_select",
+                "purpose": "red_flag",
+                "options": [
+                    {"code": "exertional", "label": "활동 시 악화, 쉬면 완화", "maps_to_context": "exertional_chest_pain_relieved_by_rest"},
+                    {"code": "rest", "label": "쉬고 있어도 새 압박감", "maps_to_context": "rest_chest_pain"},
+                ],
+            },
+            {
+                "id": "sternum_reflux_cough_or_breathing_pattern",
+                "question": "식후/누울 때 쓰리거나, 기침/가래/열이 있거나, 숨쉴 때 통증이 심해지나요?",
+                "input_type": "multi_select",
+                "purpose": "candidate_boost",
+                "options": [
+                    {
+                        "code": "reflux",
+                        "label": "식후/누울 때 쓰림과 신물",
+                        "maps_to_context": "post_meal_or_lying_down_burning_with_reflux",
+                    },
+                    {"code": "infection", "label": "기침/가래 또는 발열", "maps_to_context": "cough_with_sputum_or_fever"},
+                    {"code": "pleuritic", "label": "숨쉬기/기침 때 더 아픔", "maps_to_context": "pleuritic_chest_pain"},
+                ],
+            },
+        ],
+        "breast": [
+            {
+                "id": "breast_chest_pain_safety",
+                "question": "유방 통증처럼 느껴지지만 가슴 압박감, 왼팔/턱/등으로 퍼짐, 식은땀이 함께 있나요?",
+                "input_type": "multi_select",
+                "purpose": "red_flag",
+                "options": [
+                    {"code": "pressure", "label": "가슴 압박감/조임", "maps_to_context": "chest_pressure"},
+                    {"code": "radiation", "label": "왼팔/턱/등으로 퍼짐", "maps_to_context": "radiating_left_arm_or_jaw_or_back"},
+                    {"code": "cold_sweat", "label": "식은땀/창백함", "maps_to_context": "cold_sweat"},
+                ],
+            },
+            {
+                "id": "breast_lump_pattern",
+                "question": "유방 멍울에 해당하는 항목이 있나요?",
+                "input_type": "multi_select",
+                "purpose": "candidate_boost",
+                "options": [
+                    {"code": "new", "label": "새로 만져지는 멍울", "maps_to_context": "new_breast_lump"},
+                    {"code": "persistent_or_growing", "label": "계속 남아 있거나 커짐", "maps_to_context": "persistent_or_enlarging_breast_lump"},
+                ],
+            },
+            {
                 "id": "breast_skin_or_nipple_warning_change",
-                "question": "피부가 움푹 들어가거나 오렌지껍질처럼 변했거나 피 섞인 유두 분비물이 있나요?",
+                "question": "피부/유두 변화나 분비물에 해당하는 항목이 있나요?",
                 "input_type": "multi_select",
                 "purpose": "candidate_boost",
                 "options": [
                     {"code": "skin_change", "label": "피부 함몰/오렌지껍질 변화", "maps_to_context": "skin_dimpling_or_orange_peel_change"},
                     {"code": "bloody_discharge", "label": "피 섞인 유두 분비물", "maps_to_context": "bloody_nipple_discharge"},
+                    {"code": "nipple_shape", "label": "새 유두 함몰/모양 변화", "maps_to_context": "nipple_inversion_or_shape_change"},
                 ],
             },
             {
                 "id": "breast_redness_fever",
-                "question": "붉고 뜨거운 부위와 함께 열이 나나요?",
+                "question": "붉고 뜨거운 부위와 함께 열이 나거나 고름이 나오나요?",
+                "input_type": "multi_select",
+                "purpose": "candidate_boost",
+                "options": [
+                    {"code": "fever", "label": "발열/열감", "maps_to_context": "breast_redness_warmth_with_fever"},
+                    {"code": "pus", "label": "고름성 분비물", "maps_to_context": "purulent_nipple_or_skin_discharge"},
+                ],
+            },
+            {
+                "id": "breast_skin_product_exposure",
+                "question": "새 속옷, 패치, 세정제, 보습제 또는 화장품 사용 뒤 피부 증상이 시작됐나요?",
                 "input_type": "single_select",
                 "purpose": "candidate_boost",
                 "options": [
-                    {"code": "yes", "label": "예", "maps_to_context": "breast_redness_warmth_with_fever"},
+                    {"code": "yes", "label": "예", "maps_to_context": "new_bra_or_skin_product_exposure"},
+                    {"code": "no", "label": "아니오"},
+                ],
+            },
+            {
+                "id": "persistent_one_sided_breast_change",
+                "question": "통증, 멍울 또는 피부/유두 변화가 한쪽 유방에만 계속 나타나나요?",
+                "input_type": "single_select",
+                "purpose": "candidate_boost",
+                "options": [
+                    {"code": "yes", "label": "예", "maps_to_context": "persistent_one_sided_breast_change"},
                     {"code": "no", "label": "아니오"},
                 ],
             },
@@ -3515,6 +4111,10 @@ REGION_SYMPTOMS = {
         {"code": "neck_stiffness", "name": "목 경직", "supports_severity": True, "supports_duration": True},
     ],
 }
+
+
+CONTEXT_OPTIONS = [*CONTEXT_OPTIONS, *_build_ui_spec_context_options(CONTEXT_OPTIONS)]
+CONTEXT_OPTIONS_BY_CODE = {context["code"]: context for context in CONTEXT_OPTIONS}
 
 
 BODY_PART_SYMPTOM_CODES = {
@@ -4073,10 +4673,47 @@ SPEC_RULE_UPDATES = {
     },
     "reflux_related_chest_discomfort": {
         "optional_symptoms": ["burning_sensation", "pressure_sensation"],
+        "boosting_contexts": ["post_meal_or_lying_down_burning_with_reflux"],
         "reasons": {
             "burning_sensation": "화끈거림",
             "pressure_sensation": "압박감",
+            "post_meal_or_lying_down_burning_with_reflux": "식후 또는 누울 때 심해지는 쓰림과 신물",
         },
+    },
+    "bronchitis_like_illness": {
+        "boosting_contexts": ["cough_with_sputum_or_fever"],
+        "reasons": {"cough_with_sputum_or_fever": "기침, 가래 또는 발열 동반"},
+    },
+    "pneumonia_candidate": {
+        "boosting_contexts": ["cough_with_sputum_or_fever", "pleuritic_chest_pain"],
+        "reasons": {
+            "cough_with_sputum_or_fever": "기침, 가래 또는 발열 동반",
+            "pleuritic_chest_pain": "숨쉴 때 심해지는 흉통",
+        },
+    },
+    "bronchospasm_asthma_exacerbation": {
+        "boosting_contexts": ["wheezing_after_trigger"],
+        "reasons": {"wheezing_after_trigger": "운동, 찬 공기, 먼지 또는 알레르기 노출 뒤 숨참/쌕쌕거림"},
+    },
+    "asthma_like_airway_symptom_candidate": {
+        "boosting_contexts": ["wheezing_after_trigger"],
+        "reasons": {"wheezing_after_trigger": "운동, 찬 공기, 먼지 또는 알레르기 노출 뒤 숨참/쌕쌕거림"},
+    },
+    "arrhythmia_candidate": {
+        "boosting_contexts": ["palpitation_with_dizziness_or_fainting"],
+        "reasons": {"palpitation_with_dizziness_or_fainting": "두근거림과 어지러움 또는 실신감"},
+    },
+    "chest_wall_pain": {
+        "boosting_contexts": ["chest_wall_tenderness_or_movement_worsens"],
+        "reasons": {"chest_wall_tenderness_or_movement_worsens": "누르거나 움직이면 심해지는 가슴 통증"},
+    },
+    "costochondritis_candidate": {
+        "boosting_contexts": ["chest_wall_tenderness_or_movement_worsens"],
+        "reasons": {"chest_wall_tenderness_or_movement_worsens": "누르거나 움직이면 심해지는 앞가슴 통증"},
+    },
+    "rib_contusion_or_injury": {
+        "boosting_contexts": ["chest_wall_tenderness_or_movement_worsens"],
+        "reasons": {"chest_wall_tenderness_or_movement_worsens": "누르거나 움직이면 심해지는 흉벽 통증"},
     },
     "indigestion_dyspepsia": {
         "optional_symptoms": ["burning_sensation", "pressure_sensation"],
@@ -4174,6 +4811,70 @@ SPEC_CONDITION_RULES = [
         "age_sex_applicability": {"age_min": 50, "effect": "ranking_boost_only"},
     },
     {
+        "rule_id": "rule_angina_candidate",
+        "condition_code": "angina_candidate",
+        "condition_name": "협심증 가능성",
+        "region": "chest",
+        "body_parts": ["upper_chest", "sternum", "center_chest"],
+        "required_symptoms": ["pain"],
+        "optional_symptoms": ["pressure_sensation", "shortness_of_breath"],
+        "boosting_contexts": [
+            "exertional_chest_pain_relieved_by_rest",
+            "chest_pressure",
+            "radiating_left_arm_or_jaw_or_back",
+            "cold_sweat",
+            "cardiovascular_risk_age_band",
+        ],
+        "min_boosting_context_matches": 1,
+        "reasons": {
+            "pain": "가슴 또는 흉골 부위 통증",
+            "pressure_sensation": "압박감/조임",
+            "shortness_of_breath": "숨참 또는 호흡곤란",
+            "exertional_chest_pain_relieved_by_rest": "활동 시 악화되고 쉬면 줄어드는 흉통",
+            "chest_pressure": "눌리거나 조이는 가슴 통증",
+            "radiating_left_arm_or_jaw_or_back": "왼팔, 턱 또는 등으로 퍼지는 통증",
+            "cold_sweat": "식은땀 또는 창백함",
+            "cardiovascular_risk_age_band": "심장성 증상 evidence가 있을 때만 쓰는 연령/등록 성별 보조 맥락",
+        },
+        "summary": "활동 시 조이거나 압박되는 가슴 통증이 쉬면 줄어드는 양상일 때 협심증 관련 정보를 참고 후보로 표시합니다.",
+        "reference_links": [
+            {
+                "title": "Angina (Chest Pain)",
+                "url": "https://www.heart.org/en/health-topics/heart-attack/angina-chest-pain",
+                "source": "American Heart Association",
+            },
+        ],
+        "ranking_priority": 12,
+        "age_sex_applicability": {"age_min": 45, "effect": "ranking_boost_only"},
+    },
+    {
+        "rule_id": "rule_sternal_contusion_or_fracture_candidate",
+        "condition_code": "sternal_contusion_or_fracture_candidate",
+        "condition_name": "가슴뼈 타박상/골절(흉골 손상) 가능성",
+        "region": "chest",
+        "body_parts": ["sternum"],
+        "required_symptoms": ["pain"],
+        "optional_symptoms": ["swelling"],
+        "boosting_contexts": ["direct_sternal_impact", "chest_wall_tenderness_or_movement_worsens", "after_injury"],
+        "min_boosting_context_matches": 1,
+        "reasons": {
+            "pain": "흉골 중앙 통증",
+            "swelling": "붓기 또는 멍",
+            "direct_sternal_impact": "차량 충격, 넘어짐 또는 강한 압박 뒤 시작",
+            "chest_wall_tenderness_or_movement_worsens": "누르거나 움직이면 심해지는 흉골 통증",
+            "after_injury": "외상 후 발생",
+        },
+        "summary": "흉골 중앙을 직접 다친 뒤 통증이 지속되거나 누르면 심해질 때 참고 후보로 표시합니다.",
+        "reference_links": [
+            {
+                "title": "Chest injuries and disorders",
+                "url": "https://medlineplus.gov/chestinjuriesanddisorders.html",
+                "source": "MedlinePlus",
+            },
+        ],
+        "ranking_priority": 18,
+    },
+    {
         "rule_id": "rule_cyclic_mastalgia_candidate",
         "condition_code": "cyclic_mastalgia_candidate",
         "condition_name": "주기성 유방통 가능성",
@@ -4231,14 +4932,26 @@ SPEC_CONDITION_RULES = [
         "body_parts": ["breast"],
         "required_symptoms": ["breast_lump"],
         "optional_symptoms": ["nipple_discharge", "breast_skin_or_nipple_change"],
-        "boosting_contexts": ["new_breast_lump", "bloody_nipple_discharge", "skin_dimpling_or_orange_peel_change"],
+        "boosting_contexts": [
+            "new_breast_lump",
+            "persistent_or_enlarging_breast_lump",
+            "bloody_nipple_discharge",
+            "nipple_inversion_or_shape_change",
+            "skin_dimpling_or_orange_peel_change",
+            "persistent_one_sided_breast_change",
+            "postmenopausal",
+        ],
         "reasons": {
             "breast_lump": "유방 멍울",
             "nipple_discharge": "유두 분비물",
             "breast_skin_or_nipple_change": "유방 피부 또는 유두 변화",
             "new_breast_lump": "새로 만져지는 멍울",
+            "persistent_or_enlarging_breast_lump": "지속되거나 커지는 멍울",
             "bloody_nipple_discharge": "피 섞인 유두 분비물",
+            "nipple_inversion_or_shape_change": "새 유두 함몰 또는 모양 변화",
             "skin_dimpling_or_orange_peel_change": "피부 함몰 또는 오렌지껍질 변화",
+            "persistent_one_sided_breast_change": "지속되는 한쪽 유방 변화",
+            "postmenopausal": "폐경 이후 새 유방 변화",
         },
         "summary": "새 멍울 또는 피부/유두 변화가 입력된 경우 진료 확인이 필요한 정보를 표시합니다.",
         "reference_links": [
@@ -4542,10 +5255,36 @@ def get_context_guide(region_id: str, body_part_id: str | None = None):
             "examples": region_examples,
         }
 
-    follow_up_questions = [
-        *REGION_FOLLOW_UP_QUESTIONS.get(region_id, []),
-        *BODY_PART_FOLLOW_UP_QUESTIONS.get(region_id, {}).get(body_part_id, []),
-    ]
+    body_part_questions = BODY_PART_FOLLOW_UP_QUESTIONS.get(region_id, {}).get(body_part_id, [])
+    generated_questions = []
+    if body_part_id and not (region_id == "chest" and body_part_questions):
+        generated_questions = _build_ui_spec_follow_up_questions(
+            region_id,
+            body_part_id,
+            context_chips,
+        )
+        if not generated_questions and not body_part_questions:
+            generated_questions = _build_body_part_follow_up_questions_from_context_chips(
+                region_id,
+                body_part_id,
+                context_chips,
+            )
+    if body_part_id and (body_part_questions or generated_questions):
+        follow_up_questions = [*generated_questions, *body_part_questions]
+    else:
+        follow_up_questions = [
+            *REGION_FOLLOW_UP_QUESTIONS.get(region_id, []),
+            *body_part_questions,
+        ]
+    context_chips = _filter_context_chips_overlapping_follow_up_questions(
+        context_chips,
+        follow_up_questions,
+    )
+    follow_up_questions = _dedupe_follow_up_questions_for_context(
+        follow_up_questions,
+        context_chips,
+        suppress_common_quick_contexts=not bool(generated_questions),
+    )
 
     return {
         "region_id": region_id,
@@ -4557,6 +5296,455 @@ def get_context_guide(region_id: str, body_part_id: str | None = None):
         "free_text_sections": free_text_sections,
         "follow_up_questions": follow_up_questions,
     }
+
+
+def _build_ui_spec_follow_up_questions(region_id: str, body_part_id: str, context_chips: list[dict]):
+    spec_config = UI_SPEC_BODY_PART_SECTIONS.get((region_id, body_part_id))
+    if spec_config is None:
+        return []
+    filename, section_title = spec_config
+    spec_section = _load_ui_spec_section(filename, section_title)
+    if not spec_section:
+        return []
+
+    context_codes = []
+    for code in spec_section.get("context_codes", []):
+        if code in CONTEXT_OPTIONS_BY_CODE and code not in context_codes:
+            context_codes.append(code)
+    for context in context_chips:
+        code = context.get("code")
+        if code in CONTEXT_OPTIONS_BY_CODE and code not in context_codes:
+            context_codes.append(code)
+
+    evidence_contexts = _build_ui_spec_evidence_context_map(spec_section, context_codes)
+    ordered_evidence_contexts = list(evidence_contexts.values())
+    assigned_question_contexts: set[str] = set()
+    questions = []
+    for group, purpose in [
+        ("시작 계기", "candidate_boost"),
+        ("시작 양상", "candidate_boost"),
+        ("악화 양상", "candidate_boost"),
+        ("안전 확인", "red_flag"),
+    ]:
+        group_items = spec_section.get(group, [])
+        question_labels = [item for item in group_items if item.endswith("?")]
+        if not question_labels:
+            continue
+        grouped_options = []
+        for question_index, question_label in enumerate(question_labels, start=1):
+            choice_labels = _ui_spec_choice_labels_after_question(group_items, question_label)
+            if choice_labels:
+                options = _build_ui_spec_choice_options(choice_labels, context_codes)
+                if options:
+                    questions.append(
+                        {
+                            "id": f"{region_id}_{body_part_id}_{_ui_spec_slug(group)}_{question_index}_spec",
+                            "question": question_label,
+                            "input_type": "single_select",
+                            "purpose": purpose,
+                            "options": options,
+                            "generated_from_ui_spec": True,
+                        }
+                    )
+                continue
+            mapped_context = (
+                evidence_contexts.get(_normalize_follow_up_text(question_label))
+                or (
+                    _best_ui_spec_context_for_label(question_label, context_codes, assigned_question_contexts)
+                    if purpose == "red_flag"
+                    else None
+                )
+                or _best_common_quick_context_for_label(question_label, context_codes, assigned_question_contexts)
+                or _next_unassigned_ui_spec_context(ordered_evidence_contexts, assigned_question_contexts)
+            )
+            if mapped_context:
+                assigned_question_contexts.add(mapped_context)
+            grouped_options.append(
+                {
+                    "code": f"{_ui_spec_slug(group)}_{question_index}",
+                    "label": question_label,
+                    "maps_to_context": mapped_context,
+                }
+            )
+        if grouped_options:
+            questions.append(
+                {
+                    "id": f"{region_id}_{body_part_id}_{_ui_spec_slug(group)}_spec",
+                    "question": _ui_spec_group_question(group),
+                    "input_type": "multi_select",
+                    "purpose": purpose,
+                    "options": grouped_options,
+                    "generated_from_ui_spec": True,
+                }
+            )
+    return questions
+
+
+def _next_unassigned_ui_spec_context(context_codes: list[str], assigned_contexts: set[str]):
+    for code in context_codes:
+        if code in COMMON_QUICK_CONTEXT_CODES:
+            continue
+        if code not in assigned_contexts:
+            return code
+    for code in context_codes:
+        if code not in assigned_contexts:
+            return code
+    return None
+
+
+def _build_ui_spec_evidence_context_map(spec_section: dict, context_codes: list[str]):
+    mapping: dict[str, str] = {}
+    for index, line in enumerate(spec_section.get("질문별 evidence 매핑", [])):
+        question_text = line.split("->", 1)[0].strip()
+        if not question_text or index >= len(context_codes):
+            continue
+        mapping[_normalize_follow_up_text(question_text)] = context_codes[index]
+    return mapping
+
+
+def _best_ui_spec_context_for_label(label: str, context_codes: list[str], used_codes: set[str]):
+    scored_codes = [
+        (_ui_spec_context_label_score(label, code), index, code)
+        for index, code in enumerate(context_codes)
+        if code not in used_codes
+    ]
+    scored_codes = [item for item in scored_codes if item[0] > 0]
+    if not scored_codes:
+        return None
+    scored_codes.sort(key=lambda item: (-item[0], item[1]))
+    return scored_codes[0][2]
+
+
+def _best_common_quick_context_for_label(label: str, context_codes: list[str], used_codes: set[str]):
+    context_code = _best_ui_spec_context_for_label(
+        label,
+        [code for code in context_codes if code in COMMON_QUICK_CONTEXT_CODES],
+        used_codes,
+    )
+    return context_code
+
+
+def _ui_spec_context_label_score(label: str, context_code: str):
+    normalized_label = _normalize_follow_up_text(label)
+    score = 0
+    context = CONTEXT_OPTIONS_BY_CODE.get(context_code, {})
+    for text in [context.get("name"), context.get("description")]:
+        normalized_text = _normalize_follow_up_text(text)
+        if normalized_text and normalized_text in normalized_label:
+            score += 4
+    alias_patterns = list(STRUCTURED_INPUT_ALIAS_HINTS.get(context_code, []))
+    for alias_code, patterns in STRUCTURED_INPUT_ALIAS_HINTS.items():
+        if alias_code != context_code and alias_code in context_code:
+            alias_patterns.extend(patterns)
+    for pattern in alias_patterns:
+        normalized_pattern = _normalize_follow_up_text(pattern)
+        if normalized_pattern and normalized_pattern in normalized_label:
+            score += 3 + min(len(normalized_pattern), 8) / 10
+    return score
+
+
+def _ui_spec_choice_labels_after_question(group_items: list[str], question_label: str):
+    try:
+        start_index = group_items.index(question_label) + 1
+    except ValueError:
+        return []
+    choices = []
+    for item in group_items[start_index:]:
+        if item.endswith("?"):
+            break
+        choices.append(item)
+    return choices
+
+
+def _build_ui_spec_choice_options(choice_labels: list[str], context_codes: list[str]):
+    onset_codes = [code for code in context_codes if code in {"sudden_onset", "gradual_onset"}]
+    options = []
+    onset_index = 0
+    for option_index, label in enumerate(choice_labels, start=1):
+        mapped_context = None
+        if _is_negative_follow_up_label(label):
+            mapped_context = None
+        elif onset_index < len(onset_codes):
+            mapped_context = onset_codes[onset_index]
+            onset_index += 1
+        options.append(
+            {
+                "code": f"choice_{option_index}",
+                "label": label,
+                "maps_to_context": mapped_context,
+            }
+        )
+    return options
+
+
+def _is_negative_follow_up_label(label: object):
+    normalized = _normalize_follow_up_text(label)
+    return normalized in {"아니오", "해당없음", "없음", "잘모르겠음", "모르겠음"}
+
+
+def _load_ui_spec_section(filename: str, section_title: str):
+    path = _repo_root() / "docs" / filename
+    if not path.exists():
+        return {}
+    text = path.read_text(encoding="utf-8-sig")
+    current_section = None
+    current_subsection = None
+    sections: dict[str, dict] = {}
+    for line in text.splitlines():
+        if line.startswith("## ") and not line.startswith("###"):
+            current_section = line[3:].strip()
+            current_subsection = None
+            sections.setdefault(current_section, {})
+            continue
+        if line.startswith("### "):
+            current_subsection = line[4:].strip()
+            if current_section:
+                sections.setdefault(current_section, {}).setdefault(current_subsection, [])
+            continue
+        if not (current_section and current_subsection):
+            continue
+        if line.startswith("- "):
+            value = line[2:].strip()
+            if current_subsection == "구현 시 context code 후보":
+                code = _extract_context_code_from_spec_line(value)
+                if code:
+                    sections[current_section].setdefault("context_codes", []).append(code)
+            else:
+                sections[current_section].setdefault(current_subsection, []).append(value)
+    return sections.get(section_title, {})
+
+
+def _extract_context_code_from_spec_line(value: str):
+    if "`" not in value:
+        return None
+    parts = value.split("`")
+    return parts[1].strip() if len(parts) >= 3 else None
+
+
+def _ui_spec_group_question(group: str):
+    return {
+        "시작 계기": "증상이 시작되기 전 해당되는 상황이 있나요?",
+        "시작 양상": "증상이 시작되거나 나타나는 양상에 해당하는 항목이 있나요?",
+        "악화 양상": "증상이 더 심해지는 상황이 있나요?",
+        "안전 확인": "안전 확인에 해당하는 항목이 있나요?",
+    }.get(group, "해당되는 항목이 있나요?")
+
+
+def _ui_spec_slug(value: str):
+    return {
+        "시작 계기": "trigger",
+        "시작 양상": "onset_pattern",
+        "악화 양상": "worsening_pattern",
+        "안전 확인": "safety",
+    }.get(value, "question")
+
+
+def _repo_root():
+    return Path(__file__).resolve().parents[3]
+
+
+def _filter_context_chips_overlapping_follow_up_questions(context_chips: list[dict], follow_up_questions: list[dict]):
+    follow_up_context_codes = {
+        option.get("maps_to_context")
+        for question in follow_up_questions
+        for option in question.get("options", [])
+        if option.get("maps_to_context")
+    }
+    filtered_chips = [chip for chip in context_chips if chip.get("code") not in follow_up_context_codes]
+    return [
+        {**chip, "display_priority": display_priority}
+        for display_priority, chip in enumerate(filtered_chips, start=1)
+    ]
+
+
+def _build_body_part_follow_up_questions_from_context_chips(
+    region_id: str,
+    body_part_id: str,
+    context_chips: list[dict],
+):
+    grouped_contexts: dict[str, list[dict]] = {
+        "safety": [],
+        "pattern": [],
+        "injury": [],
+        "lifestyle": [],
+        "other": [],
+    }
+    for context in context_chips:
+        group = context.get("display_group") or _context_display_group(context)
+        if group not in grouped_contexts:
+            group = "other"
+        grouped_contexts[group].append(context)
+
+    questions = []
+    for group in ["safety", "pattern", "injury", "lifestyle", "other"]:
+        contexts = grouped_contexts[group]
+        if not contexts:
+            continue
+        question_id = f"{region_id}_{body_part_id}_{group}_context"
+        questions.append(
+            {
+                "id": question_id,
+                "question": _generated_follow_up_question_label(group),
+                "input_type": "multi_select",
+                "purpose": _generated_follow_up_question_purpose(contexts),
+                "options": [
+                    {
+                        "code": context["code"],
+                        "label": context["name"],
+                        "maps_to_context": context["code"],
+                    }
+                    for context in contexts[:4]
+                ],
+                "generated_from_context_chips": True,
+            }
+        )
+    return questions
+
+
+def _generated_follow_up_question_label(group: str):
+    return {
+        "safety": "안전 확인에 해당하는 항목이 있나요?",
+        "pattern": "증상 특징에 해당하는 항목이 있나요?",
+        "injury": "외상이나 활동 관련 항목이 있나요?",
+        "lifestyle": "생활/상황 요인에 해당하는 항목이 있나요?",
+        "other": "추가로 해당되는 항목이 있나요?",
+    }.get(group, "추가로 해당되는 항목이 있나요?")
+
+
+def _generated_follow_up_question_purpose(contexts: list[dict]):
+    if any("red_flag" in context.get("usage", []) for context in contexts):
+        return "red_flag"
+    if any("candidate_boost" in context.get("usage", []) for context in contexts):
+        return "candidate_boost"
+    return "explanation_context"
+
+
+def _dedupe_follow_up_questions_for_context(
+    follow_up_questions: list[dict],
+    context_chips: list[dict],
+    max_questions: int = MAX_CONTEXT_GUIDE_FOLLOW_UP_QUESTIONS,
+    suppress_common_quick_contexts: bool = True,
+):
+    shown_context_codes = {chip["code"] for chip in context_chips}
+    if suppress_common_quick_contexts:
+        shown_context_codes.update(COMMON_QUICK_CONTEXT_CODES)
+    question_ids = set()
+    signatures = set()
+    deduped_questions = []
+
+    for original_index, question in enumerate(follow_up_questions):
+        question_id = question.get("id")
+        if question_id in question_ids:
+            continue
+        question_ids.add(question_id)
+
+        options = _dedupe_follow_up_options(question.get("options", []), shown_context_codes)
+        if not options:
+            continue
+        if not _has_meaningful_follow_up_option(options):
+            continue
+
+        signature = _follow_up_question_signature({**question, "options": options})
+        if signature in signatures:
+            continue
+        signatures.add(signature)
+        deduped_questions.append({**question, "options": options, "_display_index": original_index})
+        shown_context_codes.update(
+            option.get("maps_to_context")
+            for option in options
+            if option.get("maps_to_context")
+        )
+
+    deduped_questions.sort(
+        key=lambda question: (
+            _follow_up_question_priority(question),
+            question.get("_display_index", 0),
+        )
+    )
+    return [
+        {key: value for key, value in question.items() if key != "_display_index"}
+        for question in deduped_questions[:max_questions]
+    ]
+
+
+def _follow_up_question_priority(question: dict):
+    if question.get("show_if_contexts") or question.get("show_if_symptoms") or question.get("min_age") is not None:
+        return 0
+    if question.get("purpose") == "red_flag":
+        return 1
+    return 2
+
+
+def _dedupe_follow_up_options(options: list[dict], shown_context_codes: set[str]):
+    deduped_options = []
+    mapped_option_indexes = {}
+    seen_option_signatures = set()
+    for option in options:
+        mapped_context = option.get("maps_to_context")
+        if mapped_context in shown_context_codes:
+            continue
+        if mapped_context and mapped_context in mapped_option_indexes:
+            existing = deduped_options[mapped_option_indexes[mapped_context]]
+            existing_labels = _split_combined_follow_up_label(existing.get("label"))
+            label = str(option.get("label") or "").strip()
+            if label and label not in existing_labels:
+                existing["label"] = "/".join([*existing_labels, label])
+            continue
+        signature = (
+            mapped_context or "",
+            _normalize_follow_up_text(option.get("label")),
+        )
+        if signature in seen_option_signatures:
+            continue
+        seen_option_signatures.add(signature)
+        deduped_options.append(option.copy())
+        if mapped_context:
+            mapped_option_indexes[mapped_context] = len(deduped_options) - 1
+    return deduped_options
+
+
+def _split_combined_follow_up_label(label: object):
+    return [part.strip() for part in str(label or "").split("/") if part.strip()]
+
+
+def _has_meaningful_follow_up_option(options: list[dict]):
+    return any(not _is_negative_follow_up_option(option) for option in options)
+
+
+def _is_negative_follow_up_option(option: dict):
+    code = _normalize_follow_up_text(option.get("code"))
+    label = _normalize_follow_up_text(option.get("label"))
+    return code in {"no", "none", "notapplicable"} or label in {"아니오", "해당없음", "없음"}
+
+
+def _follow_up_question_signature(question: dict):
+    mapped_contexts = sorted(
+        option.get("maps_to_context")
+        for option in question.get("options", [])
+        if option.get("maps_to_context")
+    )
+    if mapped_contexts:
+        return "|".join(mapped_contexts)
+    return _normalize_follow_up_text(question.get("question"))
+
+
+def _normalize_follow_up_text(value: object):
+    return (
+        str(value or "")
+        .lower()
+        .replace(" ", "")
+        .replace("\t", "")
+        .replace("\n", "")
+        .replace("·", "")
+        .replace("/", "")
+        .replace("-", "")
+        .replace("_", "")
+        .replace("(", "")
+        .replace(")", "")
+        .replace("[", "")
+        .replace("]", "")
+        .strip()
+    )
 
 
 def get_region_options(region_id: str, body_part_id: str | None = None):
@@ -5162,6 +6350,427 @@ def attach_gemini_explanation_to_assessment(rule_result: dict):
     }
 
 
+def build_medical_rag_query_from_assessment(rule_result: dict) -> str:
+    input_analysis = rule_result.get("input_analysis", {})
+    profile = rule_result.get("profile", {})
+    body_region = input_analysis.get("body_region")
+    body_part = input_analysis.get("body_part")
+    query_parts = [
+        "인체 UI 기반 증상 평가의 관련 질환 참고 문서를 찾아주세요.",
+        _body_region_name(body_region),
+        _body_part_name(body_region, body_part),
+        _profile_summary_for_medical_rag(profile),
+    ]
+
+    symptom_labels = [
+        _symptom_name(body_region, code)
+        for code in input_analysis.get("merged_symptom_codes", [])
+    ]
+    context_labels = [
+        _context_name(code)
+        for code in input_analysis.get("merged_context_codes", [])
+    ]
+    if symptom_labels:
+        query_parts.append("증상: " + ", ".join(symptom_labels))
+    if context_labels:
+        query_parts.append("추가 단서: " + ", ".join(context_labels))
+    if input_analysis.get("free_text"):
+        query_parts.append("사용자 설명: " + str(input_analysis["free_text"]))
+
+    for red_flag in rule_result.get("red_flags", [])[:3]:
+        query_parts.append(
+            "안전 확인 신호: "
+            + " ".join(
+                str(value)
+                for value in [
+                    red_flag.get("message"),
+                    red_flag.get("reason"),
+                    ", ".join(red_flag.get("triggered_by", [])),
+                ]
+                if value
+            )
+        )
+
+    for candidate in rule_result.get("candidates", [])[:5]:
+        query_parts.append(
+            "기존 rule 후보: "
+            + " ".join(
+                str(value)
+                for value in [
+                    candidate.get("condition_name"),
+                    candidate.get("summary"),
+                    ", ".join(candidate.get("matched_reasons", [])),
+                ]
+                if value
+            )
+        )
+
+    return " / ".join(part for part in query_parts if part).strip()
+
+
+def attach_medical_rag_related_conditions_to_assessment(rule_result: dict, top_k: int = MAX_MEDICAL_RAG_RELATED_CONDITIONS):
+    query = build_medical_rag_query_from_assessment(rule_result)
+    retrieval_top_k = max(top_k * 3, 10)
+    metadata = _medical_rag_metadata(
+        used=False,
+        query=query,
+        top_k=top_k,
+        retrieval_top_k=retrieval_top_k,
+    )
+
+    if not MEDICAL_RAG_ENABLED:
+        return _assessment_with_medical_rag(rule_result, [], {**metadata, "fallback_reason": "medical_rag_disabled"})
+    if not query:
+        return _assessment_with_medical_rag(rule_result, [], {**metadata, "fallback_reason": "empty_medical_rag_query"})
+
+    try:
+        from app.services import medical_rag_service
+
+        documents = medical_rag_service.retrieve_documents(query=query, top_k=retrieval_top_k)
+    except Exception as exc:
+        logger.warning("Medical RAG related condition retrieval failed: %s", exc)
+        return _assessment_with_medical_rag(
+            rule_result,
+            [],
+            {
+                **metadata,
+                "fallback_reason": "medical_rag_error",
+                "error_type": type(exc).__name__,
+            },
+        )
+
+    related_conditions = _medical_rag_documents_to_related_conditions(documents)
+    return _assessment_with_medical_rag(
+        rule_result,
+        related_conditions,
+        {**metadata, "used": True, "fallback_reason": None},
+    )
+
+
+def _assessment_with_medical_rag(rule_result: dict, related_conditions: list[dict], metadata: dict):
+    display_candidates = _build_display_candidates(
+        rule_result.get("candidates", []),
+        related_conditions,
+    )
+    return {
+        **_copy_json_compatible(rule_result),
+        "display_candidates": display_candidates,
+        "rag_related_conditions": related_conditions,
+        "medical_rag_metadata": {
+            **metadata,
+            "related_condition_count": len(related_conditions),
+            "display_candidate_count": len(display_candidates),
+            "used_for_display_ranking": bool(related_conditions),
+        },
+    }
+
+
+def _medical_rag_metadata(
+    used: bool,
+    query: str | None,
+    top_k: int,
+    fallback_reason: str | None = None,
+    retrieval_top_k: int | None = None,
+):
+    return {
+        "enabled": bool(MEDICAL_RAG_ENABLED),
+        "used": used,
+        "fallback_reason": fallback_reason,
+        "error_type": None,
+        "query": query,
+        "top_k": top_k,
+        "retrieval_top_k": retrieval_top_k if retrieval_top_k is not None else top_k,
+        "related_condition_count": 0,
+        "display_candidate_count": 0,
+        "source_policy": "kdca_nhs_mayo_retrieval_only",
+        "used_for_main_ranking": False,
+        "used_for_display_ranking": False,
+    }
+
+
+def _build_display_candidates(rule_candidates: list[dict], rag_related_conditions: list[dict]):
+    merged: dict[str, dict] = {}
+
+    for candidate in rule_candidates:
+        title = _optional_text(candidate.get("condition_name")) or _optional_text(candidate.get("condition_code"))
+        if not title:
+            continue
+        key = _display_candidate_key(title)
+        confidence = candidate.get("confidence")
+        rule_score = {
+            "high": 0.78,
+            "medium": 0.62,
+            "low": 0.46,
+        }.get(confidence, 0.5)
+        rule_score += min(len(candidate.get("matched_reasons", [])) * 0.03, 0.12)
+        if confidence != "high" and _is_generic_rule_display_candidate(candidate):
+            rule_score = min(rule_score - 0.12, 0.58)
+        item = merged.setdefault(key, _empty_display_candidate(title))
+        item["title"] = title
+        item["summary"] = _optional_text(candidate.get("summary")) or item["summary"]
+        item["display_score"] += rule_score
+        item["evidence_sources"].add("rule")
+        item["matched_reasons"].extend(candidate.get("matched_reasons", []))
+        item["next_steps"].append(_optional_text(candidate.get("suggested_action")) or DEFAULT_ACTION)
+
+    for rag_condition in rag_related_conditions:
+        distance = rag_condition.get("distance")
+        title = (
+            _optional_text(rag_condition.get("display_name"))
+            or _optional_text(rag_condition.get("condition_name"))
+            or _optional_text(rag_condition.get("topic"))
+            or _optional_text(rag_condition.get("title"))
+        )
+        if not title:
+            continue
+        key = _display_candidate_key(title)
+        rag_score = _rag_display_score(distance)
+        item = merged.setdefault(key, _empty_display_candidate(title))
+        if "rule" not in item["evidence_sources"]:
+            item["summary"] = _optional_text(rag_condition.get("summary")) or item["summary"]
+        item["display_score"] += rag_score
+        item["evidence_sources"].add("medical_rag")
+        item["rag_evidence"].append(rag_condition)
+
+    display_candidates = []
+    for item in merged.values():
+        evidence_sources = sorted(
+            item["evidence_sources"],
+            key=lambda source: {"rule": 0, "medical_rag": 1}.get(source, 9),
+        )
+        matched_reasons = _dedupe_preserving_order(reason for reason in item["matched_reasons"] if reason)
+        rag_evidence = item["rag_evidence"][:2]
+        next_steps = _dedupe_preserving_order(step for step in item["next_steps"] if step)[:2]
+        source_note = _display_candidate_source_note(evidence_sources)
+        source_type = _display_candidate_source_type(evidence_sources)
+        display_candidates.append(
+            {
+                "title": item["title"],
+                "summary": item["summary"] or "선택한 증상과 참고 문서를 바탕으로 표시된 후보입니다.",
+                "risk_level": _display_candidate_risk_level(item["display_score"], evidence_sources),
+                "rank": 0,
+                "display_score": round(item["display_score"], 3),
+                "source_type": source_type,
+                "source_badges": _display_candidate_source_badges(evidence_sources),
+                "evidence_sources": evidence_sources,
+                "matched_reasons": matched_reasons[:5],
+                "rag_evidence": rag_evidence,
+                "next_steps": next_steps or [DEFAULT_ACTION],
+                "source_note": source_note,
+            }
+        )
+
+    display_candidates.sort(
+        key=lambda item: (
+            -item["display_score"],
+            item["title"],
+        )
+    )
+    display_candidates = _select_top_display_candidates(display_candidates)
+    for index, item in enumerate(display_candidates, start=1):
+        item["rank"] = index
+    return display_candidates
+
+
+def _select_top_display_candidates(display_candidates: list[dict]):
+    selected = display_candidates[:MAX_DISPLAY_CANDIDATES]
+    if any("medical_rag" in item["evidence_sources"] for item in selected):
+        return selected
+
+    best_rag_candidate = next(
+        (
+            item
+            for item in display_candidates[MAX_DISPLAY_CANDIDATES:]
+            if "medical_rag" in item["evidence_sources"]
+        ),
+        None,
+    )
+    if best_rag_candidate is None:
+        return selected
+    if len(selected) < MAX_DISPLAY_CANDIDATES:
+        return selected + [best_rag_candidate]
+    return selected[:-1] + [best_rag_candidate]
+
+
+def _empty_display_candidate(title: str):
+    return {
+        "title": title,
+        "summary": "",
+        "display_score": 0.0,
+        "evidence_sources": set(),
+        "matched_reasons": [],
+        "rag_evidence": [],
+        "next_steps": [],
+    }
+
+
+def _rag_display_score(distance):
+    if distance is None:
+        return 0.66
+    if distance > MEDICAL_RAG_DISPLAY_DISTANCE_THRESHOLD:
+        return max(0.32, 0.58 - (distance - MEDICAL_RAG_DISPLAY_DISTANCE_THRESHOLD) * 0.6)
+    return max(0.62, 0.98 - max(distance, 0) * 0.18)
+
+
+def _is_generic_rule_display_candidate(candidate: dict):
+    text = " ".join(
+        value
+        for value in [
+            _optional_text(candidate.get("condition_name")),
+            _optional_text(candidate.get("condition_code")),
+            _optional_text(candidate.get("summary")),
+        ]
+        if value
+    ).casefold()
+    generic_tokens = [
+        "가능성",
+        "관련 증상",
+        "관련 통증",
+        "관련 불편",
+        "유사",
+        "후보",
+        "확인 필요",
+        "possible",
+        "candidate",
+        "related",
+        "symptom",
+    ]
+    return any(token.casefold() in text for token in generic_tokens)
+
+
+def _display_candidate_key(title: str):
+    normalized = "".join(title.casefold().split())
+    for token in [
+        "가능성",
+        "관련",
+        "증상",
+        "후보",
+        "확인필요",
+        "possible",
+        "candidate",
+        "related",
+        "symptoms",
+    ]:
+        normalized = normalized.replace(token, "")
+    return normalized or title.casefold()
+
+
+def _display_candidate_risk_level(score: float, evidence_sources: list[str]):
+    if score >= 0.78 or set(evidence_sources) == {"rule", "medical_rag"}:
+        return "주의"
+    if score >= 0.58:
+        return "중간"
+    return "참고"
+
+
+def _display_candidate_source_note(evidence_sources: list[str]):
+    if evidence_sources == ["rule", "medical_rag"]:
+        return "선택 증상과 참고 문서를 함께 반영한 후보입니다."
+    if evidence_sources == ["medical_rag"]:
+        return "참고 문서와 입력 내용을 바탕으로 보강한 후보입니다."
+    return "선택 증상과 질문 응답을 바탕으로 한 후보입니다."
+
+
+def _display_candidate_source_type(evidence_sources: list[str]):
+    if evidence_sources == ["rule", "medical_rag"]:
+        return "rule+medical_rag"
+    if evidence_sources == ["medical_rag"]:
+        return "medical_rag"
+    return "rule"
+
+
+def _display_candidate_source_badges(evidence_sources: list[str]):
+    labels = {
+        "rule": "Rule",
+        "medical_rag": "Medical RAG",
+    }
+    return [labels[source] for source in evidence_sources if source in labels]
+
+
+def _medical_rag_documents_to_related_conditions(documents: list[dict]):
+    related_conditions = []
+    seen_keys = set()
+    for document in documents:
+        topic = _optional_text(document.get("topic"))
+        title = _optional_text(document.get("title"))
+        display_name = topic or title
+        if not display_name:
+            continue
+        key = (display_name.casefold(), _optional_text(document.get("source")), _optional_text(document.get("url")))
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+        content_excerpt = _medical_rag_content_excerpt(document.get("content"))
+        related_conditions.append(
+            {
+                "condition_name": display_name,
+                "display_name": display_name,
+                "summary": content_excerpt,
+                "content_excerpt": content_excerpt,
+                "distance": document.get("distance"),
+                "source": _optional_text(document.get("source")) or "",
+                "category": _optional_text(document.get("category")) or "",
+                "topic": topic or "",
+                "title": title or "",
+                "url": _optional_text(document.get("url")) or "",
+                "matched_basis": "medical_rag_retrieval",
+                "rank": len(related_conditions) + 1,
+                "used_for_main_ranking": False,
+                "disclaimer": MEDICAL_RAG_RELATED_CONDITION_DISCLAIMER,
+            }
+        )
+        if len(related_conditions) >= MAX_MEDICAL_RAG_RELATED_CONDITIONS:
+            break
+    return related_conditions
+
+
+def _medical_rag_content_excerpt(content: object, max_length: int = 220):
+    text = _optional_text(content)
+    if not text:
+        return "검색된 Medical RAG 문서 기반 참고 후보입니다."
+    normalized = " ".join(text.split())
+    if len(normalized) <= max_length:
+        return normalized
+    return normalized[:max_length].rstrip() + "..."
+
+
+def _body_region_name(region_id: str | None):
+    if not region_id:
+        return ""
+    region = _find_region(region_id)
+    return f"부위: {region['name']}" if region else f"부위: {region_id}"
+
+
+def _body_part_name(region_id: str | None, body_part_id: str | None):
+    if not region_id or not body_part_id:
+        return ""
+    for body_part in BODY_PARTS.get(region_id, []):
+        if body_part.get("id") == body_part_id:
+            return f"세부 부위: {body_part['name']}"
+    return f"세부 부위: {body_part_id}"
+
+
+def _symptom_name(region_id: str | None, symptom_code: str):
+    for symptom in REGION_SYMPTOMS.get(region_id, []):
+        if symptom.get("code") == symptom_code:
+            return symptom["name"]
+    return symptom_code
+
+
+def _context_name(context_code: str):
+    context = CONTEXT_OPTIONS_BY_CODE.get(context_code)
+    return context["name"] if context else context_code
+
+
+def _profile_summary_for_medical_rag(profile: dict):
+    values = []
+    if profile.get("age") is not None:
+        values.append(f"나이 {profile['age']}세")
+    if profile.get("gender"):
+        values.append(f"등록 성별 {profile['gender']}")
+    return "사용자 기본 정보: " + ", ".join(values) if values else ""
+
+
 def explain_symptom_assessment_from_gemini(request: SymptomExplainRequest):
     provider = VertexAIGeminiExplanationProvider(
         project_id=GCP_PROJECT_ID,
@@ -5189,7 +6798,7 @@ def explain_symptom_candidates_with_vertex_gemini(request: GeminiSymptomExplainR
     )
     prompt = build_vertex_gemini_symptom_explanation_prompt(request.model_dump())
     result = provider.generate_structured_explanation(prompt)
-    final_notice = "정확한 진단은 의료진 상담이 필요합니다."
+    final_notice = "이 설명지는 정확한 진단이 아닌 참고용 정보입니다. 정확한 진단은 의료진 상담이 필요합니다."
     if result.get("final_notice") != final_notice:
         result["final_notice"] = final_notice
     result["explanation"] = _compose_structured_gemini_explanation(result)
@@ -5199,18 +6808,25 @@ def explain_symptom_candidates_with_vertex_gemini(request: GeminiSymptomExplainR
 def build_vertex_gemini_symptom_explanation_prompt(payload: dict) -> str:
     return (
         "너는 의료 진단을 하는 의사가 아니다.\n"
-        "아래 JSON에 있는 후보 결과만 바탕으로 한국어 설명 데이터를 작성한다.\n"
+        "아래 JSON에 있는 최종 표시 후보(display candidates)만 바탕으로 한국어 결과 설명지를 작성한다.\n"
         "JSON에 없는 질환, 증상, 근거를 새로 만들지 않는다.\n"
         "확정 진단처럼 말하지 않는다.\n"
         "가능성, 의심, 관련될 수 있음 같은 표현을 사용한다.\n"
-        "candidate_explanations는 입력 candidates 순서를 유지하고, 각 후보를 하나의 카드로 요약한다.\n"
+        "사용자에게 rule, RAG, Medical RAG, score, backend, JSON, display_candidates 같은 내부 용어를 절대 노출하지 않는다.\n"
+        "body_part는 제목 아래 입력 요약에만 쓰이며, summary에서 같은 내용을 반복하지 않는다.\n"
+        "symptoms는 summary에 나열하지 말고 후보별 reason에서 필요한 근거로만 짧게 사용한다.\n"
+        "candidate_explanations는 입력 candidates 순서를 유지하고, 각 후보를 하나의 리스트 항목으로 요약한다.\n"
         "candidate_explanations.display_name_ko는 반드시 한국어로 작성한다. 입력 후보명이 영어라면 자연스러운 한국어 질환 후보명으로 번역한다.\n"
-        "각 후보 reason은 matched_evidence만 근거로 1문장으로 쓴다.\n"
-        "각 후보 recommendation은 입력 recommendation을 바탕으로 1문장으로 쓴다.\n"
-        "red_flags가 있으면 빠른 진료 또는 응급실 권고를 명확히 포함한다.\n"
-        "summary는 120자 이내, 각 reason은 80자 이내로 작성한다.\n"
-        "마지막 문장은 반드시 정확한 진단은 의료진 상담이 필요합니다. 로 끝낸다.\n"
-        "응답은 summary, candidate_explanations, red_flags, recommendation, final_notice 필드를 가진 JSON 객체로 출력한다.\n"
+        "각 후보 reason은 matched_evidence와 evidence_summary만 근거로 1-2문장으로 쓴다.\n"
+        "각 후보 recommendation은 의료기관 방문 권고를 반복하지 말고, 증상 관찰 포인트나 구분에 도움되는 정보만 짧게 쓴다.\n"
+        "red_flags가 있으면 red_flags 배열에 사용자용 주의 문구를 1개만 작성한다.\n"
+        "recommendation은 전체 다음 행동을 1문장으로 쓰되, next_steps와 같은 의미를 반복하지 않는다.\n"
+        "next_steps는 구체적인 다음 행동을 2-3개 bullet 문장으로 작성한다.\n"
+        "의료기관, 병원, 의원, 응급실, 진료, 의료진 상담 같은 방문/상담 권고는 summary, red_flags, recommendation, next_steps, candidate_explanations 전체를 합쳐 최대 1번만 쓴다.\n"
+        "후보별 reason과 recommendation 끝에 '증상이 지속되거나 악화되면 의료기관 상담' 류의 문장을 반복하지 않는다.\n"
+        "summary는 160자 이내, 각 reason은 120자 이내로 작성한다.\n"
+        "final_notice는 반드시 '이 설명지는 정확한 진단이 아닌 참고용 정보입니다. 정확한 진단은 의료진 상담이 필요합니다.' 로 쓴다.\n"
+        "응답은 summary, candidate_explanations, red_flags, recommendation, next_steps, final_notice 필드를 가진 JSON 객체로 출력한다.\n"
         "입력 JSON:\n"
         f"{json.dumps(payload, ensure_ascii=False, default=str)}"
     )
@@ -5228,7 +6844,10 @@ def _compose_structured_gemini_explanation(result: dict) -> str:
                 lines.append(f"{label}: {reason}")
     if result.get("recommendation"):
         lines.append(str(result["recommendation"]))
-    lines.append("정확한 진단은 의료진 상담이 필요합니다.")
+    for step in result.get("next_steps") or []:
+        if step:
+            lines.append(str(step))
+    lines.append("이 설명지는 정확한 진단이 아닌 참고용 정보입니다. 정확한 진단은 의료진 상담이 필요합니다.")
     return "\n".join(lines)
 
 
@@ -5559,7 +7178,10 @@ def _extract_alias_candidates_from_free_text(free_text: str, body_region: str | 
         context["code"]
         for context in CONTEXT_OPTIONS
         if _text_matches_code_aliases(normalized_text, context["code"], context.get("name", ""))
-        or _text_matches_code_aliases(normalized_text, context["code"], context.get("description", ""))
+        or (
+            context["code"] in STRUCTURED_INPUT_ALIAS_HINTS
+            and _text_matches_code_aliases(normalized_text, context["code"], context.get("description", ""))
+        )
     ]
 
     return {
@@ -5865,6 +7487,9 @@ def assess_symptoms(request: SymptomAssessRequest, profile_source: str = "reques
         "red_flags": red_flags,
         "candidates": candidates,
         "possible_candidates": possible_candidates,
+        "display_candidates": _build_display_candidates(candidates, []),
+        "rag_related_conditions": [],
+        "medical_rag_metadata": _medical_rag_metadata(used=False, query=None, top_k=0),
         "missing_evidence_questions": missing_evidence_questions,
     }
 
@@ -5971,6 +7596,24 @@ def _detect_red_flags(
                 code="shortness_of_breath_with_hemoptysis_or_pleuritic_pain",
                 message="호흡곤란과 객혈 또는 숨쉴 때 심해지는 흉통 맥락이 함께 선택되었습니다.",
                 triggered_by=["shortness_of_breath"] + sorted(contexts & {"hemoptysis", "pleuritic_chest_pain"}),
+            )
+        )
+
+    if (
+        body_region == "chest"
+        and "sudden_unilateral_chest_pain_with_dyspnea" in contexts
+    ):
+        red_flags.append(
+            _build_red_flag(
+                code="chest_pain_with_shortness_of_breath",
+                message="갑작스러운 한쪽 가슴 통증과 숨쉬기 어려움 맥락이 선택되었습니다.",
+                triggered_by=_triggered_by(
+                    ["sudden_unilateral_chest_pain_with_dyspnea"],
+                    contexts,
+                    ["pleuritic_chest_pain", "hemoptysis"],
+                )
+                + (["pain"] if "pain" in symptom_codes else [])
+                + (["shortness_of_breath"] if "shortness_of_breath" in symptom_codes else []),
             )
         )
 

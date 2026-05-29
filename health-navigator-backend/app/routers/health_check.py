@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Query, status
 from sqlalchemy.orm import Session
 import traceback
 
 from app.core.database import get_db
 from app.routers.auth import get_current_user
 from app.schemas.health_check import (
+    HealthCheckRagCardRequest,
+    HealthCheckRagCardResponse,
     HealthCheckResponse,
     HealthCheckResultCreate,
     HealthCheckResultResponse,
@@ -12,6 +14,8 @@ from app.schemas.health_check import (
 )
 from app.services.health_check_service import (
     create_health_check_result,
+    generate_health_check_rag_card_from_data,
+    generate_health_check_rag_card_from_result,
     update_health_check_result,
 )
 from app.services.ocr_service import call_clova_ocr
@@ -137,6 +141,55 @@ def edit_health_check_result(
         raise HTTPException(
             status_code=404,
             detail="건강검진 결과를 찾을 수 없습니다."
+        )
+
+    return result
+
+
+@router.post(
+    "/rag-card",
+    response_model=HealthCheckRagCardResponse,
+    summary="저장 전 건강검진 OCR 결과 기반 RAG 설명 카드 생성",
+)
+def create_health_check_rag_card_before_save(req: HealthCheckRagCardRequest):
+    try:
+        return generate_health_check_rag_card_from_data(
+            data=req.data,
+            top_k=req.top_k,
+        )
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="건강검진 RAG 설명 카드 생성에 실패했습니다.") from exc
+
+
+@router.post(
+    "/results/{result_id}/rag-card",
+    response_model=HealthCheckRagCardResponse,
+    summary="저장된 건강검진 OCR 결과 기반 RAG 설명 카드 생성",
+)
+def create_saved_health_check_rag_card(
+    result_id: int,
+    top_k: int = Query(default=5, ge=1, le=10),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    try:
+        result = generate_health_check_rag_card_from_result(
+            db=db,
+            user_id=current_user.id,
+            result_id=result_id,
+            top_k=top_k,
+        )
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="건강검진 RAG 설명 카드 생성에 실패했습니다.") from exc
+
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail="건강검진 결과를 찾을 수 없습니다.",
         )
 
     return result

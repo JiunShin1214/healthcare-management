@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 import app.services.symptom_checker_service as symptom_checker_service
 from app.routers.symptom_checker import (
+    assess_symptoms as assess_symptoms_endpoint,
     assess_my_symptoms,
     build_assessment_draft as build_assessment_draft_endpoint,
     explain_symptom_assessment,
@@ -694,7 +695,7 @@ def test_anatomy_area_parts_reconnect_to_symptom_context_and_assessment_flow():
             assert guide["body_part_id"] == body_part_id
             assert guide["context_scope"] == "body_part"
             assert guide["fallback_to_region_context"] is False
-            assert guide["context_chips"]
+            assert guide["context_chips"] or guide["follow_up_questions"]
 
             request = make_assessment_request(
                 body_region=region_id,
@@ -726,7 +727,7 @@ def test_revised_anatomy_labels_and_conditional_question_guides_are_exposed():
     forehead_questions = get_context_guide("head_face", body_part_id="forehead")["follow_up_questions"]
     calf_questions = get_context_guide("leg_foot", body_part_id="calf")["follow_up_questions"]
 
-    assert any(question["id"] == "new_breast_lump" for question in breast_questions)
+    assert any(question["id"] == "breast_lump_pattern" for question in breast_questions)
     vision_question = next(question for question in forehead_questions if question["id"] == "giant_cell_arteritis_vision_change")
     assert vision_question["min_age"] == 50
     assert vision_question["show_if_contexts"] == ["new_forehead_or_temporal_headache"]
@@ -893,6 +894,20 @@ def test_get_context_options_returns_mvp_context_codes():
     assert "explanation_context" in contexts_by_code["stress"]["usage"]
 
 
+def test_ui_spec_context_codes_are_registered_as_context_options():
+    spec_codes = symptom_checker_service._extract_ui_spec_context_codes()
+    excluded_codes = symptom_checker_service._ui_spec_non_context_codes()
+    context_codes = {context["code"] for context in get_context_options()}
+    missing_codes = [
+        code
+        for code in spec_codes
+        if code not in excluded_codes and code not in context_codes
+    ]
+
+    assert len(spec_codes) > 300
+    assert missing_codes == []
+
+
 def test_get_context_guide_returns_guided_free_text_sections():
     guide = get_context_guide("chest")
 
@@ -901,26 +916,51 @@ def test_get_context_guide_returns_guided_free_text_sections():
     assert guide["context_scope"] == "region"
     assert guide["fallback_to_region_context"] is False
     assert guide["quick_contexts"][0]["code"] == "alcohol_yesterday"
-    assert guide["context_chips"][0]["code"] == "chest_pressure"
-    assert guide["context_chips"][0]["display_group"] == "safety"
+    assert guide["context_chips"]
+    assert guide["context_chips"][0]["display_priority"] == 1
     assert guide["context_chips"][0]["evidence_basis"]
     assert guide["context_chips"][0]["selection_rationale"]
     section_ids = [section["id"] for section in guide["free_text_sections"]]
     assert section_ids == ["recent_medications", "recent_conditions", "lab_values", "free_text"]
     assert any("계단" in example for example in guide["free_text_sections"][-1]["examples"])
     assert "medication_name" in guide["free_text_sections"][0]["llm_structuring_target"]
-    assert guide["follow_up_questions"][0]["id"] == "chest_pain_breathing"
+    assert guide["follow_up_questions"][0]["id"] == "chest_sudden_onset"
     assert guide["follow_up_questions"][0]["purpose"] == "red_flag"
-    assert any(
-        option.get("maps_to_context") == "recent_exercise"
+    chip_codes = {chip["code"] for chip in guide["context_chips"]}
+    follow_up_codes = {
+        option.get("maps_to_context")
         for question in guide["follow_up_questions"]
         for option in question["options"]
-    )
-    assert any(
-        option.get("maps_to_context") == "chest_pressure"
-        for question in guide["follow_up_questions"]
-        for option in question["options"]
-    )
+        if option.get("maps_to_context")
+    }
+    assert chip_codes.isdisjoint(follow_up_codes)
+    assert "chest_pressure" in follow_up_codes
+    assert "recent_exercise" not in follow_up_codes
+
+
+def test_chest_body_part_context_guide_prioritizes_spec_questions():
+    upper_guide = get_context_guide("chest", body_part_id="upper_chest")
+    sternum_guide = get_context_guide("chest", body_part_id="sternum")
+    breast_guide = get_context_guide("chest", body_part_id="breast")
+
+    upper_question_ids = [question["id"] for question in upper_guide["follow_up_questions"]]
+    sternum_question_ids = [question["id"] for question in sternum_guide["follow_up_questions"]]
+    breast_question_ids = [question["id"] for question in breast_guide["follow_up_questions"]]
+
+    assert upper_question_ids[:2] == [
+        "upper_chest_sudden_or_persistent",
+        "upper_chest_pressure_radiation_sweat",
+    ]
+    assert "chest_sudden_onset" not in upper_question_ids
+    assert {
+        "upper_chest_exertional_pattern",
+        "upper_chest_wall_or_breathing_pattern",
+        "upper_chest_pe_or_pneumothorax_safety",
+    } <= set(upper_question_ids)
+    assert sternum_question_ids[0] == "sternum_acs_safety"
+    assert {"sternum_direct_impact", "sternum_tenderness_or_movement"} <= set(sternum_question_ids)
+    assert breast_question_ids[0] == "breast_chest_pain_safety"
+    assert {"breast_lump_pattern", "persistent_one_sided_breast_change"} <= set(breast_question_ids)
 
 
 def test_get_context_guide_can_scope_context_chips_to_body_part():
@@ -930,12 +970,33 @@ def test_get_context_guide_can_scope_context_chips_to_body_part():
     assert guide["body_part_id"] == "rib_area"
     assert guide["context_scope"] == "body_part"
     assert guide["fallback_to_region_context"] is False
-    assert [chip["display_priority"] for chip in guide["context_chips"]] == [1, 2, 3]
-    assert {chip["code"] for chip in guide["context_chips"]} == {
-        "persistent_pain",
-        "pleuritic_chest_pain",
-        "hemoptysis",
+    chip_codes = {chip["code"] for chip in guide["context_chips"]}
+    follow_up_codes = {
+        option.get("maps_to_context")
+        for question in guide["follow_up_questions"]
+        for option in question["options"]
+        if option.get("maps_to_context")
     }
+    assert chip_codes.isdisjoint(follow_up_codes)
+
+
+def test_all_body_part_context_guides_have_compact_non_overlapping_inputs():
+    for region in get_body_regions():
+        region_options = get_region_options(region["id"])
+        for body_part in region_options.get("body_parts", []):
+            guide = get_context_guide(region["id"], body_part_id=body_part["id"])
+            assert guide["context_chips"] or guide["follow_up_questions"]
+            assert len(guide["follow_up_questions"]) <= 6
+
+            chip_codes = {chip["code"] for chip in guide["context_chips"]}
+            follow_up_codes = [
+                option.get("maps_to_context")
+                for question in guide["follow_up_questions"]
+                for option in question["options"]
+                if option.get("maps_to_context")
+            ]
+            assert chip_codes.isdisjoint(follow_up_codes)
+            assert len(follow_up_codes) == len(set(follow_up_codes))
 
 
 def test_get_context_guide_scopes_ear_without_airway_voice_contexts():
@@ -945,9 +1006,35 @@ def test_get_context_guide_scopes_ear_without_airway_voice_contexts():
     assert guide["context_scope"] == "body_part"
     assert guide["fallback_to_region_context"] is False
     chip_codes = {chip["code"] for chip in guide["context_chips"]}
-    assert {"sudden_onset", "one_sided", "worsening", "after_injury"} <= chip_codes
+    follow_up_codes = {
+        option.get("maps_to_context")
+        for question in guide["follow_up_questions"]
+        for option in question["options"]
+        if option.get("maps_to_context")
+    }
+    assert {"sudden_onset", "one_sided", "after_injury"} <= follow_up_codes
+    assert "worsening" in chip_codes
     assert "voice_hoarseness" not in chip_codes
     assert "difficulty_swallowing_or_drooling" not in chip_codes
+
+
+def test_head_body_part_context_guide_uses_spec_questions_without_region_duplicates():
+    guide = get_context_guide("head_face", body_part_id="forehead")
+
+    question_ids = [question["id"] for question in guide["follow_up_questions"]]
+    follow_up_codes = {
+        option.get("maps_to_context")
+        for question in guide["follow_up_questions"]
+        for option in question["options"]
+        if option.get("maps_to_context")
+    }
+    chip_codes = {chip["code"] for chip in guide["context_chips"]}
+
+    assert "headache_onset" not in question_ids
+    assert "headache_thunderclap" not in question_ids
+    assert "head_face_forehead_trigger_spec" in question_ids
+    assert {"head_injury", "sleep_deprivation", "nasal_congestion_or_cold_associated_pressure"} <= follow_up_codes
+    assert chip_codes.isdisjoint(follow_up_codes)
 
 
 def test_structure_input_infers_ear_region_from_inner_ear_free_text():
@@ -2924,9 +3011,15 @@ def test_context_guide_returns_region_context_chips_with_review_trace():
         chips = guide["context_chips"]
         chip_counts[region_id] = len(chips)
 
-        assert chips, f"{region_id} should expose at least one context chip"
         assert len(chips) <= 8, f"{region_id} exposes too many first-pass context chips"
         assert [chip["display_priority"] for chip in chips] == list(range(1, len(chips) + 1))
+        follow_up_codes = {
+            option.get("maps_to_context")
+            for question in guide["follow_up_questions"]
+            for option in question["options"]
+            if option.get("maps_to_context")
+        }
+        assert {chip["code"] for chip in chips}.isdisjoint(follow_up_codes)
 
         for chip in chips:
             assert chip["code"] in context_codes
@@ -2943,20 +3036,28 @@ def test_context_guide_returns_region_context_chips_with_review_trace():
                 "red_flag_context_not_standalone",
             }
 
-    assert max(chip_counts.values()) - min(chip_counts.values()) <= 5
+    assert any(count > 0 for count in chip_counts.values())
+    assert max(chip_counts.values()) <= 8
 
 
 def test_context_chips_separate_red_flag_and_candidate_usage():
-    chest_chips = {chip["code"]: chip for chip in get_context_guide("chest")["context_chips"]}
-    abdomen_chips = {chip["code"]: chip for chip in get_context_guide("abdomen")["context_chips"]}
-    head_chips = {chip["code"]: chip for chip in get_context_guide("head_face")["context_chips"]}
+    contexts = {context["code"]: context for context in get_context_options()}
 
-    assert chest_chips["chest_pressure"]["usage"] == ["red_flag", "explanation_context"]
-    assert chest_chips["chest_pressure"]["evidence_basis"] == "reviewed_red_flag_rule_supporting_context"
-    assert abdomen_chips["overeating"]["usage"] == ["candidate_boost"]
-    assert abdomen_chips["overeating"]["evidence_basis"] == "candidate_seed_context"
-    assert head_chips["sleep_deprivation"]["usage"] == ["candidate_boost", "explanation_context"]
-    assert head_chips["sudden_onset"]["usage"] == ["red_flag"]
+    assert contexts["chest_pressure"]["usage"] == ["red_flag", "explanation_context"]
+    assert contexts["overeating"]["usage"] == ["candidate_boost"]
+    assert contexts["sleep_deprivation"]["usage"] == ["candidate_boost", "explanation_context"]
+    assert contexts["sudden_onset"]["usage"] == ["red_flag"]
+
+    chest_guide = get_context_guide("chest")
+    chest_chip_codes = {chip["code"] for chip in chest_guide["context_chips"]}
+    chest_follow_up_codes = {
+        option.get("maps_to_context")
+        for question in chest_guide["follow_up_questions"]
+        for option in question["options"]
+        if option.get("maps_to_context")
+    }
+    assert "chest_pressure" in chest_follow_up_codes
+    assert "chest_pressure" not in chest_chip_codes
 
 
 def test_first_pass_safety_review_context_codes_are_exposed_without_red_flag_usage():
@@ -2999,10 +3100,8 @@ def test_first_pass_safety_review_context_codes_are_exposed_without_red_flag_usa
         assert ent_chips[code]["evidence_basis"] == "red_flag_context_not_standalone"
         assert ent_chips[code]["usage"] == ["explanation_context"]
 
-    assert chest_chips["hemoptysis"]["evidence_basis"] == "red_flag_context_not_standalone"
-    assert chest_chips["hemoptysis"]["name"] == "객혈/피 섞인 가래"
-    assert "기침" in chest_chips["hemoptysis"]["description"]
-    assert chest_chips["pleuritic_chest_pain"]["evidence_basis"] == "red_flag_context_not_standalone"
+    assert contexts_by_code["hemoptysis"]["name"] == "객혈/피 섞인 가래"
+    assert "기침" in contexts_by_code["hemoptysis"]["description"]
     assert chest_chips["rest_chest_pain"]["evidence_basis"] == "red_flag_context_not_standalone"
     assert chest_chips["exertional_chest_pain_relieved_by_rest"]["evidence_basis"] == "red_flag_context_not_standalone"
 
@@ -3512,6 +3611,311 @@ def test_assess_my_symptoms_uses_current_user_profile():
     assert response["candidates"][0]["condition_code"] == "tension_headache"
 
 
+def test_assess_symptoms_defaults_to_no_medical_rag_related_conditions():
+    request = make_assessment_request(
+        body_region="head_face",
+        symptoms=[{"code": "pain", "severity": 7}],
+    )
+
+    response = assess_symptoms(request)
+
+    assert response["rag_related_conditions"] == []
+    assert response["display_candidates"]
+    assert response["display_candidates"][0]["evidence_sources"] == ["rule"]
+    assert response["medical_rag_metadata"]["enabled"] is symptom_checker_service.MEDICAL_RAG_ENABLED
+    assert response["medical_rag_metadata"]["used"] is False
+    assert response["medical_rag_metadata"]["fallback_reason"] is None
+    assert response["medical_rag_metadata"]["query"] is None
+    assert response["medical_rag_metadata"]["top_k"] == 0
+    assert response["medical_rag_metadata"]["used_for_main_ranking"] is False
+
+
+def test_attach_medical_rag_related_conditions_uses_retrieval_without_mutating_judgment(monkeypatch):
+    request = make_assessment_request(
+        body_region="ear_nose_throat",
+        body_part="throat",
+        symptoms=[{"code": "sore_throat", "severity": 6}],
+        additional_context={"free_text": "어제부터 목이 아프고 열이 조금 납니다."},
+    )
+    assessment = assess_symptoms(request)
+    original_candidates = assessment["candidates"]
+    original_red_flags = assessment["red_flags"]
+    captured = {}
+
+    def fake_retrieve_documents(query, top_k=5, source=None, category=None):
+        captured["query"] = query
+        captured["top_k"] = top_k
+        return [
+            {
+                "id": "nhs_sore_throat_1",
+                "title": "Sore throat",
+                "topic": "Sore throat",
+                "content": "A sore throat is common and usually gets better by itself. It can cause pain when swallowing.",
+                "source": "NHS",
+                "category": "질병",
+                "url": "https://www.nhs.uk/conditions/sore-throat/",
+                "distance": 0.42,
+            },
+            {
+                "id": "nhs_sore_throat_2",
+                "title": "Sore throat",
+                "topic": "Sore throat",
+                "source": "NHS",
+                "category": "질병",
+                "url": "https://www.nhs.uk/conditions/sore-throat/",
+            },
+            {
+                "id": "kdca_pharyngitis",
+                "title": "인후통",
+                "topic": "인후통",
+                "source": "질병관리청 국가건강정보포털",
+                "category": "질병",
+                "url": "https://example.test/pharyngitis",
+            },
+        ]
+
+    import app.services.medical_rag_service as medical_rag_service
+
+    monkeypatch.setattr(medical_rag_service, "retrieve_documents", fake_retrieve_documents)
+
+    response = symptom_checker_service.attach_medical_rag_related_conditions_to_assessment(assessment)
+
+    assert response["candidates"] == original_candidates
+    assert response["red_flags"] == original_red_flags
+    assert "인후통" in captured["query"]
+    assert "어제부터 목이 아프고 열이 조금 납니다." in captured["query"]
+    assert captured["top_k"] == 15
+    assert response["medical_rag_metadata"]["used"] is True
+    assert response["medical_rag_metadata"]["top_k"] == 5
+    assert response["medical_rag_metadata"]["retrieval_top_k"] == 15
+    assert response["medical_rag_metadata"]["related_condition_count"] == 2
+    assert response["medical_rag_metadata"]["display_candidate_count"] <= 5
+    assert response["medical_rag_metadata"]["used_for_main_ranking"] is False
+    assert [condition["display_name"] for condition in response["rag_related_conditions"]] == [
+        "Sore throat",
+        "인후통",
+    ]
+    assert response["rag_related_conditions"][0]["summary"].startswith("A sore throat is common")
+    assert response["rag_related_conditions"][0]["distance"] == 0.42
+    assert all(condition["used_for_main_ranking"] is False for condition in response["rag_related_conditions"])
+    assert response["display_candidates"]
+    assert len(response["display_candidates"]) <= 5
+    assert any("medical_rag" in candidate["evidence_sources"] for candidate in response["display_candidates"])
+    assert any(
+        candidate["source_type"] in {"medical_rag", "rule+medical_rag"}
+        for candidate in response["display_candidates"]
+    )
+    assert response["medical_rag_metadata"]["used_for_display_ranking"] is True
+
+
+def test_display_candidates_prioritize_rag_over_generic_rule_candidates():
+    rule_candidates = [
+        {
+            "condition_code": "generic_chest_related",
+            "condition_name": "흉부 관련 증상 가능성",
+            "summary": "선택한 증상과 관련될 수 있는 rule 기반 참고 후보입니다.",
+            "confidence": "medium",
+            "matched_reasons": ["통증"],
+            "suggested_action": "증상이 지속되면 의료기관 상담을 권장합니다.",
+        }
+    ]
+    rag_related_conditions = [
+        {
+            "display_name": "협심증",
+            "summary": "운동 시 악화되는 흉부 압박감과 관련해 참고할 수 있는 문서입니다.",
+            "distance": 0.82,
+            "source": "질병관리청 국가건강정보포털",
+        }
+    ]
+
+    display_candidates = symptom_checker_service._build_display_candidates(
+        rule_candidates,
+        rag_related_conditions,
+    )
+
+    assert display_candidates[0]["title"] == "협심증"
+    assert display_candidates[0]["evidence_sources"] == ["medical_rag"]
+    assert display_candidates[0]["source_type"] == "medical_rag"
+    assert display_candidates[0]["source_badges"] == ["Medical RAG"]
+
+
+def test_display_candidates_fill_rule_shortfall_with_rag_top_five():
+    rule_candidates = [
+        {
+            "condition_code": "tension_headache",
+            "condition_name": "긴장성 두통",
+            "summary": "이마 통증과 수면 부족을 바탕으로 한 후보입니다.",
+            "confidence": "medium",
+            "matched_reasons": ["통증", "수면 부족"],
+            "suggested_action": "증상이 지속되면 의료기관 상담을 권장합니다.",
+        }
+    ]
+    rag_related_conditions = [
+        {
+            "display_name": display_name,
+            "summary": f"{display_name} 참고 문서입니다.",
+            "distance": 0.7 + index * 0.01,
+            "source": "질병관리청 국가건강정보포털",
+            "rank": index,
+        }
+        for index, display_name in enumerate(["편두통", "부비동염", "뇌진탕", "군발두통"], start=1)
+    ]
+
+    display_candidates = symptom_checker_service._build_display_candidates(
+        rule_candidates,
+        rag_related_conditions,
+    )
+
+    assert len(display_candidates) == 5
+    assert all(candidate["source_type"] in {"rule", "medical_rag"} for candidate in display_candidates)
+    assert {candidate["title"] for candidate in display_candidates} == {
+        "긴장성 두통",
+        "편두통",
+        "부비동염",
+        "뇌진탕",
+        "군발두통",
+    }
+
+
+def test_display_candidates_keep_rag_visible_when_rule_candidates_fill_top_five():
+    rule_candidates = [
+        {
+            "condition_code": f"rule_{index}",
+            "condition_name": f"Rule 후보 {index}",
+            "summary": "선택 증상 기반 후보입니다.",
+            "confidence": "high",
+            "matched_reasons": ["통증", "악화"],
+            "suggested_action": "증상이 지속되면 의료기관 상담을 권장합니다.",
+        }
+        for index in range(1, 7)
+    ]
+    rag_related_conditions = [
+        {
+            "display_name": "RAG 참고 후보",
+            "summary": "검색 문서 기반 참고 후보입니다.",
+            "distance": 0.84,
+            "source": "NHS",
+            "rank": 1,
+        }
+    ]
+
+    display_candidates = symptom_checker_service._build_display_candidates(
+        rule_candidates,
+        rag_related_conditions,
+    )
+
+    assert len(display_candidates) == 5
+    assert any(candidate["source_type"] == "medical_rag" for candidate in display_candidates)
+
+
+def test_display_candidates_use_rag_to_fill_top_five_even_when_distance_is_high():
+    rule_candidates = [
+        {
+            "condition_code": "tension_headache",
+            "condition_name": "긴장성 두통",
+            "summary": "이마 통증을 바탕으로 한 후보입니다.",
+            "confidence": "medium",
+            "matched_reasons": ["통증"],
+            "suggested_action": "증상이 지속되면 의료기관 상담을 권장합니다.",
+        }
+    ]
+    rag_related_conditions = [
+        {
+            "display_name": display_name,
+            "summary": f"{display_name} 참고 문서입니다.",
+            "distance": 0.96 + index * 0.01,
+            "source": "질병관리청 국가건강정보포털",
+            "rank": index,
+        }
+        for index, display_name in enumerate(["두통", "머릿니 감염증", "두피 감염", "피부염"], start=1)
+    ]
+
+    display_candidates = symptom_checker_service._build_display_candidates(
+        rule_candidates,
+        rag_related_conditions,
+    )
+
+    assert len(display_candidates) == 5
+    assert sum(candidate["source_type"] == "medical_rag" for candidate in display_candidates) == 4
+
+
+def test_attach_medical_rag_related_conditions_falls_back_without_failing_assessment(monkeypatch):
+    request = make_assessment_request(
+        body_region="head_face",
+        symptoms=[{"code": "pain", "severity": 7}],
+    )
+    assessment = assess_symptoms(request)
+
+    def fake_retrieve_documents(*args, **kwargs):
+        raise RuntimeError("RAG unavailable")
+
+    import app.services.medical_rag_service as medical_rag_service
+
+    monkeypatch.setattr(medical_rag_service, "retrieve_documents", fake_retrieve_documents)
+
+    response = symptom_checker_service.attach_medical_rag_related_conditions_to_assessment(assessment)
+
+    assert response["candidates"] == assessment["candidates"]
+    assert response["rag_related_conditions"] == []
+    assert response["medical_rag_metadata"]["used"] is False
+    assert response["medical_rag_metadata"]["fallback_reason"] == "medical_rag_error"
+
+
+def test_assess_endpoint_merges_rag_candidates_before_explanation(monkeypatch):
+    request = make_assessment_request(
+        body_region="head_face",
+        symptoms=[{"code": "pain", "severity": 7}],
+    )
+    called = {}
+
+    def fake_attach_medical_rag(rule_result):
+        called["has_explanations"] = "explanations" in rule_result
+        return {
+            **rule_result,
+            "rag_related_conditions": [
+                {
+                    "condition_name": "Headache",
+                    "display_name": "Headache",
+                    "source": "NHS",
+                    "category": "질병",
+                    "topic": "Headache",
+                    "title": "Headache",
+                    "url": "https://example.test/headache",
+                    "matched_basis": "medical_rag_retrieval",
+                    "rank": 1,
+                    "used_for_main_ranking": False,
+                    "disclaimer": "검색된 의료 문서 기반 참고 후보이며 확정 진단이 아닙니다.",
+                }
+            ],
+            "medical_rag_metadata": {
+                "enabled": True,
+                "used": True,
+                "fallback_reason": None,
+                "query": "head pain",
+                "top_k": 5,
+                "source_policy": "kdca_nhs_mayo_retrieval_only",
+                "used_for_main_ranking": False,
+            },
+        }
+
+    monkeypatch.setattr(
+        symptom_checker_service,
+        "attach_medical_rag_related_conditions_to_assessment",
+        fake_attach_medical_rag,
+    )
+
+    response = assess_symptoms_endpoint(
+        request,
+        include_explanation=True,
+        include_rag_candidates=True,
+    )
+
+    assert called["has_explanations"] is False
+    assert response["explanations"]
+    assert response["rag_related_conditions"][0]["display_name"] == "Headache"
+    assert response["medical_rag_metadata"]["used_for_main_ranking"] is False
+
+
 def test_assess_symptoms_requires_profile_for_guest_flow():
     request = SymptomAssessRequest(
         body_region="head_face",
@@ -3855,6 +4259,27 @@ def test_exertional_chest_pain_relieved_by_rest_does_not_trigger_red_flag_by_its
     response = assess_symptoms(request)
 
     assert response["red_flags"] == []
+
+
+def test_sudden_unilateral_chest_pain_with_dyspnea_context_triggers_safety_red_flag():
+    request = make_assessment_request(
+        body_region="chest",
+        body_part="upper_chest",
+        symptoms=[
+            {"code": "pain", "severity": 7},
+        ],
+        contexts={
+            "sudden_unilateral_chest_pain_with_dyspnea": True,
+        },
+    )
+
+    response = assess_symptoms(request)
+
+    assert response["red_flags"][0]["code"] == "chest_pain_with_shortness_of_breath"
+    assert response["red_flags"][0]["triggered_by"] == [
+        "sudden_unilateral_chest_pain_with_dyspnea",
+        "pain",
+    ]
 
 
 def test_chest_safety_contexts_are_included_when_core_chest_red_flag_triggers():
