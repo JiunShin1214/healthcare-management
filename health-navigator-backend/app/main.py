@@ -6,6 +6,7 @@ from app.routers.health_check import router as health_check_router
 from app.routers.auth import router as auth_router
 from app.routers.symptom_checker import gemini_router, router as symptom_checker_router
 from app.routers import drugs
+from app.routers import medical_rag
 from app.models import user
 from app.models import user_medication
 from app.models import drug
@@ -25,6 +26,7 @@ app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(symptom_checker_router)
 app.include_router(gemini_router)
 app.include_router(drugs.router)
+app.include_router(medical_rag.router)
 app.include_router(reward.router)
 
 

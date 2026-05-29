@@ -674,77 +674,178 @@ RAG 성공 기준:
 - red flag 설명은 다른 red flag 설명으로 잘못 붙으면 안 됩니다.
 - RAG는 `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`을 바꾸지 않습니다.
 
-## LLM 이전 1차 기능 완성 TODO
+## 다음 TODO: 세부 부위별 입력 재설계와 서술형 구조화
 
-1차 완료는 LLM이 자연어 답변을 생성하기 전 단계까지의 데이터가 안정적으로 만들어지는 상태로 정의합니다. 이 단계의 산출물은 JSON이며, LLM은 아직 호출하지 않습니다.
+기존 1차 완료 TODO는 LLM 이전 JSON 흐름, RAG fallback, KM-BERT 실행 계약을 검증하는 단계였다. 해당 단계는 완료된 기준선으로 두고, 다음 작업은 기능의 입력 품질을 다시 설계하는 것으로 전환한다.
 
-완료 기준:
+이번 단계의 핵심은 두 가지다.
 
-- `/symptom-checker/structure` 또는 `/symptom-checker/assessment-draft`가 사용자 입력을 평가 가능한 내부 code 후보와 평가 요청 초안으로 만든다.
-- `/symptom-checker/assess`와 `/symptom-checker/assess/me`가 `red_flags`, `candidates`, `profile`, `disclaimer`를 반환한다.
-- `/symptom-checker/assess?include_explanation=true`, `/symptom-checker/assess/me?include_explanation=true`, `/symptom-checker/explain`이 `explanations`, `source_refs`, `generated_summary_ko`, `safety`, `provider_metadata`를 붙인다.
-- RAG는 SQLite vector store에 저장된 reviewed 설명 카드 embedding을 검색/정렬 보조로만 사용하고, 판단값을 바꾸지 않는다.
-- KM-BERT 구조화 모델은 선택형/보조 경로로만 동작하며, 꺼져 있거나 실패해도 alias/whitelist fallback으로 기능이 죽지 않는다.
-- Swagger와 자동 테스트에서 대표 시나리오가 LLM 없이 끝까지 실행된다.
+1. 큰 부위와 세부 부위별 증상, 질문, context를 일일이 다시 작성한다.
+2. 서술형 입력을 사용자의 개인 상황 context로 구조화해 선택형 입력과 안전하게 병합한다.
 
-진행 상태:
+질환 후보 도출은 `질문 1개 = 질환 1개` 방식으로 만들지 않는다. 증상 선택, 세부 질문 답변, 서술형 구조화 결과가 각각 내부 `symptom_code`/`context_code` evidence를 만들고, rule engine은 이 evidence 조합을 질환 후보별 조건과 점수로 평가한다. 단일 질문은 후보 점수를 올리는 근거일 뿐이며, 최종 응답은 여러 evidence를 종합한 `가능 질환 후보`, `근거`, `부족한 확인 질문`, `red_flags`로 반환한다.
 
-| 항목 | 상태 | 확인 방법 |
+질환 후보 수 확장, BERT 성능 개선, vector DB 검색 품질 개선은 이번 단계의 1차 목표가 아니다. 후보와 위험 신호는 계속 rule engine이 만들고, LLM/BERT/RAG는 입력 구조화 또는 설명 보조에만 사용한다.
+
+### 입력 구조 재정의
+
+입력은 다음 네 층으로 나눈다.
+
+| 층 | 역할 | 예시 |
 | --- | --- | --- |
-| 대표 시나리오 fixture | 완료 | `tests/test_symptom_checker_first_pass_completion.py` |
-| LLM 이전 데이터 완성도 smoke 검증 | 완료 | 대표 8개 시나리오에서 structure/draft/assess/explain 흐름 검증 |
-| RAG vector store 계약 검증 | 완료 | SQLite store schema, document count, embedding count, vector ordering, fallback 검증 |
-| KM-BERT 보조 경로 실행 계약 검증 | 완료 | disabled fallback 및 enabled fake provider whitelist 검증 |
-| LLM handoff payload 계약 | 완료 | provider payload/prompt가 판단값 변경 금지를 유지하는지 검증 |
-| Swagger 수동 검증 | 완료 | `/docs`, `/openapi.json`, `/`, symptom checker path 노출 확인 |
-| 1차 완료 보고 | 완료 | 이 문서의 latest local verification에 결과 기록 |
+| Anatomy | 큰 부위와 세부 부위 | `arm_hand`, `wrist` |
+| Symptoms | 해당 세부 부위에서 흔한 직접 증상 | 통증, 붓기, 저림, 움직임 제한 |
+| Guided Context | 세부 부위와 증상에 맞는 빠른 질문 | 외상 후 시작, 반복 사용, 손끝 색 변화 |
+| Free Text Context | 사용자의 개인 설명 | 약 복용, 굴 섭취, 기저질환, 자기 추측 |
 
-완료된 1차 TODO:
+### Context taxonomy
 
-1. 대표 시나리오 fixture를 확정했다.
-   - 흉통+숨참, 시야 변화, 두통+신경학적 맥락, 복통+혈변, 낙상 후 변형, 알레르기/입술 부종, 전신 피로/어지럼, 낮은 위험도 단순 증상을 포함한다.
-   - 각 시나리오는 입력 payload와 최소 기대값(`body_region`, 주요 symptom/context, red flag 필요 여부, candidate 최소 개수, explanation 존재 여부)을 가진다.
-2. LLM 이전 데이터 완성도 smoke 검증을 추가했다.
-   - `/structure`, `/assessment-draft`, `/assess`, `/assess?include_explanation=true`, `/explain` 흐름을 대표 시나리오로 확인한다.
-   - 검증 목표는 성능 최적화가 아니라 실행 완성도, 필수 필드 존재, fallback, judgment mutation 방지다.
-3. RAG vector store 계약을 검증했다.
-   - `app/data/processed/explanation_vector_store.sqlite`에 `explanation_documents`가 존재하고, 문서 수와 embedding 수가 일치하는지 확인한다.
-   - vector search가 가능할 때 설명 카드 순서만 보조하고, store가 없거나 embedding model load에 실패해도 카드 기반 fallback이 동작하는지 확인한다.
-   - RAG 적용 전후 `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`이 동일한지 확인한다.
-4. KM-BERT 보조 경로 실행 계약을 검증했다.
-   - `MEDICAL_BERT_STRUCTURE_ENABLED=false`일 때 `/structure/medical-bert`와 `/assessment-draft/medical-bert`가 안전하게 fallback하는지 확인한다.
-   - 로컬 모델 artifact가 있고 명시적으로 enable된 경우 provider metadata가 `used: true`로 내려오고, 출력 후보가 whitelist 검증을 통과하는지 확인한다.
-   - 이 단계에서는 BERT accuracy/F1 개선을 목표로 하지 않는다.
-5. LLM handoff payload 계약을 고정했다.
-   - LLM에 넘길 수 있는 데이터는 profile/source, red flag 요약, candidate 요약, RAG context, safety/must-not-claim 범위로 제한한다.
-   - LLM이 새 판단값을 만들거나 바꿀 수 없도록 provider payload/prompt builder 테스트를 유지한다.
-   - 실제 LLM 호출과 문장 품질 개선은 1차 완료 이후로 미룬다.
-6. Swagger 수동 검증 체크리스트를 최신화했다.
-   - `/docs` 로드, `/` health 응답, symptom checker endpoint 노출, 대표 payload 실행 결과를 확인한다.
-   - DB/OCR/secret이 필요한 endpoint와 무관한 증상탐색 검증은 외부 의존성 없이 진행한다.
-7. 1차 완료 보고를 작성했다.
-   - 자동 테스트 결과, Swagger 검증 결과, RAG vector store 상태, KM-BERT fallback/enable 상태, 남은 성능 개선 항목을 분리해 기록한다.
+context code는 한 덩어리로 다루지 않고 아래 범주로 재분류한다.
 
-1차 완료에서 제외:
+| category | 예시 |
+| --- | --- |
+| `lifestyle` | 음주, 수면 부족, 스트레스, 과식 |
+| `exposure` | 굴/조개/날음식, 감염자 접촉, 새 화장품, 알레르기 노출 |
+| `injury_or_use` | 넘어짐, 부딪힘, 꺾임, 반복 사용, 무거운 물건 |
+| `pattern` | 갑작스러운 시작, 점점 악화, 반복됨, 식후 악화 |
+| `safety` | 호흡곤란, 의식 변화, 혈변, 시야 상실, 말단 색 변화 |
+| `medication` | 최근 복용약, 평소 복용약, 약 복용 후 변화 |
+| `medical_history` | 고혈압, 당뇨, 천식, 위염, 임신 가능성 |
+| `time_course` | 어제부터, 3일째, 갑자기, 반복적으로 |
 
-- LLM 자연어 답변 생성
-- BERT accuracy/F1 개선과 라벨 증강
-- RAG 검색 품질/문장 품질 튜닝
-- DDXPlus test split 실행
-- 질환별 예외, 특수 가중치, red flag rule 성능 맞춤 수정
-- UI 고도화
+`음주`, `수면 부족`, `과한 운동` 같은 생활 context는 모든 부위에 공통 노출하지 않는다. 예를 들어 수면 부족은 두통이나 전신 피로에서는 의미가 있지만 손가락 통증에는 우선 노출하지 않는다.
 
-Latest local verification:
+### 질문 스키마 개편
 
-| date | status | result |
+질문은 region 공통 목록이 아니라 다음 조건으로 필터링한다.
+
+- `applies_to_region`
+- `applies_to_body_part`
+- `applies_to_symptoms`
+- `purpose`
+- `maps_to_context`
+- `suppress_when`
+- `display_priority`
+
+질문 목적은 `candidate_narrowing`, `red_flag_check`, `context_enrichment`, `free_text_prompt`로 분리한다.
+
+각 질문은 화면 문구와 별도로 `maps_to_context` evidence code를 가져야 한다. 한 질문이 바로 특정 질환을 확정하지 않으며, 여러 질환 후보가 같은 evidence를 공유할 수 있다. 예를 들어 `무릎을 비튼 뒤 시작`, `무릎 잠김`, `계단/쪼그림 악화`, `붓기`가 함께 선택되면 반월상연골 손상 후보 점수가 올라가고, `뚝 소리`, `스포츠 방향 전환`, `빠른 붓기`, `불안정감`이 함께 있으면 인대 손상 후보 점수가 올라가는 식으로 처리한다.
+
+### 세부 부위별 UI spec 진행 상태
+
+세부 부위별 입력 재설계는 큰 부위 단위로 문서를 나누어 진행한다. 사용자가 "todo 이어서 진행" 또는 "다음 부위 진행"이라고 말하면 아래 상태를 기준으로 아직 완료되지 않은 큰 부위를 같은 형식으로 이어간다.
+
+### 공통 적용 기준: 후보 통합 UI와 질문 중복 최소화
+
+사용자가 "todo 이어서 진행" 또는 "이어서 진행"이라고 말하면 다음 부위에도 아래 기준을 그대로 적용한다.
+
+- 화면 후보는 `display_candidates` 하나로 통합한다.
+- 표시 개수는 Top 5로 제한한다.
+- rule 후보와 Medical RAG 후보를 화면에서 별도 섹션으로 분리하지 않는다.
+- rule evidence와 RAG evidence를 같은 카드 안에 합쳐 표시한다.
+- rule 후보를 무조건 우선하지 않는다. 선택 증상/질문 근거, RAG 검색 거리, 중복 evidence 병합 여부를 함께 사용해 표시 순서를 정한다.
+- red flag는 후보 카드와 분리된 안전 레이어로 최상단에 표시하며 개수 제한을 두지 않는다.
+- 같은 context code를 묻는 질문은 한 세부 부위 안에서 한 번만 노출한다.
+- 큰 부위 공통 질문보다 세부 부위 spec 질문을 우선한다.
+- RAG 단독 후보는 참고 후보로 표시할 수 있지만, distance가 낮고 부위/증상 맥락이 맞는 경우에만 Top 5 경쟁에 넣는다.
+- 카드에는 `rule`, `Medical RAG`, `source`, `진단 아님` 같은 출처/한계 표시를 남긴다.
+
+완료:
+
+- `arm_hand`: `docs/SYMPTOM_CHECKER_ARM_HAND_UI_SPEC.md`
+- `leg_foot`: `docs/SYMPTOM_CHECKER_LEG_FOOT_UI_SPEC.md`
+- misc 묶음: `docs/SYMPTOM_CHECKER_MISC_BODY_UI_SPEC.md`
+  - 목
+  - 고관절
+  - 직장/항문
+  - 피부
+  - 전신/일반
+
+남은 큰 부위:
+
+- `head_face`
+- `eye`
+- `ear_nose_throat`
+- `chest`
+- `abdomen`
+- `pelvis_urinary`
+- `back_waist`
+
+권장 진행 순서:
+
+1. `head_face`
+2. `ear_nose_throat`
+3. `eye`
+4. `back_waist`
+5. `chest`
+6. `abdomen`
+7. `pelvis_urinary`
+
+각 세부 부위는 아래 형식으로 작성한다.
+
+1. 가능 질환 후보
+2. 가능 질환 후보별 evidence
+3. 질문별 evidence 매핑
+4. 사용자 화면 리스트
+5. 구현 시 context code 후보
+
+사용자에게 먼저 보여줄 화면 리스트는 항상 아래 파트로 나눈다.
+
+1. 증상
+2. 시작 계기
+3. 시작 양상
+4. 악화 양상
+5. 안전 확인
+6. 추가 설명
+
+질환 후보는 너무 전문적인 질환만 나열하지 않는다. 사용자가 이해할 수 있는 대중적 이름도 함께 포함한다. 예: `신스플린트`, `하지정맥류`, `족저근막염`, `손목터널증후군`, `통풍성 관절염`. 다만 최종 응답 표현은 항상 "가능성" 또는 "위험 신호"로 제한한다.
+
+참고로 기존 `arm_hand` 1차 파일럿 기준은 아래와 같다. 손목, 손, 손가락을 선택했을 때 같은 `pain`이라도 서로 다른 증상 목록, 질문, possible candidate 흐름이 나오게 하는 것이 목표였다.
+
+| body_part | 증상 방향 | 질문 방향 |
 | --- | --- | --- |
-| 2026-05-20 | completed | 1차 시연/검증 패키지 문서화: `docs/SYMPTOM_CHECKER_FIRST_PASS_DEMO.md` |
-| 2026-05-20 | completed | LLM 이전 1차 기능 완성 smoke 검증 추가: 대표 8개 시나리오와 RAG/KM-BERT/LLM handoff 계약 테스트 포함 |
-| 2026-05-20 | completed | `.venv\Scripts\python.exe -m pytest`: 174 passed, 3 warnings |
-| 2026-05-20 | completed | local FastAPI server returned `/docs` 200 with Swagger UI, `/` healthy, and symptom checker endpoints exposed in OpenAPI |
-| 2026-05-20 | skipped | DDXPlus test split remains final-report only; `--include-test` was not run |
+| `wrist` | 통증, 붓기, 저림, 움직임 제한, 힘 빠짐 | 넘어짐/부딪힘, 반복 사용, 변형, 손끝 저림 |
+| `hand` | 통증, 붓기, 저림, 쥐는 힘 저하, 색 변화, 차가움 | 물건을 쥐기 어려움, 외상, 반복 사용, 손끝 색 변화 |
+| `finger` | 통증, 붓기, 뻣뻣함, 저림, 열감, 상처/고름, 색 변화 | 꺾임/찔림, 빨갛게 붓고 열감, 고름, 손끝 색 변화 |
+| `elbow` | 통증, 붓기, 움직임 제한, 저림 | 반복 사용, 부딪힘, 팔을 펴기 어려움 |
+| `arm` | 통증, 저림, 힘 빠짐, 붓기 | 목/어깨에서 내려오는 증상, 외상, 진행하는 힘 빠짐 |
 
-1차 완료 상태를 시연하거나 재검증할 때는 `docs/SYMPTOM_CHECKER_FIRST_PASS_DEMO.md`를 기준 문서로 사용합니다.
+### 서술형 구조화 v2
+
+서술형 입력은 "기타 증상"이 아니라 사용자의 개인 문맥 수집 레이어다. 사용자는 증상, 음식 섭취, 약 복용, 기저질환, 검사 수치, 자기 추측을 여러 문장으로 섞어 적을 수 있다.
+
+구조화 결과는 진단이 아니라 내부 후보 code여야 한다.
+
+```json
+{
+  "body_region_candidates": ["abdomen"],
+  "body_part_candidates": ["whole_abdomen"],
+  "symptom_candidates": ["pain", "diarrhea", "fever"],
+  "context_candidates": ["raw_shellfish_exposure"],
+  "medication_mentions": [],
+  "medical_history_mentions": [],
+  "time_expressions": ["since_last_night", "last_week"],
+  "user_self_guess": ["norovirus"],
+  "uncertain_phrases": []
+}
+```
+
+사용자가 말한 질환명 추측은 `user_self_guess`로 분리하고 후보 생성 근거로 직접 쓰지 않는다. 예를 들어 "노로바이러스일 수도 있을 것 같다"는 문장은 `굴/조개/날음식 섭취`, `설사`, `복통`, `발열`, `기간` 같은 evidence만 판단에 반영한다.
+
+### 새 작업 순서
+
+1. 현재 큰 부위/세부 부위별 증상, 질문, context, 후보 중복률을 감사한다.
+2. context code를 taxonomy 기준으로 재분류한다.
+3. 질문 스키마에 적용 조건과 목적을 추가한다.
+4. 질환 후보별 `required_all`, `required_any`, `supporting`, `less_likely`, `red_flag_exclusions`, `score_weights`를 정의한다.
+5. 각 질문이 어떤 evidence code를 만들고 어떤 후보 점수에 기여하는지 문서화한다.
+6. `arm_hand`와 `leg_foot` 세부 부위별 symptom profile과 질문을 먼저 구현한다.
+7. 서술형 구조화 v2 스키마를 도입한다.
+8. Gemini 구조화 provider는 내부 code 후보만 반환하도록 제한한다.
+9. 손목/손/손가락, 발/발가락/무릎, 복부 음식 노출 예시를 포함한 golden set을 만든다.
+10. 기존 pytest와 부위별 시나리오 테스트로 검증한다.
+
+상세 계획은 `docs/SYMPTOM_CHECKER_NEXT_PASS_PLAN.md`를 기준 문서로 사용한다.
 
 API 확장 순서:
 

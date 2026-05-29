@@ -21,6 +21,8 @@ http://localhost:8000/docs
 | POST | `/health-check/ocr` | 건강검진표 OCR 및 파싱 |
 | POST | `/health-check/results` | 로그인 사용자 기준 OCR 결과 저장 |
 | PATCH | `/health-check/results/{result_id}` | 저장된 OCR 결과 수정 및 재판정 |
+| POST | `/health-check/rag-card` | 저장 전 OCR 파싱 결과 `data` 기반 건강검진 RAG 설명 카드 생성 |
+| POST | `/health-check/results/{result_id}/rag-card` | 저장된 건강검진 결과 기반 RAG 설명 카드 생성 |
 | GET | `/symptom-checker/body-regions` | 인체 UI의 큰 부위 목록 조회 |
 | GET | `/symptom-checker/contexts` | 증상 평가에 사용할 컨텍스트 선택지 조회 |
 | GET | `/symptom-checker/body-regions/{region_id}/symptoms` | 특정 큰 부위의 세부 부위와 증상 선택지 조회 |
@@ -30,8 +32,13 @@ http://localhost:8000/docs
 | POST | `/symptom-checker/assessment-draft` | 서술형 입력 구조화 결과를 `/assess` 요청 초안으로 변환 |
 | POST | `/symptom-checker/assessment-draft/medical-bert` | 로컬 의료 BERT 후보를 `/assess` 요청 초안으로 병합 |
 | POST | `/symptom-checker/explain` | 기존 증상 평가 결과에 검수된 설명 카드와 안전 metadata를 추가 |
-| POST | `/symptom-checker/assess` | 비로그인 사용자의 성별, 생년월일, 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 RAG 설명 카드도 함께 반환 |
-| POST | `/symptom-checker/assess/me` | 로그인 사용자 정보와 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 RAG 설명 카드도 함께 반환 |
+| POST | `/symptom-checker/assess` | 비로그인 사용자의 성별, 생년월일, 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 검수 설명 카드, `include_rag_candidates=true`이면 Medical RAG 보조 후보도 함께 반환 |
+| POST | `/symptom-checker/assess/me` | 로그인 사용자 정보와 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 검수 설명 카드, `include_rag_candidates=true`이면 Medical RAG 보조 후보도 함께 반환 |
+| GET | `/medical-rag/health` | 의료 문서 RAG 설정과 Chroma 컬렉션 상태 확인 |
+| POST | `/medical-rag/search` | KDCA, NHS, Mayo Clinic 의료 문서 벡터 검색 |
+| POST | `/medical-rag/answer` | 검색된 의료 문서를 근거로 안전 제약이 포함된 답변 생성 |
+| POST | `/medical-rag/card` | 검색된 의료 문서를 근거로 카드 UI용 구조화 JSON 생성 |
+| POST | `/medical-rag/health-check-card` | 건강검진 OCR JSON과 선택적 rule 소견을 근거로 카드 UI용 구조화 JSON 생성 |
 | GET | `/drugs` | 의약품 목록 조회 |
 | GET | `/drugs/autocomplete` | 의약품 검색 자동완성 |
 | GET | `/drugs/search` | 의약품 검색 |
@@ -62,8 +69,8 @@ endpoint는 다음과 같습니다.
 | POST | `/symptom-checker/assessment-draft` | 구조화 후보를 선택형 평가 요청 초안으로 변환 |
 | POST | `/symptom-checker/assessment-draft/medical-bert` | 로컬 의료 BERT 후보를 선택형 평가 요청 초안으로 병합 |
 | POST | `/symptom-checker/explain` | `/assess` 또는 `/assess/me` 결과를 바꾸지 않고 검수된 설명 카드만 추가 |
-| POST | `/symptom-checker/assess` | 비로그인 사용자의 성별, 생년월일, 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 RAG 설명 카드도 함께 반환 |
-| POST | `/symptom-checker/assess/me` | 로그인 사용자 정보와 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 RAG 설명 카드도 함께 반환 |
+| POST | `/symptom-checker/assess` | 비로그인 사용자의 성별, 생년월일, 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 검수 설명 카드, `include_rag_candidates=true`이면 Medical RAG 보조 후보도 함께 반환 |
+| POST | `/symptom-checker/assess/me` | 로그인 사용자 정보와 선택한 부위, 증상, 강도, 컨텍스트 기반 질환 후보 조회. `include_explanation=true`이면 검수 설명 카드, `include_rag_candidates=true`이면 Medical RAG 보조 후보도 함께 반환 |
 
 `/symptom-checker/structure`는 외부 모델을 직접 호출하지 않습니다. 모델이나 alias dictionary가 만든 `body_region`, `symptom_candidates`, `context_candidates` 후보를 내부 whitelist로 검증하고, `condition_candidates`, `red_flags`, `confidence`, `severity`, `diagnosis`, `treatment` 같은 판단 필드는 무시합니다. 실제 판단은 `/assess`의 rule engine에서만 수행합니다.
 
@@ -156,6 +163,8 @@ endpoint는 다음과 같습니다.
 ```
 
 `/symptom-checker/assess?include_explanation=true`와 `/symptom-checker/assess/me?include_explanation=true`는 평가 결과에 검수된 내부 RAG 설명 카드를 바로 붙여 반환합니다. RAG 설명은 이미 생성된 `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`을 만들거나 바꾸지 않습니다. 응답에는 `explanations`, `explanation_safety`, `generated_summary_ko`, `provider_metadata`가 추가됩니다.
+
+`include_rag_candidates=true`를 함께 보내면 공용 Medical RAG의 검색 결과를 `rag_related_conditions` 보조 후보로 추가합니다. 이 후보는 `candidates` 랭킹이나 red flag 판단을 바꾸지 않으며, 실패해도 기본 평가 응답은 유지됩니다.
 
 `/symptom-checker/explain`은 별도 설명 조회가 필요할 때 사용하는 endpoint입니다. 기본 API 경로에서는 외부 LLM/provider를 호출하지 않습니다. `/assess` 또는 `/assess/me`가 만든 평가 결과를 입력으로 받아 검수된 내부 설명 카드와 안전한 기본 요약을 붙이며, `red_flags`, `candidates`, `confidence`, `severity`, `suggested_action`을 생성하거나 수정하지 않습니다. 내부 구현에는 provider adapter가 사용할 RAG context builder, 최소 provider payload/prompt builder, 안전 필터가 준비되어 있으며, 향후 provider 출력은 금지 표현 검사 후 최대 700자의 `generated_summary_ko`에만 실릴 수 있습니다.
 

@@ -12,6 +12,8 @@ pymysql
 cryptography
 pytest
 google-genai
+chromadb
+openai
 torch
 transformers
 sentence-transformers

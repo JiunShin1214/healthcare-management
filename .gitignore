@@ -203,6 +203,12 @@ cython_debug/
 
 # Local model/cache artifacts
 .model-cache/
+rag-test handoff/
+chroma_db/
+**/chroma_db/
+__MACOSX/
+.DS_Store
+**/.DS_Store
 
 # Generated documents and local planning/demo artifacts
 extracted_docs/
@@ -210,6 +216,7 @@ docs/*.html
 docs/*DEMO*.md
 docs/*PLAN*.md
 docs/*POLICY*.md
+docs/*_UI_SPEC.md
 
 # Local/raw dataset drops. Keep reviewed runtime seed data in app/data tracked.
 health-navigator-backend/app/data/raw/release_*

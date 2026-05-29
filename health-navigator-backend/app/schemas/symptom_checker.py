@@ -107,6 +107,10 @@ class FollowUpQuestionResponse(BaseModel):
     input_type: Literal["single_select", "multi_select", "number", "text"]
     purpose: ContextUsage
     options: List[FollowUpQuestionOptionResponse] = Field(default_factory=list)
+    show_if_contexts: List[str] = Field(default_factory=list)
+    min_age: Optional[int] = None
+    suggested_for_gender: Optional[Gender] = None
+    applicability_note: Optional[str] = None
 
 
 class ContextGuideResponse(BaseModel):
@@ -397,6 +401,53 @@ class PossibleConditionCandidateResponse(BaseModel):
     reason: str
 
 
+class RagRelatedConditionResponse(BaseModel):
+    condition_name: str
+    display_name: str
+    summary: str = ""
+    content_excerpt: str = ""
+    distance: Optional[float] = None
+    source: str = ""
+    category: str = ""
+    topic: str = ""
+    title: str = ""
+    url: str = ""
+    matched_basis: Literal["medical_rag_retrieval"] = "medical_rag_retrieval"
+    rank: int
+    used_for_main_ranking: bool = False
+    disclaimer: str = "검색된 의료 문서 기반 참고 후보이며 확정 진단이 아닙니다."
+
+
+class DisplayCandidateResponse(BaseModel):
+    title: str
+    summary: str = ""
+    risk_level: str = "참고"
+    rank: int
+    display_score: float
+    source_type: Literal["rule", "medical_rag", "rule+medical_rag"] = "rule"
+    source_badges: List[str] = Field(default_factory=list)
+    evidence_sources: List[Literal["rule", "medical_rag"]] = Field(default_factory=list)
+    matched_reasons: List[str] = Field(default_factory=list)
+    rag_evidence: List[RagRelatedConditionResponse] = Field(default_factory=list)
+    next_steps: List[str] = Field(default_factory=list)
+    source_note: str = ""
+
+
+class MedicalRagMetadataResponse(BaseModel):
+    enabled: bool = False
+    used: bool = False
+    fallback_reason: Optional[str] = None
+    error_type: Optional[str] = None
+    query: Optional[str] = None
+    top_k: int = 0
+    retrieval_top_k: int = 0
+    related_condition_count: int = 0
+    display_candidate_count: int = 0
+    source_policy: str = "kdca_nhs_mayo_retrieval_only"
+    used_for_main_ranking: bool = False
+    used_for_display_ranking: bool = False
+
+
 class AssessmentProfileResponse(BaseModel):
     gender: Gender
     birth_date: date
@@ -434,6 +485,9 @@ class SymptomAssessResponse(BaseModel):
     red_flags: List[RedFlagResponse]
     candidates: List[ConditionCandidateResponse]
     possible_candidates: List[PossibleConditionCandidateResponse] = Field(default_factory=list)
+    display_candidates: List[DisplayCandidateResponse] = Field(default_factory=list)
+    rag_related_conditions: List[RagRelatedConditionResponse] = Field(default_factory=list)
+    medical_rag_metadata: MedicalRagMetadataResponse = Field(default_factory=MedicalRagMetadataResponse)
     missing_evidence_questions: List[str] = Field(default_factory=list)
 
 
@@ -496,6 +550,9 @@ class GeminiCandidateInput(BaseModel):
     display_name_ko: str
     confidence: Optional[ConfidenceLevel] = None
     matched_evidence: List[str] = Field(default_factory=list)
+    evidence_summary: Optional[str] = None
+    risk_level: Optional[str] = None
+    source_note: Optional[str] = None
     red_flags: List[str] = Field(default_factory=list)
     recommendation: Optional[str] = None
 
@@ -522,5 +579,6 @@ class GeminiSymptomExplainResponse(BaseModel):
     candidate_explanations: List[GeminiCandidateExplanationResponse] = Field(default_factory=list)
     red_flags: List[str] = Field(default_factory=list)
     recommendation: Optional[str] = None
-    final_notice: str = "정확한 진단은 의료진 상담이 필요합니다."
+    next_steps: List[str] = Field(default_factory=list)
+    final_notice: str = "이 설명지는 정확한 진단이 아닌 참고용 정보입니다. 정확한 진단은 의료진 상담이 필요합니다."
 
