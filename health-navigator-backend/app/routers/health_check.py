@@ -16,6 +16,7 @@ from app.services.health_check_service import (
     create_health_check_result,
     generate_health_check_rag_card_from_data,
     generate_health_check_rag_card_from_result,
+    get_health_check_result,
     update_health_check_result,
 )
 from app.services.ocr_service import call_clova_ocr
@@ -114,6 +115,31 @@ def save_health_check_result(
         user_id=current_user.id,
         result_data=req
     )
+
+
+@router.get(
+    "/results/{result_id}",
+    response_model=HealthCheckResultResponse,
+    summary="Saved health check OCR result lookup",
+)
+def read_health_check_result(
+    result_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    result = get_health_check_result(
+        db=db,
+        user_id=current_user.id,
+        result_id=result_id,
+    )
+
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Health check result not found.",
+        )
+
+    return result
 
 
 @router.patch(
