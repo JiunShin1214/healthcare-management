@@ -166,6 +166,40 @@ def get_health_check_result(
     )
 
 
+def delete_health_check_result(
+    db: Session,
+    user_id: int,
+    result_id: int
+) -> dict | None:
+    result = get_health_check_result(
+        db=db,
+        user_id=user_id,
+        result_id=result_id
+    )
+
+    if result is None:
+        return None
+
+    deleted_result = {
+        "id": result.id,
+        "user_id": result.user_id,
+        "extracted_text": result.extracted_text,
+        "parsing_status": result.parsing_status,
+        "missing_fields": result.missing_fields,
+        "data": result.data,
+        "original_data": result.original_data,
+        "edited_data": result.edited_data,
+        "is_edited": result.is_edited,
+        "created_at": result.created_at,
+        "updated_at": result.updated_at,
+    }
+
+    db.delete(result)
+    db.commit()
+
+    return deleted_result
+
+
 def update_health_check_result(
     db: Session,
     user_id: int,
