@@ -1,4 +1,5 @@
 ﻿import json
+import re
 from pathlib import Path
 from typing import Protocol
 from datetime import date
@@ -81,6 +82,68 @@ MAX_PROVIDER_GENERATED_SUMMARY_CHARS = 700
 MAX_MEDICAL_RAG_RELATED_CONDITIONS = 5
 MAX_DISPLAY_CANDIDATES = 5
 MAX_CONTEXT_GUIDE_FOLLOW_UP_QUESTIONS = 6
+ENGLISH_CONDITION_NAME_KO = {
+    "Possible Achilles tendinitis": "아킬레스건염 가능성",
+    "Possible TMJ or chewing muscle pain": "턱관절/저작근 통증 가능성",
+    "Possible acne": "여드름 가능성",
+    "Possible ankle overuse tendinitis": "발목 과사용 힘줄염 가능성",
+    "Possible appendicitis-related symptoms": "충수염 관련 증상 가능성",
+    "Possible arm muscle strain": "팔 근육 긴장 가능성",
+    "Possible asthma-like airway symptoms": "천식 유사 기도 증상 가능성",
+    "Possible blepharitis": "안검염 가능성",
+    "Possible canker sores": "구내염 가능성",
+    "Possible cataract symptoms": "백내장 관련 증상 가능성",
+    "Possible cervical osteoarthritis": "경추 골관절염 가능성",
+    "Possible cluster headache": "군발두통 가능성",
+    "Possible corneal irritation or injury": "각막 자극/손상 가능성",
+    "Possible costochondritis-related chest wall pain": "늑연골염 관련 흉벽 통증 가능성",
+    "Possible dehydration": "탈수 가능성",
+    "Possible diabetes-related symptoms": "당뇨 관련 증상 가능성",
+    "Possible eczema": "습진 가능성",
+    "Possible elbow peripheral nerve irritation": "팔꿈치 말초신경 자극 가능성",
+    "Possible endometriosis-related pelvic pain": "자궁내막증 관련 골반 통증 가능성",
+    "Possible eustachian tube dysfunction": "이관 기능 장애 가능성",
+    "Possible fibromyalgia-related neck or shoulder symptoms": "섬유근육통 관련 목/어깨 증상 가능성",
+    "Possible foot or ankle tendinitis": "발/발목 힘줄염 가능성",
+    "Possible frozen shoulder": "오십견 가능성",
+    "Possible gallstone-related symptoms": "담석 관련 증상 가능성",
+    "Possible ganglion cyst": "결절종 가능성",
+    "Possible glaucoma symptoms": "녹내장 관련 증상 가능성",
+    "Possible gout-related lower limb symptoms": "통풍 관련 하지 증상 가능성",
+    "Possible impetigo": "농가진 가능성",
+    "Possible interstitial cystitis": "간질성 방광염 가능성",
+    "Possible irritable bowel syndrome symptoms": "과민성 장증후군 관련 증상 가능성",
+    "Possible kidney stone-related symptoms": "요로결석 관련 증상 가능성",
+    "Possible laryngitis-related throat symptoms": "후두염 관련 목 증상 가능성",
+    "Possible lumbar spinal stenosis symptoms": "요추 척추관협착증 관련 증상 가능성",
+    "Possible mouth sore irritation": "입안 염증/자극 가능성",
+    "Possible neck and shoulder muscle strain": "목/어깨 근육 긴장 가능성",
+    "Possible overactive bladder-related urinary frequency": "과민성 방광 관련 빈뇨 가능성",
+    "Possible pancreatitis-related symptoms": "췌장염 관련 증상 가능성",
+    "Possible pleurisy-related symptoms": "흉막염 관련 증상 가능성",
+    "Possible pneumonia-related symptoms": "폐렴 관련 증상 가능성",
+    "Possible prostatitis-related urinary or pelvic symptoms": "전립선염 관련 배뇨/골반 증상 가능성",
+    "Possible psoriasis": "건선 가능성",
+    "Possible retinal detachment symptoms": "망막박리 관련 증상 가능성",
+    "Possible rib contusion or injury": "갈비뼈 타박/손상 가능성",
+    "Possible sacroiliac joint pain": "천장관절 통증 가능성",
+    "Possible salivary gland swelling or irritation": "침샘 붓기/자극 가능성",
+    "Possible shingles": "대상포진 가능성",
+    "Possible shoulder bursitis": "어깨 점액낭염 가능성",
+    "Possible sleep apnea-related fatigue": "수면무호흡 관련 피로 가능성",
+    "Possible tailbone ligament strain": "꼬리뼈 인대 긴장 가능성",
+    "Possible tailbone trauma or coccydynia": "꼬리뼈 외상/미골통 가능성",
+    "Possible thigh muscle strain": "허벅지 근육 긴장 가능성",
+    "Possible thyroid function change symptoms": "갑상샘 기능 변화 관련 증상 가능성",
+    "Possible tonsillitis or pharyngitis": "편도염/인두염 가능성",
+    "Possible toothache or dental abscess": "치통/치근단 농양 가능성",
+    "Possible trigeminal neuralgia": "삼차신경통 가능성",
+    "Possible trigger finger": "방아쇠수지 가능성",
+    "Possible unintentional weight change review": "의도치 않은 체중 변화 확인 필요",
+    "Possible upper back postural muscle strain": "등 위쪽 자세성 근육 긴장 가능성",
+    "Possible vaginitis": "질염 가능성",
+    "Possible wrist tendon overuse symptoms": "손목 힘줄 과사용 증상 가능성",
+}
 COMMON_QUICK_CONTEXT_CODES = {
     "sleep_deprivation",
     "alcohol_yesterday",
@@ -6355,12 +6418,27 @@ def build_medical_rag_query_from_assessment(rule_result: dict) -> str:
     profile = rule_result.get("profile", {})
     body_region = input_analysis.get("body_region")
     body_part = input_analysis.get("body_part")
-    query_parts = [
-        "인체 UI 기반 증상 평가의 관련 질환 참고 문서를 찾아주세요.",
-        _body_region_name(body_region),
-        _body_part_name(body_region, body_part),
-        _profile_summary_for_medical_rag(profile),
-    ]
+    free_text = _optional_text(input_analysis.get("free_text"))
+    query_parts = []
+    if free_text:
+        query_parts.append(free_text)
+        free_text_aliases = _extract_alias_candidates_from_free_text(free_text, body_region=None)
+        inferred_region = free_text_aliases.get("body_region")
+        if inferred_region and inferred_region != body_region:
+            query_parts.append(_body_region_name(inferred_region))
+        inferred_symptom_labels = [
+            _symptom_name(inferred_region, code)
+            for code in free_text_aliases.get("symptom_candidates", [])
+        ]
+        if inferred_symptom_labels:
+            query_parts.append("서술형 추론 증상: " + ", ".join(inferred_symptom_labels))
+    query_parts.extend(
+        [
+            _body_region_name(body_region),
+            _body_part_name(body_region, body_part),
+            _profile_summary_for_medical_rag(profile),
+        ]
+    )
 
     symptom_labels = [
         _symptom_name(body_region, code)
@@ -6374,8 +6452,6 @@ def build_medical_rag_query_from_assessment(rule_result: dict) -> str:
         query_parts.append("증상: " + ", ".join(symptom_labels))
     if context_labels:
         query_parts.append("추가 단서: " + ", ".join(context_labels))
-    if input_analysis.get("free_text"):
-        query_parts.append("사용자 설명: " + str(input_analysis["free_text"]))
 
     for red_flag in rule_result.get("red_flags", [])[:3]:
         query_parts.append(
@@ -6391,26 +6467,18 @@ def build_medical_rag_query_from_assessment(rule_result: dict) -> str:
             )
         )
 
-    for candidate in rule_result.get("candidates", [])[:5]:
-        query_parts.append(
-            "기존 rule 후보: "
-            + " ".join(
-                str(value)
-                for value in [
-                    candidate.get("condition_name"),
-                    candidate.get("summary"),
-                    ", ".join(candidate.get("matched_reasons", [])),
-                ]
-                if value
-            )
-        )
+    if not free_text:
+        for candidate in rule_result.get("candidates", [])[:5]:
+            condition_name = _optional_text(candidate.get("condition_name"))
+            if condition_name:
+                query_parts.append("후보 질환: " + condition_name)
 
     return " / ".join(part for part in query_parts if part).strip()
 
 
 def attach_medical_rag_related_conditions_to_assessment(rule_result: dict, top_k: int = MAX_MEDICAL_RAG_RELATED_CONDITIONS):
     query = build_medical_rag_query_from_assessment(rule_result)
-    retrieval_top_k = max(top_k * 3, 10)
+    retrieval_top_k = max(top_k * 6, 30)
     metadata = _medical_rag_metadata(
         used=False,
         query=query,
@@ -6426,7 +6494,7 @@ def attach_medical_rag_related_conditions_to_assessment(rule_result: dict, top_k
     try:
         from app.services import medical_rag_service
 
-        documents = medical_rag_service.retrieve_documents(query=query, top_k=retrieval_top_k)
+        card = medical_rag_service.generate_rag_card(question=query, top_k=retrieval_top_k)
     except Exception as exc:
         logger.warning("Medical RAG related condition retrieval failed: %s", exc)
         return _assessment_with_medical_rag(
@@ -6439,7 +6507,7 @@ def attach_medical_rag_related_conditions_to_assessment(rule_result: dict, top_k
             },
         )
 
-    related_conditions = _medical_rag_documents_to_related_conditions(documents)
+    related_conditions = _medical_rag_card_to_related_conditions(card)
     return _assessment_with_medical_rag(
         rule_result,
         related_conditions,
@@ -6463,6 +6531,62 @@ def _assessment_with_medical_rag(rule_result: dict, related_conditions: list[dic
             "used_for_display_ranking": bool(related_conditions),
         },
     }
+
+
+def _medical_rag_card_to_related_conditions(card: dict):
+    topics = card.get("possible_related_topics") if isinstance(card, dict) else []
+    if not isinstance(topics, list):
+        topics = []
+    sources = card.get("sources") if isinstance(card, dict) else []
+    if not isinstance(sources, list):
+        sources = []
+    summary = _optional_text(card.get("summary")) if isinstance(card, dict) else ""
+    source_evidence = [
+        {
+            "title": _optional_text(source.get("title")),
+            "source": _optional_text(source.get("source")),
+            "url": _optional_text(source.get("url")),
+            "category": _optional_text(source.get("category")),
+            "topic": _optional_text(source.get("topic")),
+        }
+        for source in sources[:MAX_EXPLANATION_RAG_SOURCES]
+        if isinstance(source, dict)
+    ]
+
+    related_conditions = []
+    seen_keys = set()
+    for topic in topics:
+        display_name = _optional_text(topic)
+        if not display_name:
+            continue
+        key = _display_candidate_key(display_name)
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+        related_conditions.append(
+            {
+                "condition_name": display_name,
+                "display_name": display_name,
+                "summary": summary or "RAG 카드가 사용자 입력과 검색 근거를 바탕으로 정리한 관련 주제입니다.",
+                "content_excerpt": summary or "RAG 카드가 사용자 입력과 검색 근거를 바탕으로 정리한 관련 주제입니다.",
+                "distance": None,
+                "relevance_score": 3,
+                "title_relevance_score": 3,
+                "source": "medical_rag_card",
+                "category": "",
+                "topic": display_name,
+                "title": display_name,
+                "url": "",
+                "matched_basis": "medical_rag_possible_related_topic",
+                "rank": len(related_conditions) + 1,
+                "used_for_main_ranking": False,
+                "disclaimer": MEDICAL_RAG_RELATED_CONDITION_DISCLAIMER,
+                "rag_sources": source_evidence,
+            }
+        )
+        if len(related_conditions) >= MAX_MEDICAL_RAG_RELATED_CONDITIONS:
+            break
+    return related_conditions
 
 
 def _medical_rag_metadata(
@@ -6524,7 +6648,10 @@ def _build_display_candidates(rule_candidates: list[dict], rag_related_condition
         if not title:
             continue
         key = _display_candidate_key(title)
-        rag_score = _rag_display_score(distance)
+        existing_key = _matching_display_candidate_key(merged, title)
+        if existing_key:
+            key = existing_key
+        rag_score = _rag_display_score(distance, rag_condition.get("relevance_score"))
         item = merged.setdefault(key, _empty_display_candidate(title))
         if "rule" not in item["evidence_sources"]:
             item["summary"] = _optional_text(rag_condition.get("summary")) or item["summary"]
@@ -6543,13 +6670,16 @@ def _build_display_candidates(rule_candidates: list[dict], rag_related_condition
         next_steps = _dedupe_preserving_order(step for step in item["next_steps"] if step)[:2]
         source_note = _display_candidate_source_note(evidence_sources)
         source_type = _display_candidate_source_type(evidence_sources)
+        display_score = item["display_score"]
+        if "medical_rag" in evidence_sources:
+            display_score = min(display_score, 0.98 if "rule" in evidence_sources else 0.82)
         display_candidates.append(
             {
                 "title": item["title"],
                 "summary": item["summary"] or "선택한 증상과 참고 문서를 바탕으로 표시된 후보입니다.",
-                "risk_level": _display_candidate_risk_level(item["display_score"], evidence_sources),
+                "risk_level": _display_candidate_risk_level(display_score, evidence_sources),
                 "rank": 0,
-                "display_score": round(item["display_score"], 3),
+                "display_score": round(display_score, 3),
                 "source_type": source_type,
                 "source_badges": _display_candidate_source_badges(evidence_sources),
                 "evidence_sources": evidence_sources,
@@ -6604,7 +6734,9 @@ def _empty_display_candidate(title: str):
     }
 
 
-def _rag_display_score(distance):
+def _rag_display_score(distance, relevance_score=None):
+    if relevance_score is not None and relevance_score >= 3:
+        return 0.72
     if distance is None:
         return 0.66
     if distance > MEDICAL_RAG_DISPLAY_DISTANCE_THRESHOLD:
@@ -6655,6 +6787,49 @@ def _display_candidate_key(title: str):
     return normalized or title.casefold()
 
 
+def _matching_display_candidate_key(merged: dict[str, dict], title: str):
+    title_keys = _display_candidate_alias_keys(title)
+    for existing_key, item in merged.items():
+        existing_title = _optional_text(item.get("title"))
+        existing_keys = _display_candidate_alias_keys(existing_title)
+        if title_keys & existing_keys:
+            return existing_key
+    return None
+
+
+def _display_candidate_alias_keys(title: str):
+    ignored_aliases = {
+        "눈",
+        "코",
+        "귀",
+        "입",
+        "턱",
+        "목",
+        "손",
+        "발",
+        "팔",
+        "다리",
+        "피부",
+        "가슴",
+        "배",
+        "허리",
+        "어깨",
+        "무릎",
+        "증상",
+        "질환",
+    }
+    aliases = {_display_candidate_key(title)}
+    for part in re.split(r"[/·,()（）\[\]\s]+", _optional_text(title)):
+        part = part.strip()
+        if part:
+            aliases.add(_display_candidate_key(part))
+    return {
+        alias
+        for alias in aliases
+        if alias and alias not in ignored_aliases and len(alias) >= 2
+    }
+
+
 def _display_candidate_risk_level(score: float, evidence_sources: list[str]):
     if score >= 0.78 or set(evidence_sources) == {"rule", "medical_rag"}:
         return "주의"
@@ -6687,7 +6862,17 @@ def _display_candidate_source_badges(evidence_sources: list[str]):
     return [labels[source] for source in evidence_sources if source in labels]
 
 
-def _medical_rag_documents_to_related_conditions(documents: list[dict]):
+def _condition_name_ko(condition_name: object):
+    name = _optional_text(condition_name)
+    return ENGLISH_CONDITION_NAME_KO.get(name, name)
+
+
+def _medical_rag_documents_to_related_conditions(
+    documents: list[dict],
+    query: str = "",
+    rule_candidates: list[dict] | None = None,
+):
+    documents = _rank_medical_rag_documents_for_query(documents, query, rule_candidates=rule_candidates)
     related_conditions = []
     seen_keys = set()
     for document in documents:
@@ -6708,6 +6893,8 @@ def _medical_rag_documents_to_related_conditions(documents: list[dict]):
                 "summary": content_excerpt,
                 "content_excerpt": content_excerpt,
                 "distance": document.get("distance"),
+                "relevance_score": document.get("_medical_rag_relevance_score"),
+                "title_relevance_score": document.get("_medical_rag_title_relevance_score"),
                 "source": _optional_text(document.get("source")) or "",
                 "category": _optional_text(document.get("category")) or "",
                 "topic": topic or "",
@@ -6722,6 +6909,178 @@ def _medical_rag_documents_to_related_conditions(documents: list[dict]):
         if len(related_conditions) >= MAX_MEDICAL_RAG_RELATED_CONDITIONS:
             break
     return related_conditions
+
+
+def _rank_medical_rag_documents_for_query(
+    documents: list[dict],
+    query: str,
+    rule_candidates: list[dict] | None = None,
+):
+    query_relevance = _medical_rag_relevance_terms(query)
+    query_tokens = query_relevance["tokens"]
+    query_compact_text = query_relevance["compact_text"]
+    rule_candidate_keys = {
+        _display_candidate_key(title)
+        for title in [
+            _optional_text(candidate.get("condition_name")) or _optional_text(candidate.get("condition_code"))
+            for candidate in (rule_candidates or [])
+        ]
+        if title
+    }
+    if not query_tokens and not rule_candidate_keys:
+        return documents
+
+    ranked_documents = []
+    for original_index, document in enumerate(documents):
+        title_topic = " ".join(
+            part
+            for part in [
+                _optional_text(document.get("topic")),
+                _optional_text(document.get("title")),
+            ]
+            if part
+        )
+        document_text = " ".join(
+            part
+            for part in [
+                title_topic,
+                _optional_text(document.get("category")),
+                _optional_text(document.get("content")),
+            ]
+            if part
+        )
+        title_topic_normalized = _normalize_medical_rag_relevance_text(title_topic)
+        document_text_normalized = _normalize_medical_rag_relevance_text(document_text)
+        document_key = _display_candidate_key(title_topic)
+        title_tokens = _medical_rag_title_tokens(title_topic)
+        title_lexical_score = 0
+        content_lexical_score = 0
+        for token in query_tokens:
+            if token in title_topic_normalized or any(
+                token in title_token or title_token in token
+                for title_token in title_tokens
+            ):
+                title_lexical_score += 3
+            elif token in document_text_normalized:
+                content_lexical_score += 1
+        for title_token in title_tokens:
+            if title_token and title_token in query_compact_text:
+                title_lexical_score += 3
+        if rule_candidate_keys and any(
+            document_key == key or document_key in key or key in document_key
+            for key in rule_candidate_keys
+        ):
+            title_lexical_score += 3
+        lexical_score = title_lexical_score + content_lexical_score
+        distance = document.get("distance")
+        distance_score = 0 if distance is None else max(0, 2 - float(distance))
+        document_with_relevance = {
+            **document,
+            "_medical_rag_relevance_score": lexical_score,
+            "_medical_rag_title_relevance_score": title_lexical_score,
+        }
+        ranked_documents.append(
+            (
+                title_lexical_score <= 0,
+                lexical_score <= 0,
+                -lexical_score,
+                -distance_score,
+                original_index,
+                document_with_relevance,
+            )
+        )
+
+    if any(not item[0] for item in ranked_documents):
+        ranked_documents = [item for item in ranked_documents if not item[0]]
+    elif any(not item[1] for item in ranked_documents):
+        ranked_documents = [item for item in ranked_documents if not item[1]]
+    ranked_documents.sort()
+    return [item[-1] for item in ranked_documents]
+
+
+def _medical_rag_relevance_terms(query: str):
+    free_text_part = query.split(" / ", 1)[0]
+    compact_text = _normalize_medical_rag_relevance_text(free_text_part)
+    stopwords = {
+        "어제",
+        "오늘",
+        "부터",
+        "조금",
+        "계속",
+        "자꾸",
+        "걱정",
+        "느낌",
+        "있습니다",
+        "있어요",
+        "나요",
+        "해요",
+        "했어요",
+        "먹었는데도",
+        "아프고",
+        "아파요",
+    }
+    tokens = set()
+    for token in re.findall(r"[0-9A-Za-z가-힣]+", free_text_part.casefold()):
+        normalized_token = _normalize_medical_rag_token(token)
+        if len(normalized_token) < 2 or normalized_token in stopwords:
+            continue
+        tokens.add(normalized_token)
+    return {"tokens": tokens, "compact_text": compact_text}
+
+
+def _medical_rag_title_tokens(value: object):
+    tokens = set()
+    for token in re.findall(r"[0-9A-Za-z가-힣]+", _optional_text(value).casefold()):
+        normalized_token = _normalize_medical_rag_token(token)
+        if len(normalized_token) >= 2:
+            tokens.add(normalized_token)
+    return tokens
+
+
+def _normalize_medical_rag_token(token: str):
+    normalized = _normalize_medical_rag_relevance_text(token)
+    suffixes = (
+        "인지",
+        "인지요",
+        "인가",
+        "인가요",
+        "이라서",
+        "라서",
+        "으로",
+        "처럼",
+        "부터",
+        "까지",
+        "에도",
+        "에서",
+        "에게",
+        "하고",
+        "하고요",
+        "나요",
+        "해요",
+        "해요",
+        "예요",
+        "이에요",
+        "입니다",
+        "입니다만",
+        "있어요",
+        "있습니다",
+        "먹었는데도",
+        "약을",
+        "약",
+    )
+    changed = True
+    while changed:
+        changed = False
+        for suffix in suffixes:
+            if len(normalized) > len(suffix) + 1 and normalized.endswith(suffix):
+                normalized = normalized[: -len(suffix)]
+                changed = True
+                break
+    return normalized
+
+
+def _normalize_medical_rag_relevance_text(value: object):
+    return "".join(_optional_text(value).casefold().split())
 
 
 def _medical_rag_content_excerpt(content: object, max_length: int = 220):
@@ -6799,6 +7158,9 @@ def explain_symptom_candidates_with_vertex_gemini(request: GeminiSymptomExplainR
     prompt = build_vertex_gemini_symptom_explanation_prompt(request.model_dump())
     result = provider.generate_structured_explanation(prompt)
     final_notice = "이 설명지는 정확한 진단이 아닌 참고용 정보입니다. 정확한 진단은 의료진 상담이 필요합니다."
+    result["candidate_explanations"] = _filter_low_relevance_gemini_candidates(
+        result.get("candidate_explanations")
+    )
     if result.get("final_notice") != final_notice:
         result["final_notice"] = final_notice
     result["explanation"] = _compose_structured_gemini_explanation(result)
@@ -6816,6 +7178,7 @@ def build_vertex_gemini_symptom_explanation_prompt(payload: dict) -> str:
         "body_part는 제목 아래 입력 요약에만 쓰이며, summary에서 같은 내용을 반복하지 않는다.\n"
         "symptoms는 summary에 나열하지 말고 후보별 reason에서 필요한 근거로만 짧게 사용한다.\n"
         "candidate_explanations는 입력 candidates 순서를 유지하고, 각 후보를 하나의 리스트 항목으로 요약한다.\n"
+        "입력 후보의 name, display_name_ko, matched_evidence, evidence_summary, reason, recommendation 중 '관련성이 적습니다', '관련성이 낮습니다', '관련성이 부족합니다'처럼 결과와 관련성이 낮다는 문구가 있으면 그 후보는 candidate_explanations에서 제외한다.\n"
         "candidate_explanations.display_name_ko는 반드시 한국어로 작성한다. 입력 후보명이 영어라면 자연스러운 한국어 질환 후보명으로 번역한다.\n"
         "각 후보 reason은 matched_evidence와 evidence_summary만 근거로 1-2문장으로 쓴다.\n"
         "각 후보 recommendation은 의료기관 방문 권고를 반복하지 말고, 증상 관찰 포인트나 구분에 도움되는 정보만 짧게 쓴다.\n"
@@ -6830,6 +7193,23 @@ def build_vertex_gemini_symptom_explanation_prompt(payload: dict) -> str:
         "입력 JSON:\n"
         f"{json.dumps(payload, ensure_ascii=False, default=str)}"
     )
+
+
+def _filter_low_relevance_gemini_candidates(candidates):
+    low_relevance_phrases = (
+        "관련성이 적습니다",
+        "관련성이 낮습니다",
+        "관련성이 부족합니다",
+        "관련성 낮음",
+        "관련성 부족",
+    )
+    filtered = []
+    for candidate in candidates or []:
+        candidate_text = json.dumps(candidate, ensure_ascii=False, default=str)
+        if any(phrase in candidate_text for phrase in low_relevance_phrases):
+            continue
+        filtered.append(candidate)
+    return filtered
 
 
 def _compose_structured_gemini_explanation(result: dict) -> str:
@@ -7983,7 +8363,7 @@ def _match_condition_candidates(
             {
                 "rule_id": rule.get("rule_id", f"rule_{rule['condition_code']}"),
                 "condition_code": rule["condition_code"],
-                "condition_name": rule["condition_name"],
+                "condition_name": _condition_name_ko(rule["condition_name"]),
                 "confidence": _confidence_from_score(score, rule),
                 "summary": rule.get("summary", DEFAULT_CANDIDATE_SUMMARY),
                 "rationale": rule.get("rationale", "선택한 필수 증상과 보조 증상/컨텍스트가 이 후보의 seed rule과 일치했습니다."),
@@ -8059,7 +8439,7 @@ def _find_possible_condition_candidates(
             {
                 "rule_id": rule.get("rule_id", f"rule_{rule['condition_code']}"),
                 "condition_code": rule["condition_code"],
-                "condition_name": rule["condition_name"],
+                "condition_name": _condition_name_ko(rule["condition_name"]),
                 "matched_evidence": matched_evidence,
                 "missing_required_symptoms": missing_required,
                 "missing_evidence_questions": [
