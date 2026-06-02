@@ -412,7 +412,7 @@ class RagRelatedConditionResponse(BaseModel):
     topic: str = ""
     title: str = ""
     url: str = ""
-    matched_basis: Literal["medical_rag_retrieval"] = "medical_rag_retrieval"
+    matched_basis: Literal["medical_rag_retrieval", "medical_rag_possible_related_topic"] = "medical_rag_retrieval"
     rank: int
     used_for_main_ranking: bool = False
     disclaimer: str = "검색된 의료 문서 기반 참고 후보이며 확정 진단이 아닙니다."
