@@ -7161,6 +7161,9 @@ def explain_symptom_candidates_with_vertex_gemini(request: GeminiSymptomExplainR
     result["candidate_explanations"] = _filter_low_relevance_gemini_candidates(
         result.get("candidate_explanations")
     )
+    result["candidate_explanations"] = _normalize_gemini_candidate_confidence(
+        result.get("candidate_explanations")
+    )
     if result.get("final_notice") != final_notice:
         result["final_notice"] = final_notice
     result["explanation"] = _compose_structured_gemini_explanation(result)
@@ -7210,6 +7213,20 @@ def _filter_low_relevance_gemini_candidates(candidates):
             continue
         filtered.append(candidate)
     return filtered
+
+
+def _normalize_gemini_candidate_confidence(candidates):
+    allowed = {"low", "medium", "high"}
+    normalized = []
+    for candidate in candidates or []:
+        if not isinstance(candidate, dict):
+            continue
+        confidence = candidate.get("confidence")
+        if isinstance(confidence, str):
+            confidence = confidence.strip().lower()
+        candidate["confidence"] = confidence if confidence in allowed else None
+        normalized.append(candidate)
+    return normalized
 
 
 def _compose_structured_gemini_explanation(result: dict) -> str:
